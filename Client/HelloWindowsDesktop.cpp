@@ -33,10 +33,11 @@ HINSTANCE hInst;
 #define ID_BUTTON_8 8 // busiest location
 
 // Search
-#define ID_SEARCH_TIME 9 // busiest location
-#define ID_SEARCH_DAY 10 // enter time
-#define ID_SEARCH_BUTTON 11 // enter day
-#define ID_SEARCH_DATA 12 // enter day
+#define ID_SEARCH_TIME 9 // enter time
+#define ID_SEARCH_DAY 10 // enter day
+#define ID_SEARCH_SORT 11 // enter sort(most, least)
+#define ID_SEARCH_BUTTON 12 // button to commence search
+#define ID_SEARCH_DATA 13 // where search data appears
 
 // Forward declarations of functions included in this code module:
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
@@ -47,7 +48,7 @@ LRESULT CALLBACK SearchProcedure(HWND, UINT, WPARAM, LPARAM);
 
 void DisplaySearch(HWND);
 
-void SendRequest();
+string SendRequest(string);
 
 int CALLBACK WinMain(
     _In_ HINSTANCE hInstance,
@@ -131,35 +132,35 @@ int CALLBACK WinMain(
         180,        // Button width
         150,        // Button heighth
         hWnd,     // Parent window
-        (HMENU) ID_BUTTON_1,       // No menu.
+        (HMENU) ID_BUTTON_1,       
         (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
         NULL
     );      // Pointer not needed.
 
     HWND hwndButton2 = CreateWindow(
         L"BUTTON",  // Predefined class; Unicode assumed //STATIC, Edit
-        L"Search Most Used",      // Button text 
+        L"Search by Time",      // Button text 
         WS_VISIBLE | WS_CHILD,  // Styles 
         650,         // x position 
         300,         // y position 
         180,        // Button width
         150,        // Button heighth
         hWnd,     // Parent window
-        (HMENU)ID_BUTTON_2,       // No menu.
+        (HMENU)ID_BUTTON_2,       
         (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
         NULL
     );      // Pointer not needed.
 
     HWND hwndButton3 = CreateWindow(
         L"BUTTON",  // Predefined class; Unicode assumed //STATIC, Edit
-        L"Search Least Used",      // Button text 
+        L"Search by Location",      // Button text 
         WS_VISIBLE | WS_CHILD,  // Styles 
         1050,         // x position 
         300,         // y position 
         180,        // Button width
         150,        // Button heighth
         hWnd,     // Parent window
-        (HMENU)ID_BUTTON_3,       // No menu.
+        (HMENU)ID_BUTTON_3,       
         (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
         NULL
     );      // Pointer not needed.
@@ -173,7 +174,7 @@ int CALLBACK WinMain(
         180,        // Button width
         150,        // Button heighth
         hWnd,     // Parent window
-        (HMENU)ID_BUTTON_4,       // No menu.
+        (HMENU)ID_BUTTON_4,       
         (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
         NULL
     );      // Pointer not needed.
@@ -187,7 +188,7 @@ int CALLBACK WinMain(
         180,        // Button width
         150,        // Button heighth
         hWnd,     // Parent window
-        (HMENU)ID_BUTTON_5,       // No menu.
+        (HMENU)ID_BUTTON_5,      
         (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
         NULL
     );      // Pointer not needed.
@@ -201,7 +202,7 @@ int CALLBACK WinMain(
         180,        // Button width
         150,        // Button heighth
         hWnd,     // Parent window
-        (HMENU)ID_BUTTON_6,       // No menu.
+        (HMENU)ID_BUTTON_6,       
         (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
         NULL
     );      // Pointer not needed.
@@ -215,7 +216,7 @@ int CALLBACK WinMain(
         180,        // Button width
         150,        // Button heighth
         hWnd,     // Parent window
-        (HMENU)ID_BUTTON_7,       // No menu.
+        (HMENU)ID_BUTTON_7,      
         (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
         NULL
     );      // Pointer not needed.
@@ -229,7 +230,7 @@ int CALLBACK WinMain(
         180,        // Button width
         150,        // Button heighth
         hWnd,     // Parent window
-        (HMENU)ID_BUTTON_8,       // No menu.
+        (HMENU)ID_BUTTON_8,       
         (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
         NULL
     );      // Pointer not needed.
@@ -300,7 +301,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
                         break;
                     case ID_BUTTON_2:
-                        //::MessageBox(hWnd, TEXT("Search Most Used was clicked"), TEXT("CS180 Project"), MB_OK);
+                        //::MessageBox(hWnd, TEXT("Search by Time was clicked"), TEXT("CS180 Project"), MB_OK);
 
                         DisplaySearch(hWnd);
                         //SendRequest();
@@ -308,7 +309,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                         break;
                     case ID_BUTTON_3:
                         ::MessageBeep(MB_ICONERROR);
-                        ::MessageBox(hWnd, TEXT("Search Least Used not yet implemented"), TEXT("CS180 Project"), MB_OK);
+                        ::MessageBox(hWnd, TEXT("Search by Location not yet implemented"), TEXT("CS180 Project"), MB_OK);
 
                         //SendRequest();
 
@@ -378,6 +379,7 @@ void RegisterSearch(HINSTANCE hInstance)
 
 HWND hwndTimeField;
 HWND hwndDayField;
+HWND hwndSortField;
 
 LRESULT CALLBACK SearchProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lp)
 {
@@ -394,10 +396,24 @@ LRESULT CALLBACK SearchProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lp)
                 GetWindowText(hwndTimeField, timeText, 10);
                 wchar_t dayText[10];
                 GetWindowText(hwndDayField, dayText, 10);
+                wchar_t sortText[10];
+                GetWindowText(hwndSortField, sortText, 10);
                 ::MessageBox(hWnd, timeText, TEXT("CS180 Project - Time"), MB_OK);
                 ::MessageBox(hWnd, dayText, TEXT("CS180 Project - Day"), MB_OK);
+                ::MessageBox(hWnd, sortText, TEXT("CS180 Project - Sort"), MB_OK);
 
-                //SendRequest();
+                wstring wsTime(timeText);
+                string strTime(wsTime.begin(), wsTime.end());
+                wstring wsDay(dayText);
+                string strDay(wsDay.begin(), wsDay.end());
+                wstring wsSort(sortText);
+                string strSort(wsSort.begin(), wsSort.end());
+
+                // Server Response
+                string serverMessage = SendRequest("Time: " + strTime + ", Day: " + strDay + ", Sort: " + strSort);
+                wstring wideSM = wstring(serverMessage.begin(), serverMessage.end());
+                const wchar_t* wideCSM = wideSM.c_str();
+                ::MessageBox(hWnd, wideCSM, TEXT("CS180 Project - Server Response"), MB_OK);
 
                 break;
             }
@@ -443,7 +459,7 @@ void DisplaySearch(HWND hWnd)
         400,        // Button width
         50,        // Button heighth
         hWndSearch,     // Parent window
-        (HMENU)ID_SEARCH_TIME,       // No menu.
+        (HMENU)ID_SEARCH_TIME,       
         (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
         NULL
     );      // Pointer not needed.
@@ -471,7 +487,35 @@ void DisplaySearch(HWND hWnd)
         400,        // Button width
         50,        // Button heighth
         hWndSearch,     // Parent window
-        (HMENU)ID_SEARCH_DAY,       // No menu.
+        (HMENU)ID_SEARCH_DAY,       
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );      // Pointer not needed.
+
+    HWND hwndSortLabel = CreateWindow(
+        L"Static",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"Sort By Usage (\"most/least\")",      // Button text 
+        WS_VISIBLE | WS_CHILD | BS_CENTER,  // Styles 
+        1150,         // x position 
+        50,         // y position 
+        400,        // Button width
+        50,        // Button heighth
+        hWndSearch,     // Parent window
+        NULL,       
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );      // Pointer not needed.
+
+    hwndSortField = CreateWindow(
+        L"EDIT",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"",      // Button text 
+        WS_VISIBLE | WS_CHILD | WS_BORDER,  // Styles 
+        1150,         // x position 
+        100,         // y position 
+        400,        // Button width
+        50,        // Button heighth
+        hWndSearch,     // Parent window
+        (HMENU)ID_SEARCH_SORT,       
         (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
         NULL
     );      // Pointer not needed.
@@ -485,7 +529,7 @@ void DisplaySearch(HWND hWnd)
         100,        // Button width
         100,        // Button heighth
         hWndSearch,     // Parent window
-        (HMENU)ID_SEARCH_BUTTON,       // No menu.
+        (HMENU)ID_SEARCH_BUTTON,       
         (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
         NULL
     );      // Pointer not needed.
@@ -499,14 +543,15 @@ void DisplaySearch(HWND hWnd)
         1500,        // Button width
         800,        // Button heighth
         hWndSearch,     // Parent window
-        (HMENU)ID_SEARCH_DATA,       // No menu.
+        (HMENU)ID_SEARCH_DATA,       
         (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
         NULL
     );      // Pointer not needed.
 }
 
-void SendRequest() // send request to server
+string SendRequest(string message) // send request to server
 {
+    string serverMessage;
     // INITIALIZE WINSOCK
 
                     // Structure to store the WinSock version. This is filled in
@@ -525,7 +570,7 @@ void SendRequest() // send request to server
     {
         // Not ok! Get out quickly
         cout << "Can't start Winsock! " << wsOk;
-        return;
+        return "unable to connect to server";
     }
 
     // CONNECT TO THE SERVER
@@ -539,13 +584,34 @@ void SendRequest() // send request to server
     // Socket creation, note that the socket type is datagram
     SOCKET out = socket(AF_INET, SOCK_DGRAM, 0);
 
+    int connResult = connect(out, (sockaddr*)&server, sizeof(server));
+    if (out == INVALID_SOCKET)
+    {
+        WSACleanup();
+        return "unable to connect to server";
+    }
     // Write out to that socket
-    string s("message_from_client");
-    int sendOk = sendto(out, s.c_str(), s.size() + 1, 0, (sockaddr*)&server, sizeof(server));
+    //string s("message_from_client");
+    int sendOk = sendto(out, message.c_str(), message.size() + 1, 0, (sockaddr*)&server, sizeof(server));
+    char buf[1024]; // data sent by server
 
     if (sendOk == SOCKET_ERROR)
     {
         cout << "That didn't work! " << WSAGetLastError() << endl;
+    }
+    else
+    {
+        int serverLength = sizeof(server);
+        ZeroMemory(&server, serverLength); // Clear the client structure
+		ZeroMemory(buf, 1024); // Clear the receive buffer
+
+		// Wait for message from server
+		int bytesIn = recvfrom(out, buf, 1024, 0, (sockaddr*)&server, &serverLength);
+		if (bytesIn == SOCKET_ERROR)
+		{
+			cout << "Error receiving from client " << WSAGetLastError() << endl;
+            return "unable to connect to server";
+		}
     }
 
     // Close the socket
@@ -553,5 +619,7 @@ void SendRequest() // send request to server
 
     // Close down Winsock
     WSACleanup();
+
+    return buf;
 }
 

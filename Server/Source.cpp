@@ -62,7 +62,7 @@ void main()
 		ZeroMemory(&client, clientLength); // Clear the client structure
 		ZeroMemory(buf, 1024); // Clear the receive buffer
 
-		// Wait for message
+		// Wait for message from client
 		int bytesIn = recvfrom(in, buf, 1024, 0, (sockaddr*)&client, &clientLength);
 		if (bytesIn == SOCKET_ERROR)
 		{
@@ -79,6 +79,14 @@ void main()
 
 		// Display the message / who sent it
 		cout << "Message recv from " << clientIp << " : " << buf << endl;
+
+		// send message back to client
+		int sendOk = sendto(in, buf, 1024, 0, (sockaddr*)&client, sizeof(client));
+
+		if (sendOk == SOCKET_ERROR)
+		{
+			cout << "That didn't work! " << WSAGetLastError() << endl;
+		}
 	}
 
 	// Close socket
