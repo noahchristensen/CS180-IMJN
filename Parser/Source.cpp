@@ -110,7 +110,8 @@ void searchSpecific(vector<vector<string>>& results, vector<vector<string>>& csv
 void parseClient(char buf[1024], vector<vector<string>>& csvData, vector<vector<string>>& results) {
     int timeFlag = 0;
     int dateFlag = 0;
-    int locationFlag = 0;
+    int locationFlag1 = 0;
+    int locationFlag2 = 0;
     int baseFlag = 0;
     int mostFlag = 0;
     int leastFlag = 0;
@@ -144,13 +145,43 @@ void parseClient(char buf[1024], vector<vector<string>>& csvData, vector<vector<
                 searchInputs.push_back(clientDat.at(i));
                 dateFlag = 1;
             }
+         }
+        compare = "Base: ";
+        if (compare.find(clientDat.at(i)) != string::npos) {
+            if (compare != clientDat.at(i)) {
+
+                string::size_type f = clientDat.at(i).find(compare);
+                clientDat.at(i).erase(f, compare.length());
+                searchInputs.push_back(clientDat.at(i));
+                baseFlag = 1;
+            }
+        }
+        compare = "Latitude: ";
+        if (compare.find(clientDat.at(i)) != string::npos) {
+            if (compare != clientDat.at(i)) {
+
+                string::size_type f = clientDat.at(i).find(compare);
+                clientDat.at(i).erase(f, compare.length());
+                searchInputs.push_back(clientDat.at(i));
+                locationFlag1 = 1;
+            }
+        }
+        compare = "Longitude: ";
+        if (compare.find(clientDat.at(i)) != string::npos) {
+            if (compare != clientDat.at(i)) {
+
+                string::size_type f = clientDat.at(i).find(compare);
+                clientDat.at(i).erase(f, compare.length());
+                searchInputs.push_back(clientDat.at(i));
+                locationFlag2 = 1;
+            }
         }
 
         for (unsigned h = 0; h < searchInputs.size(); h++) {
             cout << searchInputs.at(h) << " " << endl;
         }
 
-        if (timeFlag && dateFlag && locationFlag && baseFlag) {
+        if (timeFlag && dateFlag && locationFlag1 && locationFlag2 && baseFlag) {
             searchSpecific(results, csvData, searchInputs);
         }
         else if (timeFlag && dateFlag) {
@@ -162,7 +193,7 @@ void parseClient(char buf[1024], vector<vector<string>>& csvData, vector<vector<
         else if (dateFlag) {
             searchDate(results, csvData, searchInputs);
         }
-        else if (locationFlag) {
+        else if (locationFlag1 && locationFlag2) {
             searchLocation(results, csvData, searchInputs);
         }
         else if (baseFlag) {
