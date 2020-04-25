@@ -5,7 +5,13 @@
 #include <string.h>
 #include <tchar.h>
 #include <iostream>
+#include<fstream>
+#include <sstream>
+#include <string>
+#include <vector>
 #include <WS2tcpip.h>
+#include <windows.h>
+#include <shellscalingapi.h>
 
                 // Include the Winsock library (lib) file
 #pragma comment (lib, "ws2_32.lib")
@@ -13,6 +19,7 @@
 using namespace std;
 
 // Global variables
+vector<vector<string>> results;
 
 // The main window class name.
 static TCHAR szWindowClass[] = _T("DesktopApp");
@@ -32,21 +39,59 @@ HINSTANCE hInst;
 #define ID_BUTTON_7 7 // usage comparison
 #define ID_BUTTON_8 8 // busiest location
 
-// Search
-#define ID_SEARCH_TIME 9 // enter time
-#define ID_SEARCH_DAY 10 // enter day
-#define ID_SEARCH_SORT 11 // enter sort(most, least)
-#define ID_SEARCH_BUTTON 12 // button to commence search
-#define ID_SEARCH_DATA 13 // where search data appears
+// Search by Time
+#define ID_TIMESEARCH_TIME 9 // enter time
+#define ID_TIMESEARCH_DAY 10 // enter day
+#define ID_TIMESEARCH_SORT 11 // enter sort(most, least)
+#define ID_TIMESEARCH_BUTTON 12 // button to commence search
+#define ID_TIMESEARCH_DATA 13 // where search data appears
+
+// Search by Location
+#define ID_LOCSEARCH_LAT 14 // enter time
+#define ID_LOCSEARCH_LONG 15 // enter day
+#define ID_LOCSEARCH_SORT 16 // enter sort(most, least)
+#define ID_LOCSEARCH_BUTTON 17 // button to commence search
+#define ID_LOCSEARCH_DATA 18 // where search data appears
+
+// Modify Data (insert/delete)
+// Add specific
+#define ID_ADD_LAT 19 // enter time
+#define ID_ADD_LONG 20 // enter time
+#define ID_ADD_DATE 21 // enter time
+#define ID_ADD_TIME 22 // enter time
+#define ID_ADD_BASE 23 // enter time
+#define ID_ADD_BUTTON 24 // enter time
+// Delete specific
+#define ID_DEL_LAT 25 // enter time
+#define ID_DEL_LONG 26 // enter time
+#define ID_DEL_TIME 27 // enter time
+#define ID_DEL_DATE 28 // enter time
+#define ID_DEL_BASE 29 // enter time
+#define ID_DEL_BUTTON 30 // enter time
+// Delete all by time
+#define ID_DEL_TIME_TIME 31 // enter time
+#define ID_DEL_TIME_DATE 32 // enter time
+#define ID_DEL_TIME_BUTTON 33 // enter time
+// Delete all by location
+#define ID_DEL_LOC_LAT 34 // enter time
+#define ID_DEL_LOC_LONG 35 // enter time
+#define ID_DEL_LOC_BUTTON 36 // enter time
 
 // Forward declarations of functions included in this code module:
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
-void RegisterSearch(HINSTANCE);
+// definititions
+void RegisterTimeSearch(HINSTANCE);
+LRESULT CALLBACK TimeSearchProcedure(HWND, UINT, WPARAM, LPARAM);
+void DisplayTimeSearch(HWND);
 
-LRESULT CALLBACK SearchProcedure(HWND, UINT, WPARAM, LPARAM);
+void RegisterLocationSearch(HINSTANCE);
+LRESULT CALLBACK LocationSearchProcedure(HWND, UINT, WPARAM, LPARAM);
+void DisplayLocationSearch(HWND);
 
-void DisplaySearch(HWND);
+void RegisterModifyData(HINSTANCE);
+LRESULT CALLBACK ModifyDataProcedure(HWND, UINT, WPARAM, LPARAM);
+void DisplayModifyData(HWND);
 
 string SendRequest(string);
 
@@ -57,6 +102,9 @@ int CALLBACK WinMain(
     _In_ int       nCmdShow
 )
 {
+    SetProcessDPIAware();
+
+
     WNDCLASSEX wcex;
 
     wcex.cbSize = sizeof(WNDCLASSEX);
@@ -82,7 +130,9 @@ int CALLBACK WinMain(
         return 1;
     }
 
-    RegisterSearch(hInstance);
+    RegisterTimeSearch(hInstance);
+    RegisterLocationSearch(hInstance);
+    RegisterModifyData(hInstance);
 
     // Store instance handle in our global variable
     hInst = hInstance;
@@ -294,8 +344,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 switch(LOWORD(wParam))
                 {
                     case ID_BUTTON_1:
-                        ::MessageBeep(MB_ICONERROR);
-                        ::MessageBox(hWnd, TEXT("Modify the Data not yet implemented"), TEXT("CS180 Project"), MB_OK);
+                        //::MessageBeep(MB_ICONERROR);
+                        //::MessageBox(hWnd, TEXT("Modify the Data not yet implemented"), TEXT("CS180 Project"), MB_OK);
+                        DisplayModifyData(hWnd);
 
                         //SendRequest();
 
@@ -303,20 +354,21 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                     case ID_BUTTON_2:
                         //::MessageBox(hWnd, TEXT("Search by Time was clicked"), TEXT("CS180 Project"), MB_OK);
 
-                        DisplaySearch(hWnd);
+                        DisplayTimeSearch(hWnd);
                         //SendRequest();
 
                         break;
                     case ID_BUTTON_3:
-                        ::MessageBeep(MB_ICONERROR);
-                        ::MessageBox(hWnd, TEXT("Search by Location not yet implemented"), TEXT("CS180 Project"), MB_OK);
+                        //::MessageBeep(MB_ICONERROR);
+                        //::MessageBox(hWnd, TEXT("Search by Location not yet implemented"), TEXT("CS180 Project"), MB_OK);
+                        DisplayLocationSearch(hWnd);
 
                         //SendRequest();
 
                         break;
                     case ID_BUTTON_4:
-                        ::MessageBeep(MB_ICONERROR);
-                        ::MessageBox(hWnd, TEXT("Time Between Pickups not yet implemented"), TEXT("CS180 Project"), MB_OK);
+                        //::MessageBeep(MB_ICONERROR);
+                        //::MessageBox(hWnd, TEXT("Time Between Pickups not yet implemented"), TEXT("CS180 Project"), MB_OK);
 
                         //SendRequest();
 
@@ -363,7 +415,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     return 0;
 }
 
-void RegisterSearch(HINSTANCE hInstance)
+
+//SEARCH BY TIME
+void RegisterTimeSearch(HINSTANCE hInstance)
 {
     WNDCLASSW search = { 0 };
 
@@ -371,8 +425,8 @@ void RegisterSearch(HINSTANCE hInstance)
     search.hCursor = LoadCursor(NULL, IDC_ARROW);
     search.style = CS_HREDRAW | CS_VREDRAW;
     search.hInstance = hInstance;
-    search.lpszClassName = L"mySearchClass";
-    search.lpfnWndProc = SearchProcedure;
+    search.lpszClassName = L"myTimeSearchClass";
+    search.lpfnWndProc = TimeSearchProcedure;
 
     RegisterClassW(&search);
 }
@@ -380,8 +434,9 @@ void RegisterSearch(HINSTANCE hInstance)
 HWND hwndTimeField;
 HWND hwndDayField;
 HWND hwndSortField;
+HWND hwndSearchData;
 
-LRESULT CALLBACK SearchProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lp)
+LRESULT CALLBACK TimeSearchProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lp)
 {
     switch (msg)
     {
@@ -391,29 +446,52 @@ LRESULT CALLBACK SearchProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lp)
         case WM_COMMAND: // when an action happens
             switch (LOWORD(wParam))
             {
-            case ID_SEARCH_BUTTON:
-                wchar_t timeText[10];
-                GetWindowText(hwndTimeField, timeText, 10);
-                wchar_t dayText[10];
+            case ID_TIMESEARCH_BUTTON:
+                wchar_t hourText[20];
+                GetWindowText(hwndTimeField, hourText, 10);
+                wchar_t dayText[20];
                 GetWindowText(hwndDayField, dayText, 10);
-                wchar_t sortText[10];
+                wchar_t sortText[20];
                 GetWindowText(hwndSortField, sortText, 10);
-                ::MessageBox(hWnd, timeText, TEXT("CS180 Project - Time"), MB_OK);
+                ::MessageBox(hWnd, hourText, TEXT("CS180 Project - Time"), MB_OK);
                 ::MessageBox(hWnd, dayText, TEXT("CS180 Project - Day"), MB_OK);
                 ::MessageBox(hWnd, sortText, TEXT("CS180 Project - Sort"), MB_OK);
 
-                wstring wsTime(timeText);
-                string strTime(wsTime.begin(), wsTime.end());
+                wstring wsHour(hourText);
+                string strHour(wsHour.begin(), wsHour.end());
                 wstring wsDay(dayText);
                 string strDay(wsDay.begin(), wsDay.end());
-                wstring wsSort(sortText);
-                string strSort(wsSort.begin(), wsSort.end());
+                string strTime = "Date: ";
+                strTime = strTime.append(strDay);
+                strTime = strTime.append(",Time: ");
+                strTime = strTime.append(strHour);
+                //SendRequest(strTime);
+                //wstring wsSort(sortText);
+                //string strSort(wsSort.begin(), wsSort.end());
 
-                // Server Response
-                string serverMessage = SendRequest("Time: " + strTime + ", Day: " + strDay + ", Sort: " + strSort);
+                vector<string> miniVec;
+
+                //Server Response
+                string serverMessage = SendRequest(strTime);
                 wstring wideSM = wstring(serverMessage.begin(), serverMessage.end());
                 const wchar_t* wideCSM = wideSM.c_str();
                 ::MessageBox(hWnd, wideCSM, TEXT("CS180 Project - Server Response"), MB_OK);
+
+                HWND hwndSearchData = CreateWindow(
+                    L"EDIT",  // Predefined class; Unicode assumed //STATIC, Edit
+                    L"",      // Button text 
+                    WS_VISIBLE | WS_CHILD | WS_BORDER,  // Styles 
+                    50,         // x position 
+                    200,         // y position 
+                    1500,        // Button width
+                    800,        // Button heighth
+                    hWnd,     // Parent window
+                    (HMENU)ID_TIMESEARCH_DATA,
+                    (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+                    NULL
+                );
+
+                SetWindowText(hwndSearchData, wideCSM);
 
                 break;
             }
@@ -423,11 +501,11 @@ LRESULT CALLBACK SearchProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lp)
     }
 }
 
-void DisplaySearch(HWND hWnd)
+void DisplayTimeSearch(HWND hWnd)
 {
     HWND hWndSearch = CreateWindowW(
-        L"mySearchClass",
-        L"CS180 Project - Search",
+        L"myTimeSearchClass",
+        L"CS180 Project - Time Search",
         WS_VISIBLE | WS_OVERLAPPEDWINDOW,
         400, 400, 200, 200,
         hWnd,
@@ -459,14 +537,14 @@ void DisplaySearch(HWND hWnd)
         400,        // Button width
         50,        // Button heighth
         hWndSearch,     // Parent window
-        (HMENU)ID_SEARCH_TIME,       
+        (HMENU)ID_TIMESEARCH_TIME,       
         (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
         NULL
     );      // Pointer not needed.
 
     HWND hwndDayLabel = CreateWindow(
         L"Static",  // Predefined class; Unicode assumed //STATIC, Edit
-        L"Day",      // Button text 
+        L"Day (XX/XX/XXXX)",      // Button text 
         WS_VISIBLE | WS_CHILD | BS_CENTER,  // Styles 
         600,         // x position 
         50,         // y position 
@@ -487,7 +565,7 @@ void DisplaySearch(HWND hWnd)
         400,        // Button width
         50,        // Button heighth
         hWndSearch,     // Parent window
-        (HMENU)ID_SEARCH_DAY,       
+        (HMENU)ID_TIMESEARCH_DAY,       
         (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
         NULL
     );      // Pointer not needed.
@@ -515,7 +593,7 @@ void DisplaySearch(HWND hWnd)
         400,        // Button width
         50,        // Button heighth
         hWndSearch,     // Parent window
-        (HMENU)ID_SEARCH_SORT,       
+        (HMENU)ID_TIMESEARCH_SORT,       
         (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
         NULL
     );      // Pointer not needed.
@@ -529,14 +607,14 @@ void DisplaySearch(HWND hWnd)
         100,        // Button width
         100,        // Button heighth
         hWndSearch,     // Parent window
-        (HMENU)ID_SEARCH_BUTTON,       
+        (HMENU)ID_TIMESEARCH_BUTTON,       
         (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
         NULL
     );      // Pointer not needed.
 
-    HWND hwndSearchData = CreateWindow(
-        L"STATIC",  // Predefined class; Unicode assumed //STATIC, Edit
-        L"Data goes here",      // Button text 
+    /*HWND hwndSearchData = CreateWindow(
+        L"EDIT",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"",      // Button text 
         WS_VISIBLE | WS_CHILD | WS_BORDER,  // Styles 
         50,         // x position 
         200,         // y position 
@@ -544,6 +622,841 @@ void DisplaySearch(HWND hWnd)
         800,        // Button heighth
         hWndSearch,     // Parent window
         (HMENU)ID_SEARCH_DATA,       
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );      // Pointer not needed.*/
+}
+
+
+// SEARCH BY LOCATION
+void RegisterLocationSearch(HINSTANCE hInstance)
+{
+    WNDCLASSW search = { 0 };
+
+    search.hbrBackground = (HBRUSH)(COLOR_WINDOW);
+    search.hCursor = LoadCursor(NULL, IDC_ARROW);
+    search.style = CS_HREDRAW | CS_VREDRAW;
+    search.hInstance = hInstance;
+    search.lpszClassName = L"myLocationSearchClass";
+    search.lpfnWndProc = LocationSearchProcedure;
+
+    RegisterClassW(&search);
+}
+
+HWND hwndLatField;
+HWND hwndLongField;
+HWND hwndSortLocField;
+HWND hwndSearchLocData;
+
+LRESULT CALLBACK LocationSearchProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lp)
+{
+    switch (msg)
+    {
+    case WM_CLOSE:
+        DestroyWindow(hWnd);
+        break;
+    case WM_COMMAND: // when an action happens
+        switch (LOWORD(wParam))
+        {
+        case ID_LOCSEARCH_BUTTON:
+            wchar_t latText[20];
+            GetWindowText(hwndLatField, latText, 10);
+            wchar_t longText[20];
+            GetWindowText(hwndLongField, longText, 10);
+            wchar_t sortText[20];
+            GetWindowText(hwndSortField, sortText, 10);
+            ::MessageBox(hWnd, latText, TEXT("CS180 Project - Latitude"), MB_OK);
+            ::MessageBox(hWnd, longText, TEXT("CS180 Project - Longitude"), MB_OK);
+            ::MessageBox(hWnd, sortText, TEXT("CS180 Project - Sort"), MB_OK);
+
+            wstring wsLat(latText);
+            string strLat(wsLat.begin(), wsLat.end());
+            wstring wsLong(longText);
+            string strLong(wsLong.begin(), wsLong.end());
+            string strLoc = "Latitude: ";
+            strLoc = strLoc.append(strLong);
+            strLoc = strLoc.append(",Longitude: ");
+            strLoc = strLoc.append(strLat);
+            //SendRequest(strTime);
+            //wstring wsSort(sortText);
+            //string strSort(wsSort.begin(), wsSort.end());
+
+            vector<string> miniVec;
+
+            //Server Response
+            string serverMessage = SendRequest(strLoc);
+            wstring wideSM = wstring(serverMessage.begin(), serverMessage.end());
+            const wchar_t* wideCSM = wideSM.c_str();
+            ::MessageBox(hWnd, wideCSM, TEXT("CS180 Project - Server Response"), MB_OK);
+
+            HWND hwndSearchData = CreateWindow(
+                L"EDIT",  // Predefined class; Unicode assumed //STATIC, Edit
+                L"",      // Button text 
+                WS_VISIBLE | WS_CHILD | WS_BORDER,  // Styles 
+                50,         // x position 
+                200,         // y position 
+                1500,        // Button width
+                800,        // Button heighth
+                hWnd,     // Parent window
+                (HMENU)ID_LOCSEARCH_DATA,
+                (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+                NULL
+            );
+
+            SetWindowText(hwndSearchLocData, wideCSM);
+
+            break;
+        }
+        break;
+    default:
+        return DefWindowProcW(hWnd, msg, wParam, lp);
+    }
+}
+
+void DisplayLocationSearch(HWND hWnd)
+{
+    HWND hWndSearch = CreateWindowW(
+        L"myLocationSearchClass",
+        L"CS180 Project - Location Search",
+        WS_VISIBLE | WS_OVERLAPPEDWINDOW,
+        400, 400, 200, 200,
+        hWnd,
+        NULL,
+        NULL,
+        NULL
+    );
+
+    HWND hwndLatLabel = CreateWindow(
+        L"Static",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"Latitude",      // Button text 
+        WS_VISIBLE | WS_CHILD | BS_CENTER,  // Styles 
+        50,         // x position 
+        50,         // y position 
+        400,        // Button width
+        50,        // Button heighth
+        hWndSearch,     // Parent window
+        NULL,       // No menu.
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );      // Pointer not needed.
+
+    hwndLatField = CreateWindow(
+        L"EDIT",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"",      // Button text 
+        WS_VISIBLE | WS_CHILD | WS_BORDER,  // Styles 
+        50,         // x position 
+        100,         // y position 
+        400,        // Button width
+        50,        // Button heighth
+        hWndSearch,     // Parent window
+        (HMENU)ID_LOCSEARCH_LAT,
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );      // Pointer not needed.
+
+    HWND hwndLongLabel = CreateWindow(
+        L"Static",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"Longitude",      // Button text 
+        WS_VISIBLE | WS_CHILD | BS_CENTER,  // Styles 
+        600,         // x position 
+        50,         // y position 
+        400,        // Button width
+        50,        // Button heighth
+        hWndSearch,     // Parent window
+        NULL,       // No menu.
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );      // Pointer not needed.
+
+    hwndLongField = CreateWindow(
+        L"EDIT",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"",      // Button text 
+        WS_VISIBLE | WS_CHILD | WS_BORDER,  // Styles 
+        600,         // x position 
+        100,         // y position 
+        400,        // Button width
+        50,        // Button heighth
+        hWndSearch,     // Parent window
+        (HMENU)ID_LOCSEARCH_LONG,
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );      // Pointer not needed.
+
+    HWND hwndSortLabel = CreateWindow(
+        L"Static",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"Sort By Usage (\"most/least\")",      // Button text 
+        WS_VISIBLE | WS_CHILD | BS_CENTER,  // Styles 
+        1150,         // x position 
+        50,         // y position 
+        400,        // Button width
+        50,        // Button heighth
+        hWndSearch,     // Parent window
+        NULL,
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );      // Pointer not needed.
+
+    hwndSortField = CreateWindow(
+        L"EDIT",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"",      // Button text 
+        WS_VISIBLE | WS_CHILD | WS_BORDER,  // Styles 
+        1150,         // x position 
+        100,         // y position 
+        400,        // Button width
+        50,        // Button heighth
+        hWndSearch,     // Parent window
+        (HMENU)ID_LOCSEARCH_SORT,
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );      // Pointer not needed.
+
+    HWND hwndSearchButton = CreateWindow(
+        L"BUTTON",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"Search",      // Button text 
+        WS_VISIBLE | WS_CHILD,  // Styles 
+        1650,         // x position 
+        50,         // y position 
+        100,        // Button width
+        100,        // Button heighth
+        hWndSearch,     // Parent window
+        (HMENU)ID_LOCSEARCH_BUTTON,
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );      // Pointer not needed.
+
+    /*HWND hwndSearchData = CreateWindow(
+        L"EDIT",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"",      // Button text
+        WS_VISIBLE | WS_CHILD | WS_BORDER,  // Styles
+        50,         // x position
+        200,         // y position
+        1500,        // Button width
+        800,        // Button heighth
+        hWndSearch,     // Parent window
+        (HMENU)ID_SEARCH_DATA,
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );      // Pointer not needed.*/
+}
+
+
+// MODIFY DATA
+void RegisterModifyData(HINSTANCE hInstance)
+{
+    WNDCLASSW modify = { 0 };
+
+    modify.hbrBackground = (HBRUSH)(COLOR_WINDOW);
+    modify.hCursor = LoadCursor(NULL, IDC_ARROW);
+    modify.style = CS_HREDRAW | CS_VREDRAW;
+    modify.hInstance = hInstance;
+    modify.lpszClassName = L"myModifyDataClass";
+    modify.lpfnWndProc = ModifyDataProcedure;
+
+    RegisterClassW(&modify);
+}
+
+HWND hwndAddDateField;
+HWND hwndAddTimeField;
+HWND hwndAddLatField;
+HWND hwndAddLongField;
+HWND hwndAddBaseField;
+HWND hwndAddButton;
+
+HWND hwndDelDateField;
+HWND hwndDelTimeField;
+HWND hwndDelLatField;
+HWND hwndDelLongField;
+HWND hwndDelBaseField;
+HWND hwndDelButton;
+
+HWND hwndDelTimeDateField;
+HWND hwndDelTimeTimeField;
+HWND hwndDelTimeButton;
+
+HWND hwndDelLocLatField;
+HWND hwndDelLocLongField;
+HWND hwndDelLocButton;
+
+LRESULT CALLBACK ModifyDataProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lp)
+{
+    switch (msg)
+    {
+    case WM_CLOSE:
+        DestroyWindow(hWnd);
+        break;
+    case WM_COMMAND: // when an action happens
+        switch (LOWORD(wParam))
+        {
+            wchar_t dateText[20];
+            wchar_t timeText[20];
+            wchar_t latText[20];
+            wchar_t longText[20];
+            wchar_t baseText[20];
+            case ID_ADD_BUTTON:
+                GetWindowText(hwndAddDateField, dateText, 10);
+                GetWindowText(hwndAddTimeField, timeText, 10);
+                GetWindowText(hwndAddLatField, latText, 10);
+                GetWindowText(hwndAddLongField, longText, 10);
+                GetWindowText(hwndAddBaseField, baseText, 10);
+                ::MessageBox(hWnd, dateText, TEXT("CS180 Project - Date"), MB_OK);
+                ::MessageBox(hWnd, timeText, TEXT("CS180 Project - Time"), MB_OK);
+                ::MessageBox(hWnd, latText, TEXT("CS180 Project - Latitude"), MB_OK);
+                ::MessageBox(hWnd, longText, TEXT("CS180 Project - Longitude"), MB_OK);
+                ::MessageBox(hWnd, baseText, TEXT("CS180 Project - Base #"), MB_OK);
+                break;
+            case ID_DEL_BUTTON:
+                GetWindowText(hwndDelDateField, dateText, 10);
+                GetWindowText(hwndDelTimeField, timeText, 10);
+                GetWindowText(hwndDelLatField, latText, 10);
+                GetWindowText(hwndDelLongField, longText, 10);
+                GetWindowText(hwndDelBaseField, baseText, 10);
+                ::MessageBox(hWnd, dateText, TEXT("CS180 Project - Date"), MB_OK);
+                ::MessageBox(hWnd, timeText, TEXT("CS180 Project - Time"), MB_OK);
+                ::MessageBox(hWnd, latText, TEXT("CS180 Project - Latitude"), MB_OK);
+                ::MessageBox(hWnd, longText, TEXT("CS180 Project - Longitude"), MB_OK);
+                ::MessageBox(hWnd, baseText, TEXT("CS180 Project - Base #"), MB_OK);
+                break;
+            case ID_DEL_TIME_BUTTON:
+                GetWindowText(hwndDelTimeDateField, dateText, 10);
+                GetWindowText(hwndDelTimeTimeField, timeText, 10);
+                ::MessageBox(hWnd, dateText, TEXT("CS180 Project - Date"), MB_OK);
+                ::MessageBox(hWnd, timeText, TEXT("CS180 Project - Time"), MB_OK);
+                break;
+            case ID_DEL_LOC_BUTTON:
+                GetWindowText(hwndDelLocLatField, latText, 10);
+                GetWindowText(hwndDelLocLongField, longText, 10);
+                ::MessageBox(hWnd, latText, TEXT("CS180 Project - Latitude"), MB_OK);
+                ::MessageBox(hWnd, longText, TEXT("CS180 Project - Longitude"), MB_OK);
+                break;
+        }
+        break;
+    default:
+        return DefWindowProcW(hWnd, msg, wParam, lp);
+    }
+}
+
+void DisplayModifyData(HWND hWnd)
+{
+    HWND hWndModify = CreateWindowW(
+        L"myModifyDataClass",
+        L"CS180 Project - Modify",
+        WS_VISIBLE | WS_OVERLAPPEDWINDOW,
+        400, 400, 200, 200,
+        hWnd,
+        NULL,
+        NULL,
+        NULL
+    );
+
+    HWND hwndAddLabel = CreateWindow(
+        L"Static",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"ADD SPECIFIC DATA:",      // Button text 
+        WS_VISIBLE | WS_CHILD | BS_CENTER,  // Styles 
+        25,         // x position 
+        50,         // y position 
+        200,        // Button width
+        40,        // Button heighth
+        hWndModify,     // Parent window
+        NULL,       // No menu.
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );      // Pointer not needed.
+
+    HWND hwndAddDateLabel = CreateWindow(
+        L"Static",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"Date",      // Button text 
+        WS_VISIBLE | WS_CHILD | BS_CENTER,  // Styles 
+        50,         // x position 
+        100,         // y position 
+        200,        // Button width
+        50,        // Button heighth
+        hWndModify,     // Parent window
+        NULL,       // No menu.
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );      // Pointer not needed.
+
+    hwndAddDateField = CreateWindow(
+        L"EDIT",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"",      // Button text 
+        WS_VISIBLE | WS_CHILD | WS_BORDER,  // Styles 
+        50,         // x position 
+        150,         // y position 
+        200,        // Button width
+        50,        // Button heighth
+        hWndModify,     // Parent window
+        (HMENU)ID_ADD_DATE,
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );
+
+    HWND hwndAddTimeLabel = CreateWindow(
+        L"Static",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"Time ",      // Button text 
+        WS_VISIBLE | WS_CHILD | BS_CENTER,  // Styles 
+        350,         // x position 
+        100,         // y position 
+        200,        // Button width
+        50,        // Button heighth
+        hWndModify,     // Parent window
+        NULL,       // No menu.
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );      // Pointer not needed.
+
+    hwndAddTimeField = CreateWindow(
+        L"EDIT",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"",      // Button text 
+        WS_VISIBLE | WS_CHILD | WS_BORDER,  // Styles 
+        350,         // x position 
+        150,         // y position 
+        200,        // Button width
+        50,        // Button heighth
+        hWndModify,     // Parent window
+        (HMENU)ID_ADD_TIME,
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );
+
+    HWND hwndAddLatLabel = CreateWindow(
+        L"Static",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"Latitude ",      // Button text 
+        WS_VISIBLE | WS_CHILD | BS_CENTER,  // Styles 
+        650,         // x position 
+        100,         // y position 
+        200,        // Button width
+        50,        // Button heighth
+        hWndModify,     // Parent window
+        NULL,       // No menu.
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );      // Pointer not needed.
+
+    hwndAddLatField = CreateWindow(
+        L"EDIT",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"",      // Button text 
+        WS_VISIBLE | WS_CHILD | WS_BORDER,  // Styles 
+        650,         // x position 
+        150,         // y position 
+        200,        // Button width
+        50,        // Button heighth
+        hWndModify,     // Parent window
+        (HMENU)ID_ADD_LAT,
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );
+
+    HWND hwndAddLongLabel = CreateWindow(
+        L"Static",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"Longitude ",      // Button text 
+        WS_VISIBLE | WS_CHILD | BS_CENTER,  // Styles 
+        950,         // x position 
+        100,         // y position 
+        200,        // Button width
+        50,        // Button heighth
+        hWndModify,     // Parent window
+        NULL,       // No menu.
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );      // Pointer not needed.
+
+    hwndAddLongField = CreateWindow(
+        L"EDIT",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"",      // Button text 
+        WS_VISIBLE | WS_CHILD | WS_BORDER,  // Styles 
+        950,         // x position 
+        150,         // y position 
+        200,        // Button width
+        50,        // Button heighth
+        hWndModify,     // Parent window
+        (HMENU)ID_ADD_LONG,
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );
+
+    HWND hwndAddBaseLabel = CreateWindow(
+        L"Static",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"Base # ",      // Button text 
+        WS_VISIBLE | WS_CHILD | BS_CENTER,  // Styles 
+        1250,         // x position 
+        100,         // y position 
+        200,        // Button width
+        50,        // Button heighth
+        hWndModify,     // Parent window
+        NULL,       // No menu.
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );      // Pointer not needed.
+
+    hwndAddBaseField = CreateWindow(
+        L"EDIT",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"",      // Button text 
+        WS_VISIBLE | WS_CHILD | WS_BORDER,  // Styles 
+        1250,         // x position 
+        150,         // y position 
+        200,        // Button width
+        50,        // Button heighth
+        hWndModify,     // Parent window
+        (HMENU)ID_ADD_BASE,
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );
+
+    HWND hwndAddButton = CreateWindow(
+        L"BUTTON",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"ADD",      // Button text 
+        WS_VISIBLE | WS_CHILD,  // Styles 
+        1650,         // x position 
+        150,         // y position 
+        100,        // Button width
+        50,        // Button heighth
+        hWndModify,     // Parent window
+        (HMENU)ID_ADD_BUTTON,
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );      // Pointer not needed.
+
+
+
+    // Delete
+    HWND hwndDelLabel = CreateWindow(
+        L"Static",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"DELETE SPECIFIC DATA:",      // Button text 
+        WS_VISIBLE | WS_CHILD | BS_CENTER,  // Styles 
+        25,         // x position 
+        250,         // y position 
+        200,        // Button width
+        40,        // Button heighth
+        hWndModify,     // Parent window
+        NULL,       // No menu.
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );      // Pointer not needed.
+
+    HWND hwndDelDateLabel = CreateWindow(
+        L"Static",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"Date",      // Button text 
+        WS_VISIBLE | WS_CHILD | BS_CENTER,  // Styles 
+        50,         // x position 
+        300,         // y position 
+        200,        // Button width
+        50,        // Button heighth
+        hWndModify,     // Parent window
+        NULL,       // No menu.
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );      // Pointer not needed.
+
+    hwndDelDateField = CreateWindow(
+        L"EDIT",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"",      // Button text 
+        WS_VISIBLE | WS_CHILD | WS_BORDER,  // Styles 
+        50,         // x position 
+        350,         // y position 
+        200,        // Button width
+        50,        // Button heighth
+        hWndModify,     // Parent window
+        (HMENU)ID_DEL_DATE,
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );
+
+    HWND hwndDelTimeLabel = CreateWindow(
+        L"Static",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"Time ",      // Button text 
+        WS_VISIBLE | WS_CHILD | BS_CENTER,  // Styles 
+        350,         // x position 
+        300,         // y position 
+        200,        // Button width
+        50,        // Button heighth
+        hWndModify,     // Parent window
+        NULL,       // No menu.
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );      // Pointer not needed.
+
+    hwndDelTimeField = CreateWindow(
+        L"EDIT",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"",      // Button text 
+        WS_VISIBLE | WS_CHILD | WS_BORDER,  // Styles 
+        350,         // x position 
+        350,         // y position 
+        200,        // Button width
+        50,        // Button heighth
+        hWndModify,     // Parent window
+        (HMENU)ID_DEL_TIME,
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );
+
+    HWND hwndDelLatLabel = CreateWindow(
+        L"Static",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"Latitude ",      // Button text 
+        WS_VISIBLE | WS_CHILD | BS_CENTER,  // Styles 
+        650,         // x position 
+        300,         // y position 
+        200,        // Button width
+        50,        // Button heighth
+        hWndModify,     // Parent window
+        NULL,       // No menu.
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );      // Pointer not needed.
+
+    hwndDelLatField = CreateWindow(
+        L"EDIT",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"",      // Button text 
+        WS_VISIBLE | WS_CHILD | WS_BORDER,  // Styles 
+        650,         // x position 
+        350,         // y position 
+        200,        // Button width
+        50,        // Button heighth
+        hWndModify,     // Parent window
+        (HMENU)ID_DEL_LAT,
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );
+
+    HWND hwndDelLongLabel = CreateWindow(
+        L"Static",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"Longitude ",      // Button text 
+        WS_VISIBLE | WS_CHILD | BS_CENTER,  // Styles 
+        950,         // x position 
+        300,         // y position 
+        200,        // Button width
+        50,        // Button heighth
+        hWndModify,     // Parent window
+        NULL,       // No menu.
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );      // Pointer not needed.
+
+    hwndDelLongField = CreateWindow(
+        L"EDIT",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"",      // Button text 
+        WS_VISIBLE | WS_CHILD | WS_BORDER,  // Styles 
+        950,         // x position 
+        350,         // y position 
+        200,        // Button width
+        50,        // Button heighth
+        hWndModify,     // Parent window
+        (HMENU)ID_DEL_LONG,
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );
+
+    HWND hwndDelBaseLabel = CreateWindow(
+        L"Static",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"Base # ",      // Button text 
+        WS_VISIBLE | WS_CHILD | BS_CENTER,  // Styles 
+        1250,         // x position 
+        300,         // y position 
+        200,        // Button width
+        50,        // Button heighth
+        hWndModify,     // Parent window
+        NULL,       // No menu.
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );      // Pointer not needed.
+
+    hwndDelBaseField = CreateWindow(
+        L"EDIT",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"",      // Button text 
+        WS_VISIBLE | WS_CHILD | WS_BORDER,  // Styles 
+        1250,         // x position 
+        350,         // y position 
+        200,        // Button width
+        50,        // Button heighth
+        hWndModify,     // Parent window
+        (HMENU)ID_DEL_BASE,
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );
+
+    HWND hwndDelButton = CreateWindow(
+        L"BUTTON",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"DELETE",      // Button text 
+        WS_VISIBLE | WS_CHILD,  // Styles 
+        1650,         // x position 
+        350,         // y position 
+        100,        // Button width
+        50,        // Button heighth
+        hWndModify,     // Parent window
+        (HMENU)ID_DEL_BUTTON,
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );      // Pointer not needed.
+
+
+
+
+    // Delete Time
+    HWND hwndDelTimeTLabel = CreateWindow(
+        L"Static",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"DELTE DATA BY TIME:",      // Button text 
+        WS_VISIBLE | WS_CHILD | BS_CENTER,  // Styles 
+        25,         // x position 
+        450,         // y position 
+        200,        // Button width
+        40,        // Button heighth
+        hWndModify,     // Parent window
+        NULL,       // No menu.
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );      // Pointer not needed.
+
+    HWND hwndDelTimeDateLabel = CreateWindow(
+        L"Static",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"Date",      // Button text 
+        WS_VISIBLE | WS_CHILD | BS_CENTER,  // Styles 
+        50,         // x position 
+        500,         // y position 
+        200,        // Button width
+        50,        // Button heighth
+        hWndModify,     // Parent window
+        NULL,       // No menu.
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );      // Pointer not needed.
+
+    hwndDelTimeDateField = CreateWindow(
+        L"EDIT",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"",      // Button text 
+        WS_VISIBLE | WS_CHILD | WS_BORDER,  // Styles 
+        50,         // x position 
+        550,         // y position 
+        200,        // Button width
+        50,        // Button heighth
+        hWndModify,     // Parent window
+        (HMENU)ID_DEL_TIME_DATE,
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );
+
+    HWND hwndDelTimeTimeLabel = CreateWindow(
+        L"Static",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"Time ",      // Button text 
+        WS_VISIBLE | WS_CHILD | BS_CENTER,  // Styles 
+        350,         // x position 
+        500,         // y position 
+        200,        // Button width
+        50,        // Button heighth
+        hWndModify,     // Parent window
+        NULL,       // No menu.
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );      // Pointer not needed.
+
+    hwndDelTimeTimeField = CreateWindow(
+        L"EDIT",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"",      // Button text 
+        WS_VISIBLE | WS_CHILD | WS_BORDER,  // Styles 
+        350,         // x position 
+        550,         // y position 
+        200,        // Button width
+        50,        // Button heighth
+        hWndModify,     // Parent window
+        (HMENU)ID_DEL_TIME_TIME,
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );
+
+    HWND hwndDelTimeButton = CreateWindow(
+        L"BUTTON",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"DELETE",      // Button text 
+        WS_VISIBLE | WS_CHILD,  // Styles 
+        650,         // x position 
+        550,         // y position 
+        100,        // Button width
+        50,        // Button heighth
+        hWndModify,     // Parent window
+        (HMENU)ID_DEL_TIME_BUTTON,
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );      // Pointer not needed.*/
+
+
+    // DELETE LOCATION
+    HWND hwndDelLocLabel = CreateWindow(
+        L"Static",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"DELETE DATA BY LOCATION:",      // Button text 
+        WS_VISIBLE | WS_CHILD | BS_CENTER,  // Styles 
+        25,         // x position 
+        650,         // y position 
+        200,        // Button width
+        40,        // Button heighth
+        hWndModify,     // Parent window
+        NULL,       // No menu.
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );      // Pointer not needed.
+
+    HWND hwndDelLocLatLabel = CreateWindow(
+        L"Static",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"Latitude",      // Button text
+        WS_VISIBLE | WS_CHILD | BS_CENTER,  // Styles
+        50,         // x position
+        700,         // y position
+        200,        // Button width
+        50,        // Button heighth
+        hWndModify,     // Parent window
+        NULL,       // No menu.
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );      // Pointer not needed.
+
+    hwndDelLocLatField = CreateWindow(
+        L"EDIT",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"",      // Button text
+        WS_VISIBLE | WS_CHILD | WS_BORDER,  // Styles
+        50,         // x position
+        750,         // y position
+        200,        // Button width
+        50,        // Button heighth
+        hWndModify,     // Parent window
+        (HMENU)ID_DEL_LOC_LAT,
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );
+
+    HWND hwndDelLocLongLabel = CreateWindow(
+        L"Static",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"Longitude ",      // Button text
+        WS_VISIBLE | WS_CHILD | BS_CENTER,  // Styles
+        350,         // x position
+        700,         // y position
+        200,        // Button width
+        50,        // Button heighth
+        hWndModify,     // Parent window
+        NULL,       // No menu.
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );      // Pointer not needed.
+
+    hwndDelLocLongField = CreateWindow(
+        L"EDIT",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"",      // Button text
+        WS_VISIBLE | WS_CHILD | WS_BORDER,  // Styles
+        350,         // x position
+        750,         // y position
+        200,        // Button width
+        50,        // Button heighth
+        hWndModify,     // Parent window
+        (HMENU)ID_DEL_LOC_LONG,
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );
+
+    HWND hwndDelLocButton = CreateWindow(
+        L"BUTTON",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"DELETE",      // Button text
+        WS_VISIBLE | WS_CHILD,  // Styles
+        650,         // x position
+        750,         // y position
+        100,        // Button width
+        50,        // Button heighth
+        hWndModify,     // Parent window
+        (HMENU)ID_DEL_LOC_BUTTON,
         (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
         NULL
     );      // Pointer not needed.

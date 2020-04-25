@@ -1,97 +1,173 @@
 #include <iostream>
-#include <WS2tcpip.h>
-
-// Include the Winsock library (lib) file
-#pragma comment (lib, "ws2_32.lib")
-
-// Saves us from typing std::cout << etc. etc. etc.
+#include<fstream>
+#include <sstream>
+#include <string>
+#include <vector>
+#include "search.h"
 using namespace std;
 
-// Main entry point into the server
-void main()
-{
-	// INITIALIZE WINSOCK
+void parseLine(string line, vector<string>& results, int index) {
+    stringstream X(line);
+    string column;
+    vector<string> results1;
 
-	// Structure to store the WinSock version. This is filled in
-	// on the call to WSAStartup()
-	WSADATA data;
+    while (getline(X, column, ',')) { //splits line into columns 
+        results1.push_back(column);
+    }
 
-	// To start WinSock, the required version must be passed to
-	// WSAStartup(). This server is going to use WinSock version
-	// 2 so create a word that will store 2 and 2 in hex i.e.
-	// 0x0202
-	WORD version = MAKEWORD(2, 2);
-
-	// Start WinSock
-	int wsOk = WSAStartup(version, &data);
-	if (wsOk != 0)
-	{
-		// Not ok! Get out quickly
-		cout << "Can't start Winsock! " << wsOk;
-		return;
-	}
-
-	// SOCKET CREATION AND BINDING
-
-	// Create a socket, notice that it is a user datagram socket (UDP)
-	SOCKET in = socket(AF_INET, SOCK_DGRAM, 0);
-
-	// Create a server hint structure for the server
-	sockaddr_in serverHint;
-	serverHint.sin_addr.S_un.S_addr = ADDR_ANY; // Us any IP address available on the machine
-	serverHint.sin_family = AF_INET; // Address format is IPv4
-	serverHint.sin_port = htons(54000); // Convert from little to big endian
-
-	// Try and bind the socket to the IP and port
-	if (bind(in, (sockaddr*)&serverHint, sizeof(serverHint)) == SOCKET_ERROR)
-	{
-		cout << "Can't bind socket! " << WSAGetLastError() << endl;
-		return;
-	}
-
-	// MAIN LOOP SETUP AND ENTRY
-
-	sockaddr_in client; // Use to hold the client information (port / ip address)
-	int clientLength = sizeof(client); // The size of the client information
-
-	char buf[1024]; // data sent by client
-
-	// Enter a loop
-	while (true)
-	{
-		ZeroMemory(&client, clientLength); // Clear the client structure
-		ZeroMemory(buf, 1024); // Clear the receive buffer
-
-		// Wait for message from client
-		int bytesIn = recvfrom(in, buf, 1024, 0, (sockaddr*)&client, &clientLength);
-		if (bytesIn == SOCKET_ERROR)
-		{
-			cout << "Error receiving from client " << WSAGetLastError() << endl;
-			continue;
-		}
-
-		// Display message and client info
-		char clientIp[256]; // Create enough space to convert the address byte array
-		ZeroMemory(clientIp, 256); // to string of characters
-
-		// Convert from byte array to chars
-		inet_ntop(AF_INET, &client.sin_addr, clientIp, 256);
-
-		// Display the message / who sent it
-		cout << "Message recv from " << clientIp << " : " << buf << endl;
-
-		// send message back to client
-		int sendOk = sendto(in, buf, 1024, 0, (sockaddr*)&client, sizeof(client));
-
-		if (sendOk == SOCKET_ERROR)
-		{
-			cout << "That didn't work! " << WSAGetLastError() << endl;
-		}
-	}
-
-	// Close socket
-	closesocket(in);
-
-	// Shutdown winsock
-	WSACleanup();
+    results = results1;
+    return;
 }
+
+void read(vector<vector<string>>& result)
+{
+    ifstream fin;
+    string line1;
+    string line2;
+
+    // Open an existing file
+    fin.open("uber-raw-data-apr14.csv");
+    int index = 0;
+    vector<string> results;
+
+    while (!fin.eof()) {
+        fin >> line1;   //These two are to format the first column of the csv file
+        fin >> line2;
+        line1 = line1 + " " + line2; // combines the date column string with the rest of its corresponding row "4/1/2014 + 0:11:00",40.769,-73.9549,"B02512"
+        parseLine(line1, results, index); // parses line1 to results vector with four elements:  "Date Time", Lat, Lon, "Base",
+        result.push_back(results); //pushes results vector to result vector
+        index++;
+    }
+    return;
+};
+
+void searchDate(vector<vector<string>>& results, vector<vector<string>>& csvData, vector<string>& searchInputs) {
+    vector<string> miniVec;
+    for (unsigned int k = 0; k < csvData.size(); k++) {         // searches for date XX/XX/XXXX 
+        miniVec = csvData.at(k);
+        if (miniVec.at(0).find(searchInputs.at(0)) != string::npos) {
+            results.push_back(miniVec);
+        }
+    }
+};
+
+void searchTime(vector<vector<string>>& results, vector<vector<string>>& csvData, vector<string>& searchInputs) {
+    vector<string> miniVec;
+    searchInputs.at(0) = searchInputs.at(0) + ":00";
+    for (unsigned int k = 0; k < csvData.size(); k++) {         // searches for time 00:00
+        miniVec = csvData.at(k);
+        if (miniVec.at(0).find(searchInputs.at(0)) != string::npos) {
+            results.push_back(miniVec);
+        }
+    }
+};
+
+void searchDateTime(vector<vector<string>>& results, vector<vector<string>>& csvData, vector<string>& searchInputs) {
+    vector<string> miniVec;
+    string dateAndTime = "\"" + searchInputs.at(1) + " " + searchInputs.at(0) + ":00" + "\"";
+    for (unsigned int k = 0; k < csvData.size(); k++) {         // searches for time and day "XX/XX/XXXX 00:00:00" 
+        miniVec = csvData.at(k);
+        if (dateAndTime.compare(miniVec.at(0)) == 0) {
+            results.push_back(miniVec);
+        }
+    }
+};
+
+void searchLocation(vector<vector<string>>& results, vector<vector<string>>& csvData, vector<string>& searchInputs) {
+    vector<string> miniVec;
+
+    for (unsigned int k = 0; k < csvData.size(); k++) {         // searches for Location: lon/lat 
+        miniVec = csvData.at(k);
+        if (searchInputs.at(0).compare(miniVec.at(1)) == 0 && searchInputs.at(1).compare(miniVec.at(2)) == 0) {
+            results.push_back(miniVec);
+        }
+    }
+};
+
+void searchBase(vector<vector<string>>& results, vector<vector<string>>& csvData, vector<string>& searchInputs) {
+    vector<string> miniVec;
+    searchInputs.at(0) = "\"" + searchInputs.at(0) + "\"";
+    for (unsigned int k = 0; k < csvData.size(); k++) {         // searches for Base#: BXXXXX
+        miniVec = csvData.at(k);
+        if (searchInputs.at(0).compare(miniVec.at(3)) == 0) {
+            results.push_back(miniVec);
+        }
+    }
+};
+
+void searchSpecific(vector<vector<string>>& results, vector<vector<string>>& csvData, vector<string>& searchInputs) {
+    vector<string> miniVec;
+    searchInputs.at(4) = "\"" + searchInputs.at(4) + "\"";
+    string dateAndTime = "\"" + searchInputs.at(1) + " " + searchInputs.at(0) + ":00" + "\"";
+    for (unsigned int k = 0; k < csvData.size(); k++) {         // searches for Location: lon/lat 
+        miniVec = csvData.at(k);
+        if (dateAndTime.compare(miniVec.at(0)) == 0 && searchInputs.at(2).compare(miniVec.at(1)) == 0 && searchInputs.at(3).compare(miniVec.at(2)) == 0 && searchInputs.at(4).compare(miniVec.at(3)) == 0) {
+            results.push_back(miniVec);
+        }
+    }
+};
+
+void parseClient(char buf[1024], vector<vector<string>>& csvData, vector<vector<string>>& results) {
+    int timeFlag = 0;
+    int dateFlag = 0;
+    int locationFlag = 0;
+    int baseFlag = 0;
+    int mostFlag = 0;
+    int leastFlag = 0;
+    vector<string> clientDat;
+    stringstream X(buf);
+    string columns;
+    string column;
+    vector<string> searchInputs;
+    while (getline(X, columns, ',')) {
+        clientDat.push_back(columns);
+    }
+    for (unsigned i = 0; i < clientDat.size(); i++) {
+
+        string compare = "Time: ";
+        if (clientDat.at(i).find(compare) != string::npos) {
+
+            if (compare != clientDat.at(i)) {
+
+                string::size_type f = clientDat.at(i).find(compare);
+                clientDat.at(i).erase(f, compare.length());
+                searchInputs.push_back(clientDat.at(i));
+                timeFlag = 1;
+            }
+        }
+        compare = "Date: ";
+        if (clientDat.at(i).find(compare) != string::npos) {
+            if (compare != clientDat.at(i)) {
+
+                string::size_type f = clientDat.at(i).find(compare);
+                clientDat.at(i).erase(f, compare.length());
+                searchInputs.push_back(clientDat.at(i));
+                dateFlag = 1;
+            }
+        }
+
+        for (unsigned h = 0; h < searchInputs.size(); h++) {
+            cout << searchInputs.at(h) << " " << endl;
+        }
+
+        if (timeFlag && dateFlag && locationFlag && baseFlag) {
+            searchSpecific(results, csvData, searchInputs);
+        }
+        else if (timeFlag && dateFlag) {
+            searchDateTime(results, csvData, searchInputs);
+        }
+        else if (timeFlag) {
+            searchTime(results, csvData, searchInputs);
+        }
+        else if (dateFlag) {
+            searchDate(results, csvData, searchInputs);
+        }
+        else if (locationFlag) {
+            searchLocation(results, csvData, searchInputs);
+        }
+        else if (baseFlag) {
+            searchBase(results, csvData, searchInputs);
+        }
+    }
+    return;
+};
