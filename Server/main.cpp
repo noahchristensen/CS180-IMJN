@@ -69,7 +69,7 @@ void main()
 	int clientLength = sizeof(client); // The size of the client information
 
 	char buf[1024]; // data sent by client
-	char bufS[1024]; // data to be sent by server
+	char bufS[2048]; // data to be sent by server
 
 	// Enter a loop
 	while (true)
@@ -77,7 +77,7 @@ void main()
 		searchRes.clear();
 		ZeroMemory(&client, clientLength); // Clear the client structure
 		ZeroMemory(buf, 1024); // Clear the receive buffer
-		ZeroMemory(bufS, 1024); // Clear the receive buffer
+		ZeroMemory(bufS, 2048); // Clear the receive buffer
 
 		// Wait for message
 		int bytesIn = recvfrom(in, buf, 1024, 0, (sockaddr*)&client, &clientLength);
@@ -100,21 +100,36 @@ void main()
 
 		if (!searchRes.empty())
 		{
-			string firstThing = "";
-			//for (int j = 0; j < searchRes.size(); j++)
-			//{
-				for (int i = 0; i < searchRes.at(0).size(); i++)
+			string dataString = "";
+			vector<string> miniVec;
+			int max = 0;
+			if (50 < searchRes.size())
+			{
+				max = 50;
+			}
+			else
+			{
+				max = searchRes.size();
+			}
+
+			for (int j = 0; j < max; j++)
+			{
+				miniVec = searchRes.at(j);
+				if (!miniVec.empty())
 				{
-					int j = 0;
-					firstThing.append(searchRes.at(j).at(i));
+					for (int i = 0; i < miniVec.size(); i++)
+					{
+						dataString.append(miniVec.at(i));
+					}
 				}
-				firstThing.append("\n");
-			//}
-			int num = firstThing.size();
 
-			strcpy_s(bufS, num + 1, firstThing.c_str());
+				dataString.append("\n");
+			}
+			int num = dataString.size();
 
-			int sendOk = sendto(in, bufS, 1024, 0, (sockaddr*)&client, sizeof(client));
+			strcpy_s(bufS, num + 1, dataString.c_str());
+
+			int sendOk = sendto(in, bufS, 2048, 0, (sockaddr*)&client, sizeof(client));
 			cout << "Sending message to " << clientIp << " : " << bufS << endl;
 		}
 		else
@@ -123,7 +138,7 @@ void main()
 			int num = noResults.size();
 
 			strcpy_s(bufS, num + 1, noResults.c_str());
-			int sendOk = sendto(in, bufS, 1024, 0, (sockaddr*)&client, sizeof(client));
+			int sendOk = sendto(in, bufS, 2048, 0, (sockaddr*)&client, sizeof(client));
 		}
 	}
 
