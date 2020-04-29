@@ -217,6 +217,16 @@ void importData(char buf[1024], vector<string> & importRows) { // called for eac
     return;
 }
 
+bool importDone(char buf[1024]) {
+    string clientMessage(buf);
+    if (clientMessage.find("Done") != string::npos) {//checks whether message is for importing
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
 void importFunction(vector<string>& importRows) {
     string fileName;
     string compare = "File: ";
@@ -228,9 +238,8 @@ void importFunction(vector<string>& importRows) {
 
     std::ofstream file;
     file.open(fileName, std::ios_base::app);
-    while (importRows.at(i).find("Done") != string::npos) {
+    for (i = 1; i < importRows.size(); i++) {
         file << importRows.at(i);
-        i++;
     }
     file.close();
 
