@@ -200,6 +200,42 @@ void insertData(vector<vector<string>>& results, vector<vector<string>>& csvData
 
 };
 
+bool checkIfImport(char buf[1024]) {
+    string clientMessage(buf);
+    if (clientMessage.find("File") != string::npos) {//checks whether message is for importing
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
+
+void importData(char buf[1024], vector<string> & importRows) { // called for each message recieved for import
+    string row(buf);
+    importRows.push_back(row);
+    return;
+}
+
+void importFunction(vector<string>& importRows) {
+    string fileName;
+    string compare = "File: ";
+    int i = 0;
+    
+    string::size_type f = importRows.at(i).find(compare); // this parses the first element to get the file name
+    importRows.at(i).erase(f, compare.length());
+    fileName = importRows.at(i);
+
+    std::ofstream file;
+    file.open(fileName, std::ios_base::app);
+    while (importRows.at(i).find("Done") != string::npos) {
+        file << importRows.at(i);
+        i++;
+    }
+    file.close();
+
+}
+
 void parseClient(string buf, vector<vector<string>>& csvData, vector<vector<string>>& results) {
     int timeFlag = 0;
     int dateFlag = 0;
@@ -364,6 +400,7 @@ int main()
         cout << "f: Insert" << endl;
         cout << "g: Time" << endl;
         cout << "h: Date" << endl;
+        cout << "i: recieve file" << endl;
         cout << "q: Quit" << endl;
 
         getline(cin, searchOption);
@@ -436,6 +473,10 @@ int main()
         else if (searchOption == "h") { // search by Date
             buf = "Time: ,Date: 4/1/2014,Latitude: ,Longitude: ,Base: ,Sort: ,Search ";
             parseClient(buf, results, searchRes);
+        }
+        if (searchOption == "i") {
+            cout << "Bye..." << endl;
+            return 0;
         }
 
         /*cout << "Results: " << endl;

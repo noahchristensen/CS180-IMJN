@@ -25,3 +25,7 @@ void deleteSpecific(vector<vector<string>>& results, vector<vector<string>>& csv
 
 void insertData(vector<vector<string>>& results, vector<vector<string>>& csvData, vector<string>& searchInputs); // insert
 void parseClient(string buf, vector<vector<string>>& csvData, vector<vector<string>>& results);
+
+bool checkIfImport(char buf[1024]); // returns triue if message from client is for import
+void importData(char buf[1024], vector<string>& importRows); // Pushes all messages to importRows including "File: raw-uber-data.csv" formatted message. 
+void importFunction(vector<string>& importRows);//creates file with corresponding file name from client and adds in all data.
