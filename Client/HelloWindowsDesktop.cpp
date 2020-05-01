@@ -35,9 +35,9 @@ HMENU hMenu;
 #define ID_BUTTON_2 2 // Search most
 #define ID_BUTTON_3 3 // Search least
 #define ID_BUTTON_4 4 // time between
-#define ID_BUTTON_5 5 // search active
-#define ID_BUTTON_6 6 // pickup ratio
-#define ID_BUTTON_7 7 // usage comparison
+#define ID_BUTTON_5 5 // day pop
+#define ID_BUTTON_6 6 // time pop
+#define ID_BUTTON_7 7 // location pop
 #define ID_BUTTON_8 8 // busiest location
 
 // Search by Time
@@ -82,25 +82,46 @@ HMENU hMenu;
 #define ID_DATA_IMPORT 37
 #define ID_DATA_EXPORT 38
 
+// Popularity
+#define ID_POP_DAY_BUTTON 39
+#define ID_POP_TIME_SWITCH 40
+#define ID_POP_TIME_BUTTON 41
+#define ID_POP_LOC_SWITCH 42
+#define ID_POP_LOC_BUTTON 43
+
 // Forward declarations of functions included in this code module:
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
-// definititions
-void RegisterTimeSearch(HINSTANCE);
-LRESULT CALLBACK TimeSearchProcedure(HWND, UINT, WPARAM, LPARAM);
-void DisplayTimeSearch(HWND);
+// declarations
+    void RegisterTimeSearch(HINSTANCE);
+    LRESULT CALLBACK TimeSearchProcedure(HWND, UINT, WPARAM, LPARAM);
+    void DisplayTimeSearch(HWND);
 
-void RegisterLocationSearch(HINSTANCE);
-LRESULT CALLBACK LocationSearchProcedure(HWND, UINT, WPARAM, LPARAM);
-void DisplayLocationSearch(HWND);
+    void RegisterLocationSearch(HINSTANCE);
+    LRESULT CALLBACK LocationSearchProcedure(HWND, UINT, WPARAM, LPARAM);
+    void DisplayLocationSearch(HWND);
 
-void RegisterModifyData(HINSTANCE);
-LRESULT CALLBACK ModifyDataProcedure(HWND, UINT, WPARAM, LPARAM);
-void DisplayModifyData(HWND);
+    void RegisterModifyData(HINSTANCE);
+    LRESULT CALLBACK ModifyDataProcedure(HWND, UINT, WPARAM, LPARAM);
+    void DisplayModifyData(HWND);
 
-string SendRequest(string);
-string ImportToServer(char* path);
-string ExportToClient();
+    void RegisterDayPopularity(HINSTANCE);
+    LRESULT CALLBACK DayPopularityProcedure(HWND, UINT, WPARAM, LPARAM);
+    void DisplayDayPopularity(HWND);
+
+    void RegisterTimePopularity(HINSTANCE);
+    LRESULT CALLBACK TimePopularityProcedure(HWND, UINT, WPARAM, LPARAM);
+    void DisplayTimePopularity(HWND);
+
+    void RegisterLocationPopularity(HINSTANCE);
+    LRESULT CALLBACK LocationPopularityProcedure(HWND, UINT, WPARAM, LPARAM);
+    void DisplayLocationPopularity(HWND);
+
+    // Server Communication
+    string SendRequest(string);
+    string ImportToServer(char* path);
+    string ExportToClient();
+
 
 int CALLBACK WinMain(
     _In_ HINSTANCE hInstance,
@@ -140,6 +161,9 @@ int CALLBACK WinMain(
     RegisterTimeSearch(hInstance);
     RegisterLocationSearch(hInstance);
     RegisterModifyData(hInstance);
+    RegisterDayPopularity(hInstance);
+    RegisterTimePopularity(hInstance);
+    RegisterLocationPopularity(hInstance);
 
     // Store instance handle in our global variable
     hInst = hInstance;
@@ -224,7 +248,7 @@ int CALLBACK WinMain(
 
     HWND hwndButton4 = CreateWindow(
         L"BUTTON",  // Predefined class; Unicode assumed //STATIC, Edit
-        L"Time Between Pickups",      // Button text 
+        L"Uber Popularity by Day",      // Button text 
         WS_VISIBLE | WS_CHILD,  // Styles 
         1450,         // x position 
         300,         // y position 
@@ -238,7 +262,7 @@ int CALLBACK WinMain(
 
     HWND hwndButton5 = CreateWindow(
         L"BUTTON",  // Predefined class; Unicode assumed //STATIC, Edit
-        L"Search Active Vehicles",      // Button text 
+        L"Uber Popularity by Time",      // Button text 
         WS_VISIBLE | WS_CHILD,  // Styles 
         250,         // x position 
         600,         // y position 
@@ -252,7 +276,7 @@ int CALLBACK WinMain(
 
     HWND hwndButton6 = CreateWindow(
         L"BUTTON",  // Predefined class; Unicode assumed //STATIC, Edit
-        L"Ratio for Pickups",      // Button text 
+        L"Uber Popularity by Location",      // Button text 
         WS_VISIBLE | WS_CHILD,  // Styles 
         650,         // x position 
         600,         // y position 
@@ -266,7 +290,7 @@ int CALLBACK WinMain(
 
     HWND hwndButton7 = CreateWindow(
         L"BUTTON",  // Predefined class; Unicode assumed //STATIC, Edit
-        L"Two App Comparison",      // Button text 
+        L"",      // Button text 
         WS_VISIBLE | WS_CHILD,  // Styles 
         1050,         // x position 
         600,         // y position 
@@ -280,7 +304,7 @@ int CALLBACK WinMain(
 
     HWND hwndButton8 = CreateWindow(
         L"BUTTON",  // Predefined class; Unicode assumed //STATIC, Edit
-        L"Busiest Location",      // Button text 
+        L"",      // Button text 
         WS_VISIBLE | WS_CHILD,  // Styles 
         1450,         // x position 
         600,         // y position 
@@ -395,20 +419,23 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                         //::MessageBeep(MB_ICONERROR);
                         //::MessageBox(hWnd, TEXT("Time Between Pickups not yet implemented"), TEXT("CS180 Project"), MB_OK);
 
+                        DisplayDayPopularity(hWnd);
                         //SendRequest();
 
                         break;
                     case ID_BUTTON_5:
-                        ::MessageBeep(MB_ICONERROR);
-                        ::MessageBox(hWnd, TEXT("Search Active Vehicles not yet implemented"), TEXT("CS180 Project"), MB_OK);
+                        //::MessageBeep(MB_ICONERROR);
+                        //::MessageBox(hWnd, TEXT("Search Active Vehicles not yet implemented"), TEXT("CS180 Project"), MB_OK);
 
+                        DisplayTimePopularity(hWnd);
                         //SendRequest();
 
                         break;
                     case ID_BUTTON_6:
-                        ::MessageBeep(MB_ICONERROR);
-                        ::MessageBox(hWnd, TEXT("Ratio for Pickups not yet implemented"), TEXT("CS180 Project"), MB_OK);
+                        //::MessageBeep(MB_ICONERROR);
+                        //::MessageBox(hWnd, TEXT("Ratio for Pickups not yet implemented"), TEXT("CS180 Project"), MB_OK);
 
+                        DisplayLocationPopularity(hWnd);
                         //SendRequest();
 
                         break;
@@ -1675,6 +1702,543 @@ void DisplayModifyData(HWND hWnd)
     );      // Pointer not needed.
 }
 
+void RegisterDayPopularity(HINSTANCE hInstance)
+{
+    WNDCLASSW popularity = { 0 };
+
+    popularity.hbrBackground = (HBRUSH)(COLOR_WINDOW);
+    popularity.hCursor = LoadCursor(NULL, IDC_ARROW);
+    popularity.style = CS_HREDRAW | CS_VREDRAW;
+    popularity.hInstance = hInstance;
+    popularity.lpszClassName = L"myDayPopClass";
+    popularity.lpfnWndProc = DayPopularityProcedure;
+
+    RegisterClassW(&popularity);
+}
+
+HWND hwndDayPopField;
+HWND hwndDayUseField;
+
+LRESULT CALLBACK DayPopularityProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lp)
+{
+    switch (msg)
+    {
+    case WM_CLOSE:
+        DestroyWindow(hWnd);
+        break;
+    case WM_COMMAND: // when an action happens
+        switch (LOWORD(wParam))
+        {
+            case ID_POP_DAY_BUTTON:
+                ::MessageBeep(MB_ICONERROR);
+                string serverMessage;
+                string searchComplete;
+                if (serverMessage.compare("unable to connect to server") != 0)
+                {
+                    searchComplete = "Search Completed";
+                }
+                else
+                {
+                    searchComplete = "unable to connect to server";
+                }
+
+                wstring wideSSM = wstring(searchComplete.begin(), searchComplete.end());
+                const wchar_t* wideCSSM = wideSSM.c_str();
+                ::MessageBox(hWnd, wideCSSM, TEXT("CS180 Project - Server Response"), MB_OK);
+
+                wstring wideSM = wstring(serverMessage.begin(), serverMessage.end());
+                const wchar_t* wideCSM = wideSM.c_str();
+
+                SetWindowText(hwndDayPopField, wideCSM);
+                SetWindowText(hwndDayUseField, wideCSM);
+                break;
+        }
+        break;
+    default:
+        return DefWindowProcW(hWnd, msg, wParam, lp);
+    }
+}
+
+void DisplayDayPopularity(HWND hWnd)
+{
+    HWND hWndPopularity = CreateWindowW(
+        L"myDayPopClass",
+        L"CS180 Project - Day Popularity",
+        WS_VISIBLE | WS_OVERLAPPEDWINDOW,
+        400, 400, 200, 200,
+        hWnd,
+        NULL,
+        NULL,
+        NULL
+    );
+
+    HWND hwndDaySortLabel = CreateWindow(
+        L"Static",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"Most Popular",      // Button text 
+        WS_VISIBLE | WS_CHILD | SS_CENTER | BS_CENTER | WS_BORDER,  // Styles 
+        100,         // x position 
+        50,         // y position 
+        150,        // Button width
+        60,        // Button heighth
+        hWndPopularity,     // Parent window
+        NULL,       // No menu.
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );      // Pointer not needed.
+
+    HWND hwndDayCalcButton = CreateWindow(
+        L"Button",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"Calculate",      // Button text 
+        WS_VISIBLE | WS_CHILD | BS_CENTER,  // Styles 
+        350,         // x position 
+        60,         // y position 
+        100,        // Button width
+        40,        // Button heighth
+        hWndPopularity,     // Parent window
+        (HMENU)ID_POP_DAY_BUTTON,       // No menu.
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );      // Pointer not needed.
+
+    HWND hwndDayLabel = CreateWindow(
+        L"Static",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"Location",      // Button text 
+        WS_VISIBLE | WS_CHILD | SS_CENTER,  // Styles 
+        100,         // x position 
+        200,         // y position 
+        100,        // Button width
+        40,        // Button heighth
+        hWndPopularity,     // Parent window
+        NULL,       // No menu.
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );      // Pointer not needed.
+
+    hwndDayPopField = CreateWindow(
+        L"EDIT",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"",      // Button text 
+        WS_VISIBLE | WS_CHILD | SS_CENTER | WS_BORDER,  // Styles 
+        100,         // x position 
+        250,         // y position 
+        200,        // Button width
+        400,        // Button heighth
+        hWndPopularity,     // Parent window
+        NULL,       // No menu.
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );      // Pointer not needed.
+
+    HWND hwndUseLabel = CreateWindow(
+        L"Static",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"Uses",      // Button text 
+        WS_VISIBLE | WS_CHILD | SS_CENTER,  // Styles 
+        600,         // x position 
+        200,         // y position 
+        200,        // Button width
+        40,        // Button heighth
+        hWndPopularity,     // Parent window
+        NULL,       // No menu.
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );      // Pointer not needed.
+
+    hwndDayUseField = CreateWindow(
+        L"EDIT",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"",      // Button text 
+        WS_VISIBLE | WS_CHILD | SS_CENTER | WS_BORDER,  // Styles 
+        600,         // x position 
+        250,         // y position 
+        200,        // Button width
+        400,        // Button heighth
+        hWndPopularity,     // Parent window
+        NULL,       // No menu.
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );      // Pointer not needed.
+}
+
+void RegisterTimePopularity(HINSTANCE hInstance)
+{
+    WNDCLASSW popularity = { 0 };
+
+    popularity.hbrBackground = (HBRUSH)(COLOR_WINDOW);
+    popularity.hCursor = LoadCursor(NULL, IDC_ARROW);
+    popularity.style = CS_HREDRAW | CS_VREDRAW;
+    popularity.hInstance = hInstance;
+    popularity.lpszClassName = L"myTimePopClass";
+    popularity.lpfnWndProc = TimePopularityProcedure;
+
+    RegisterClassW(&popularity);
+}
+
+HWND hwndTimeSortLabel;
+HWND hwndTimePopField;
+HWND hwndTimeUseField;
+bool timeCalcMost = true;
+
+LRESULT CALLBACK TimePopularityProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lp)
+{
+    switch (msg)
+    {
+    case WM_CLOSE:
+        DestroyWindow(hWnd);
+        break;
+    case WM_COMMAND: // when an action happens
+        switch (LOWORD(wParam))
+        {
+            case ID_POP_TIME_SWITCH:
+            {
+                timeCalcMost = !timeCalcMost;
+                string switchStr;
+                if (timeCalcMost)
+                {
+                    switchStr = "Most Popular";
+                }
+                else
+                {
+                    switchStr = "Least Popular";
+                }
+
+                wstring wideSM = wstring(switchStr.begin(), switchStr.end());
+                const wchar_t* wideCSM = wideSM.c_str();
+
+                SetWindowText(hwndTimeSortLabel, wideCSM);
+
+                break;
+            }
+            case ID_POP_TIME_BUTTON:
+                ::MessageBeep(MB_ICONERROR);
+                string serverMessage;
+                string searchComplete;
+                if (serverMessage.compare("unable to connect to server") != 0)
+                {
+                    searchComplete = "Search Completed";
+                }
+                else
+                {
+                    searchComplete = "unable to connect to server";
+                }
+
+                wstring wideSSM = wstring(searchComplete.begin(), searchComplete.end());
+                const wchar_t* wideCSSM = wideSSM.c_str();
+                ::MessageBox(hWnd, wideCSSM, TEXT("CS180 Project - Server Response"), MB_OK);
+
+                wstring wideSM = wstring(serverMessage.begin(), serverMessage.end());
+                const wchar_t* wideCSM = wideSM.c_str();
+
+                SetWindowText(hwndTimePopField, wideCSM);
+                SetWindowText(hwndTimeUseField, wideCSM);
+                break;
+        }
+        break;
+    default:
+        return DefWindowProcW(hWnd, msg, wParam, lp);
+    }
+}
+
+void DisplayTimePopularity(HWND hWnd)
+{
+    HWND hWndPopularity = CreateWindowW(
+        L"myTimePopClass",
+        L"CS180 Project - Time Popularity",
+        WS_VISIBLE | WS_OVERLAPPEDWINDOW,
+        400, 400, 200, 200,
+        hWnd,
+        NULL,
+        NULL,
+        NULL
+    );
+
+    hwndTimeSortLabel = CreateWindow(
+        L"STATIC",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"Most Popular",      // Button text 
+        WS_VISIBLE | WS_CHILD | SS_CENTER | BS_CENTER | WS_BORDER,  // Styles 
+        100,         // x position 
+        50,         // y position 
+        150,        // Button width
+        60,        // Button heighth
+        hWndPopularity,     // Parent window
+        NULL,       // No menu.
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );      // Pointer not needed.
+
+    HWND hwndTimeSwitchButton = CreateWindow(
+        L"BUTTON",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"Switch",      // Button text 
+        WS_VISIBLE | WS_CHILD | BS_CENTER,  // Styles 
+        350,         // x position 
+        60,         // y position 
+        100,        // Button width
+        40,        // Button heighth
+        hWndPopularity,     // Parent window
+        (HMENU) ID_POP_TIME_SWITCH,       // No menu.
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );      // Pointer not needed.
+
+    HWND hwndTimeCalcButton = CreateWindow(
+        L"Button",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"Calculate",      // Button text 
+        WS_VISIBLE | WS_CHILD | BS_CENTER,  // Styles 
+        550,         // x position 
+        60,         // y position 
+        100,        // Button width
+        40,        // Button heighth
+        hWndPopularity,     // Parent window
+        (HMENU)ID_POP_TIME_BUTTON,       // No menu.
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );      // Pointer not needed.
+
+    HWND hwndTimeLabel = CreateWindow(
+        L"Static",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"Time",      // Button text 
+        WS_VISIBLE | WS_CHILD | SS_CENTER,  // Styles 
+        100,         // x position 
+        200,         // y position 
+        100,        // Button width
+        40,        // Button heighth
+        hWndPopularity,     // Parent window
+        NULL,       // No menu.
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );      // Pointer not needed.
+
+    hwndTimePopField = CreateWindow(
+        L"EDIT",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"",      // Button text 
+        WS_VISIBLE | WS_CHILD | SS_CENTER | WS_BORDER,  // Styles 
+        100,         // x position 
+        250,         // y position 
+        200,        // Button width
+        400,        // Button heighth
+        hWndPopularity,     // Parent window
+        NULL,       // No menu.
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );      // Pointer not needed.
+
+    HWND hwndUseLabel = CreateWindow(
+        L"Static",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"Uses",      // Button text 
+        WS_VISIBLE | WS_CHILD | SS_CENTER,  // Styles 
+        600,         // x position 
+        200,         // y position 
+        200,        // Button width
+        40,        // Button heighth
+        hWndPopularity,     // Parent window
+        NULL,       // No menu.
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );      // Pointer not needed.
+
+    hwndTimeUseField = CreateWindow(
+        L"EDIT",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"",      // Button text 
+        WS_VISIBLE | WS_CHILD | SS_CENTER | WS_BORDER,  // Styles 
+        600,         // x position 
+        250,         // y position 
+        200,        // Button width
+        400,        // Button heighth
+        hWndPopularity,     // Parent window
+        NULL,       // No menu.
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );      // Pointer not needed.
+}
+
+void RegisterLocationPopularity(HINSTANCE hInstance)
+{
+    WNDCLASSW popularity = { 0 };
+
+    popularity.hbrBackground = (HBRUSH)(COLOR_WINDOW);
+    popularity.hCursor = LoadCursor(NULL, IDC_ARROW);
+    popularity.style = CS_HREDRAW | CS_VREDRAW;
+    popularity.hInstance = hInstance;
+    popularity.lpszClassName = L"myLocPopClass";
+    popularity.lpfnWndProc = LocationPopularityProcedure;
+
+    RegisterClassW(&popularity);
+}
+
+HWND hwndLocSortLabel;
+HWND hwndLocField;
+HWND hwndLocUseField;
+bool locCalcMost = true;
+
+LRESULT CALLBACK LocationPopularityProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lp)
+{
+    switch (msg)
+    {
+    case WM_CLOSE:
+        DestroyWindow(hWnd);
+        break;
+    case WM_COMMAND: // when an action happens
+        switch (LOWORD(wParam))
+        {
+            case ID_POP_LOC_SWITCH:
+            {
+                locCalcMost = !locCalcMost;
+                string switchStr;
+                if (locCalcMost)
+                {
+                    switchStr = "Most Popular";
+                }
+                else
+                {
+                    switchStr = "Least Popular";
+                }
+
+                wstring wideSM = wstring(switchStr.begin(), switchStr.end());
+                const wchar_t* wideCSM = wideSM.c_str();
+
+                SetWindowText(hwndLocSortLabel, wideCSM);
+
+                break;
+            }
+            case ID_POP_LOC_BUTTON:
+                ::MessageBeep(MB_ICONERROR);
+                string serverMessage;
+                string searchComplete;
+                if (serverMessage.compare("unable to connect to server") != 0)
+                {
+                    searchComplete = "Search Completed";
+                }
+                else
+                {
+                    searchComplete = "unable to connect to server";
+                }
+
+                wstring wideSSM = wstring(searchComplete.begin(), searchComplete.end());
+                const wchar_t* wideCSSM = wideSSM.c_str();
+                ::MessageBox(hWnd, wideCSSM, TEXT("CS180 Project - Server Response"), MB_OK);
+
+                wstring wideSM = wstring(serverMessage.begin(), serverMessage.end());
+                const wchar_t* wideCSM = wideSM.c_str();
+
+                SetWindowText(hwndLocField, wideCSM);
+                SetWindowText(hwndLocUseField, wideCSM);
+                break;
+        }
+        break;
+    default:
+        return DefWindowProcW(hWnd, msg, wParam, lp);
+    }
+}
+
+void DisplayLocationPopularity(HWND hWnd)
+{
+    HWND hWndPopularity = CreateWindowW(
+        L"myLocPopClass",
+        L"CS180 Project - Location Popularity",
+        WS_VISIBLE | WS_OVERLAPPEDWINDOW,
+        400, 400, 200, 200,
+        hWnd,
+        NULL,
+        NULL,
+        NULL
+    );
+
+    hwndLocSortLabel = CreateWindow(
+        L"Static",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"Most Popular",      // Button text 
+        WS_VISIBLE | WS_CHILD | SS_CENTER | BS_CENTER | WS_BORDER,  // Styles 
+        100,         // x position 
+        50,         // y position 
+        150,        // Button width
+        60,        // Button heighth
+        hWndPopularity,     // Parent window
+        NULL,       // No menu.
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );      // Pointer not needed.
+
+    HWND hwndLocSwitchButton = CreateWindow(
+        L"BUTTON",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"Switch",      // Button text 
+        WS_VISIBLE | WS_CHILD | BS_CENTER,  // Styles 
+        350,         // x position 
+        60,         // y position 
+        100,        // Button width
+        40,        // Button heighth
+        hWndPopularity,     // Parent window
+        (HMENU) ID_POP_LOC_SWITCH,    
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );      // Pointer not needed.
+
+    HWND hwndLocCalcButton = CreateWindow(
+        L"Button",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"Calculate",      // Button text 
+        WS_VISIBLE | WS_CHILD | BS_CENTER,  // Styles 
+        550,         // x position 
+        60,         // y position 
+        100,        // Button width
+        40,        // Button heighth
+        hWndPopularity,     // Parent window
+        (HMENU)ID_POP_LOC_BUTTON,       // No menu.
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );      // Pointer not needed.
+
+    HWND hwndLocLabel = CreateWindow(
+        L"Static",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"Location",      // Button text 
+        WS_VISIBLE | WS_CHILD | SS_CENTER,  // Styles 
+        100,         // x position 
+        200,         // y position 
+        100,        // Button width
+        40,        // Button heighth
+        hWndPopularity,     // Parent window
+        NULL,       // No menu.
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );      // Pointer not needed.
+
+    hwndLocField = CreateWindow(
+        L"EDIT",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"",      // Button text 
+        WS_VISIBLE | WS_CHILD | SS_CENTER | WS_BORDER,  // Styles 
+        100,         // x position 
+        250,         // y position 
+        200,        // Button width
+        400,        // Button heighth
+        hWndPopularity,     // Parent window
+        NULL,       // No menu.
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );      // Pointer not needed.
+
+    HWND hwndUseLabel = CreateWindow(
+        L"Static",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"Uses",      // Button text 
+        WS_VISIBLE | WS_CHILD | SS_CENTER,  // Styles 
+        600,         // x position 
+        200,         // y position 
+        200,        // Button width
+        40,        // Button heighth
+        hWndPopularity,     // Parent window
+        NULL,       // No menu.
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );      // Pointer not needed.
+
+    hwndLocUseField = CreateWindow(
+        L"EDIT",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"",      // Button text 
+        WS_VISIBLE | WS_CHILD | SS_CENTER | WS_BORDER,  // Styles 
+        600,         // x position 
+        250,         // y position 
+        200,        // Button width
+        400,        // Button heighth
+        hWndPopularity,     // Parent window
+        NULL,       // No menu.
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );      // Pointer not needed.
+}
+
 string SendRequest(string message) // send request to server
 {
     string serverMessage;
@@ -1900,7 +2464,6 @@ void exportFunction(vector<string>& importRows) {
     file.close();
 
 }
-
 
 string ExportToClient()
 {
