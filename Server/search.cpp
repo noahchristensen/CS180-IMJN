@@ -46,21 +46,25 @@ void read(Storage & data1, string filename)
     //Storage data1;
     //vector<string> results;
     cout << "we are about to open file to parse" << endl;
+    Parsed* obj;
+    Use* row1;
     while (!fin.eof()) {
         fin >> line1;   //These two are to format the first column of the csv file
         fin >> line2;
         line1 = line1 + " " + line2; // combines the date column string with the rest of its corresponding row "4/1/2014 + 0:11:00",40.769,-73.9549,"B02512"
-        Parsed obj;
-        obj.parseData(line1); // this will parse all the fields
-        Use row1;
-        row1.setTime(obj.retTime());
-        row1.setDate(obj.retDate());
-        row1.setLong(obj.retLongt());
-        row1.setLat(obj.retLat());
-        row1.setBase(obj.retBase());
-        row1.setExists(true);
+        obj = new Parsed;
+        obj->parseData(line1); // this will parse all the fields
+        row1 = new Use;
+        
+        row1->setTime(obj->retTime());
+        row1->setDate(obj->retDate());
+        row1->setLong(obj->retLongt());
+        row1->setLat(obj->retLat());
+        row1->setBase(obj->retBase());
+        row1->setExists(true);
+        cout << row1->getDate() << endl;
         //row1.setDay(obj.retDay())
-        data1.insertRow(row1);    //Use row1 object is created, and added to the Storage data1 object
+        data1.insertRow(*row1);    //Use row1 object is created, and added to the Storage data1 object
 
         //parseLine(line1, results, index); // parses line1 to results vector with four elements:  "Date Time", Lat, Lon, "Base",
         //result.push_back(results); //pushes results vector to result vector
