@@ -200,6 +200,7 @@ void main()
 				string dataString = "";
 				vector<string> miniVec;
 				int max = 0;
+		
 				if (50 < searchRes.size())
 				{
 					max = 50;
@@ -208,9 +209,10 @@ void main()
 				{
 					max = searchRes.size();
 				}
-
+				
 				for (int j = 0; j < max; j++)
 				{
+			
 					miniVec = searchRes.at(j);
 					if (!miniVec.empty())
 					{
@@ -218,14 +220,16 @@ void main()
 						{
 							dataString.append(miniVec.at(i));
 						}
+						
 					}
-
+					
 					dataString.append("\n");
 				}
+				
 				int num = dataString.size();
-
+				
 				strcpy_s(bufS, num + 1, dataString.c_str());
-
+				
 				int sendOk = sendto(in, bufS, 10000, 0, (sockaddr*)&client, sizeof(client));
 				cout << "Sending message to " << clientIp << " : " << bufS << endl;
 			}

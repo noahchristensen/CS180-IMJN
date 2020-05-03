@@ -62,14 +62,15 @@ void read(Storage & data1, string filename)
         row1->setLat(obj->retLat());
         row1->setBase(obj->retBase());
         row1->setExists(true);
-        cout << row1->getDate() << endl;
+        //cout << row1->getDate() << endl;
         //row1.setDay(obj.retDay())
         data1.insertRow(*row1);    //Use row1 object is created, and added to the Storage data1 object
 
         //parseLine(line1, results, index); // parses line1 to results vector with four elements:  "Date Time", Lat, Lon, "Base",
         //result.push_back(results); //pushes results vector to result vector
-        if (index % 10000 == 0) {
-            cout << "just pushed " << index << endl;
+        if (index % 1 == 0) {
+            //cout << "just pushed " << index << endl;
+            cout << index << endl;
         }
 
         index++;
@@ -169,6 +170,7 @@ void Storage::convertStorage() { // pushes data in format: "Date Time", Lat, Lon
         miniVec.push_back(getRow(i).getLong()); // -YY.YYYY
         miniVec.push_back(baseNum); // BXXXXX
         results.push_back(miniVec);
+        miniVec.clear();
 
     }
 }; // done right before sending the client data : client imports
@@ -286,171 +288,268 @@ void Parsed::convertToDay(string arg) {
 
 
 
-void searchDate(vector<vector<string>>& results, Storage& csvData, vector<string>& searchInputs) {
+void searchDate(vector<vector<string>>& results1, Storage& csvData, vector<string>& searchInputs) {
     vector<string> miniVec;
-    //string temp;
-    for (unsigned int k = 0; k < csvData.getOrigSize(); k++) {// searches for date XX/XX/XXXX 
-        //miniVec = csvData.at(k);
-        if (csvData.getRow(k).getDate().find(searchInputs.at(0)) != string::npos) {
-            miniVec.at(0) = "\"" + csvData.getRow(k).getDate() + " " + csvData.getRow(k).getTime() + "\"";
-            miniVec.at(1) = csvData.getRow(k).getLat();
-            miniVec.at(2) = csvData.getRow(k).getLong();
-            miniVec.at(3) = csvData.getRow(k).getBase();
-            results.push_back(miniVec);
+    Storage *obj = &csvData;
+    string in1;
+
+    for (int k = 0; k < obj->getOrigSize(); k++) {// searches for date XX/XX/XXXX
+        Use* row1 = new Use;
+        *row1 = obj->getRow(k);
+   
+        if (row1->getDate().compare(searchInputs.at(0)) == 0) {
+           
+            in1 = "\"" + row1->getDate() + " " + row1->getTime() + "\"";
+           
+            miniVec.push_back(in1);
+            in1 = row1->getLat();
+           
+            miniVec.push_back(in1);
+            in1 = row1->getLong();
+          
+            miniVec.push_back(in1);
+            in1 = row1->getBase();
+           
+            miniVec.push_back(in1);
+            results1.push_back(miniVec);
+            miniVec.clear();
         }
+        delete row1;
+    }
+    
+    return;
+};
+
+void searchTime(vector<vector<string>>& results1, Storage& csvData, vector<string>& searchInputs) {
+    vector<string> miniVec;
+    Storage* obj = &csvData;
+    string in1;
+
+    searchInputs.at(0) = searchInputs.at(0) + ":00";
+    cout << searchInputs.at(0) << endl;
+    for (unsigned int k = 0; k < obj->getOrigSize(); k++) {// searches for time 00:00
+        Use* row1 = new Use;
+        *row1 = obj->getRow(k);
+        if (row1->getTime().compare(searchInputs.at(0)) == 0) {
+            in1 = "\"" + row1->getDate() + " " + row1->getTime() + "\"";
+
+            miniVec.push_back(in1);
+            in1 = row1->getLat();
+
+            miniVec.push_back(in1);
+            in1 = row1->getLong();
+
+            miniVec.push_back(in1);
+            in1 = row1->getBase();
+
+            miniVec.push_back(in1);
+            results1.push_back(miniVec);
+            miniVec.clear();
+           //pushes found searches to results
+        }
+        delete row1;
     }
 };
 
-void searchTime(vector<vector<string>>& results, Storage& csvData, vector<string>& searchInputs) {
+void searchDateTime(vector<vector<string>>& results1, Storage& csvData, vector<string>& searchInputs) {
     vector<string> miniVec;
-
-    searchInputs.at(0) = " " + searchInputs.at(0) + ":00";
-    for (unsigned int k = 0; k < csvData.getOrigSize(); k++) {// searches for time 00:00
-        //miniVec = csvData.at(k);
-        if (csvData.getRow(k).getTime().find(searchInputs.at(0)) != string::npos) {
-            miniVec.at(0) = "\"" + csvData.getRow(k).getDate() + " " + csvData.getRow(k).getTime() + "\"";
-            miniVec.at(1) = csvData.getRow(k).getLat();
-            miniVec.at(2) = csvData.getRow(k).getLong();
-            miniVec.at(3) = csvData.getRow(k).getBase();
-            results.push_back(miniVec); //pushes found searches to results
-        }
-    }
-};
-
-void searchDateTime(vector<vector<string>>& results, Storage& csvData, vector<string>& searchInputs) {
-    vector<string> miniVec;
+    Storage* obj = &csvData;
+    string in1;
     //string dateAndTime = "\"" + searchInputs.at(1) + " " + searchInputs.at(0) + ":00" + "\"";
-    for (unsigned int k = 0; k < csvData.getOrigSize(); k++) { // searches for time and day "XX/XX/XXXX 00:00:00" 
-        //miniVec = csvData.at(k);
-        if (searchInputs.at(1).compare(csvData.getRow(k).getDate()) == 0 && searchInputs.at(0).compare(csvData.getRow(k).getTime()) == 0) {
-            miniVec.at(0) = "\"" + csvData.getRow(k).getDate() + " " + csvData.getRow(k).getTime() + "\"";
-            miniVec.at(1) = csvData.getRow(k).getLat();
-            miniVec.at(2) = csvData.getRow(k).getLong();
-            miniVec.at(3) = csvData.getRow(k).getBase();
-            results.push_back(miniVec); //pushes found searches to results
+    for (unsigned int k = 0; k < obj->getOrigSize(); k++) { // searches for time and day "XX/XX/XXXX 00:00:00" 
+        Use* row1 = new Use;
+        *row1 = obj->getRow(k);
+        if (searchInputs.at(1).compare(row1->getDate()) == 0 && searchInputs.at(0).compare(row1->getTime()) == 0) {
+            in1 = "\"" + row1->getDate() + " " + row1->getTime() + "\"";
+
+            miniVec.push_back(in1);
+            in1 = row1->getLat();
+
+            miniVec.push_back(in1);
+            in1 = row1->getLong();
+
+            miniVec.push_back(in1);
+            in1 = row1->getBase();
+
+            miniVec.push_back(in1);
+            results1.push_back(miniVec);
+            miniVec.clear();
+            //pushes found searches to results
         }
+        delete row1;
     }
 };
 
-void searchLocation(vector<vector<string>>& results, Storage& csvData, vector<string>& searchInputs) {
+void searchLocation(vector<vector<string>>& results1, Storage& csvData, vector<string>& searchInputs) {
     vector<string> miniVec;
-    for (unsigned int k = 0; k < csvData.getOrigSize(); k++) {// searches for Location: lon/lat 
-        //miniVec = csvData.at(k);
-        if (searchInputs.at(0).compare(csvData.getRow(k).getLat()) == 0 && searchInputs.at(1).compare(csvData.getRow(k).getLat()) == 0) {
-            miniVec.at(0) = "\"" + csvData.getRow(k).getDate() + " " + csvData.getRow(k).getTime() + "\"";
-            miniVec.at(1) = csvData.getRow(k).getLat();
-            miniVec.at(2) = csvData.getRow(k).getLong();
-            miniVec.at(3) = csvData.getRow(k).getBase();
-            results.push_back(miniVec); //pushes found searches to results
+    Storage* obj = &csvData;
+    string in1;
+    for (unsigned int k = 0; k < obj->getOrigSize(); k++) {// searches for Location: lon/lat 
+        Use* row1 = new Use;
+        *row1 = obj->getRow(k);
+        if (searchInputs.at(0).compare(row1->getLat()) == 0 && searchInputs.at(1).compare(row1->getLat()) == 0) {
+            in1 = "\"" + row1->getDate() + " " + row1->getTime() + "\"";
+
+            miniVec.push_back(in1);
+            in1 = row1->getLat();
+
+            miniVec.push_back(in1);
+            in1 = row1->getLong();
+
+            miniVec.push_back(in1);
+            in1 = row1->getBase();
+
+            miniVec.push_back(in1);
+            results1.push_back(miniVec);
+            miniVec.clear();
+            //pushes found searches to results
         }
+        delete row1;
     }
 };
 
-void searchBase(vector<vector<string>>& results, Storage& csvData, vector<string>& searchInputs) {
+void searchBase(vector<vector<string>>& results1, Storage& csvData, vector<string>& searchInputs) {
     vector<string> miniVec;
+    Storage* obj = &csvData;
+    string in1;
     searchInputs.at(0) = "\"" + searchInputs.at(0) + "\"";
-    for (unsigned int k = 0; k < csvData.getOrigSize(); k++) {// searches for Base#: BXXXXX
-        //miniVec = csvData.at(k);
-        if (searchInputs.at(0).compare(csvData.getRow(k).getBase()) == 0) {
-            miniVec.at(0) = "\"" + csvData.getRow(k).getDate() + " " + csvData.getRow(k).getTime() + "\"";
-            miniVec.at(1) = csvData.getRow(k).getLat();
-            miniVec.at(2) = csvData.getRow(k).getLong();
-            miniVec.at(3) = csvData.getRow(k).getBase();
-            results.push_back(miniVec); //pushes found searches to results
+    for (unsigned int k = 0; k < obj->getOrigSize(); k++) {// searches for Base#: BXXXXX
+        Use* row1 = new Use;
+        *row1 = obj->getRow(k);
+        if (searchInputs.at(0).compare(row1->getBase()) == 0) {
+            in1 = "\"" + row1->getDate() + " " + row1->getTime() + "\"";
+
+            miniVec.push_back(in1);
+            in1 = row1->getLat();
+
+            miniVec.push_back(in1);
+            in1 = row1->getLong();
+
+            miniVec.push_back(in1);
+            in1 = row1->getBase();
+
+            miniVec.push_back(in1);
+            results1.push_back(miniVec);
+            miniVec.clear();
+            //pushes found searches to results
         }
+        delete row1;
     }
 };
 
-void searchSpecific(vector<vector<string>>& results, Storage& csvData, vector<string>& searchInputs) {
+void searchSpecific(vector<vector<string>>& results1, Storage& csvData, vector<string>& searchInputs) {
     vector<string> miniVec;
     string temp;
+    Storage* obj = &csvData;
+    string in1;
     
     searchInputs.at(4) = "\"" + searchInputs.at(4) + "\"";
     string dateAndTime = "\"" + searchInputs.at(1) + " " + searchInputs.at(0) + ":00" + "\"";
-    for (unsigned int k = 0; k < csvData.getOrigSize(); k++) { //
-        temp = "\"" + csvData.getRow(k).getDate() + " " + csvData.getRow(k).getTime() + "\"";
-        if (dateAndTime.compare(temp) == 0 && searchInputs.at(2).compare(csvData.getRow(k).getLat()) == 0 && searchInputs.at(3).compare(csvData.getRow(k).getLong()) == 0 && searchInputs.at(4).compare(csvData.getRow(k).getBase()) == 0) {
-            miniVec.at(0) = "\"" + csvData.getRow(k).getDate() + " " + csvData.getRow(k).getTime() + "\"";
-            miniVec.at(1) = csvData.getRow(k).getLat();
-            miniVec.at(2) = csvData.getRow(k).getLong();
-            miniVec.at(3) = csvData.getRow(k).getBase();
-            results.push_back(miniVec); //pushes found searches to results
+    for (unsigned int k = 0; k < obj->getOrigSize(); k++) { //
+        Use* row1 = new Use;
+        *row1 = obj->getRow(k);
+        temp = "\"" + row1->getDate() + " " + row1->getTime() + "\"";
+        if (dateAndTime.compare(temp) == 0 && searchInputs.at(2).compare(row1->getLat()) == 0 && searchInputs.at(3).compare(row1->getLong()) == 0 && searchInputs.at(4).compare(row1->getBase()) == 0) {
+            in1 = "\"" + row1->getDate() + " " + row1->getTime() + "\"";
+
+            miniVec.push_back(in1);
+            in1 = row1->getLat();
+
+            miniVec.push_back(in1);
+            in1 = row1->getLong();
+
+            miniVec.push_back(in1);
+            in1 = row1->getBase();
+
+            miniVec.push_back(in1);
+            results1.push_back(miniVec);
+            miniVec.clear();
+            //pushes found searches to results
         }
+        delete row1;
     }
 };
 
 void deleteTime(vector<vector<string>>& results, Storage& csvData, vector<string>& searchInputs) {
     vector<string> miniVec;
+    Storage* obj = &csvData;
+    
     searchInputs.at(0) = " " + searchInputs.at(0) + ":00";
-    for (unsigned int k = 0; k < csvData.getOrigSize(); k++) { // searches for time 00:00
-        //miniVec = csvData.at(k);
-        if ((csvData.getRow(k).getTime().find(searchInputs.at(0)) != string::npos)) { //the time is found so we delete this element
+    for (unsigned int k = 0; k < obj->getOrigSize(); k++) { // searches for time 00:00
+        Use* row1 = new Use;
+        *row1 = obj->getRow(k);
+        if ((row1->getTime().find(searchInputs.at(0)) != string::npos)) { //the time is found so we delete this element
             //results.push_back(miniVec); ////pushes elements not satisfying the search into results vector
-            csvData.deleteRow(k);
+            obj->deleteRow(k);
         }
-    }//results and cvsData should be equal
-    csvData.updateDelData();
+        delete row1;
+    }
+    obj->updateDelData();
 
-    //csvData.clear(); // clears old vector
-    //csvData = results; // copies new vector with removed elements to original
 };
 
 void deleteDate(vector<vector<string>>& results, Storage& csvData, vector<string>& searchInputs) {
     vector<string> miniVec;
-    for (unsigned int k = 0; k < csvData.getOrigSize(); k++) { // searches for date XX/XX/XXXX 
-        //miniVec = csvData.at(k);
-        if (csvData.getRow(k).getDate().find(searchInputs.at(0)) != string::npos) { //if search element is found it is deleted
-            csvData.deleteRow(k);
+    Storage* obj = &csvData;
+
+    for (unsigned int k = 0; k < obj->getOrigSize(); k++) { // searches for date XX/XX/XXXX 
+        Use* row1 = new Use;
+        *row1 = obj->getRow(k);
+        if (row1->getDate().find(searchInputs.at(0)) != string::npos) { //if search element is found it is deleted
+            obj->deleteRow(k);
         }
-    }//results and cvsData should be equal
-    //csvData.clear();// clears old vector
-    //csvData = results;// copies new vector with removed elements to original
-    csvData.updateDelData();
+        delete row1;
+    }
+    obj->updateDelData();
 };
 
 void deleteTimeAndDate(vector<vector<string>>& results, Storage& csvData, vector<string>& searchInputs) {
     vector<string> miniVec;
     string temp;
     string dateAndTime = "\"" + searchInputs.at(1) + " " + searchInputs.at(0) + ":00" + "\"";
-    for (unsigned int k = 0; k < csvData.getOrigSize(); k++) {// searches for time and day "XX/XX/XXXX 00:00:00" 
-        //miniVec = csvData.at(k);
-        temp = "\"" + csvData.getRow(k).getDate() + " " + csvData.getRow(k).getTime() + "\"";
+    Storage* obj = &csvData;
+
+    for (unsigned int k = 0; k < obj->getOrigSize(); k++) {// searches for time and day "XX/XX/XXXX 00:00:00" 
+        Use* row1 = new Use;
+        *row1 = obj->getRow(k);
+        temp = "\"" + row1->getDate() + " " + row1->getTime() + "\"";
         if (dateAndTime.compare(temp) == 0) { //delete is equal
-            csvData.deleteRow(k);
+            obj->deleteRow(k);
         }
-    }//results and cvsData should be equal
-    //csvData.clear();// clears old vector
-    //csvData = results;// copies new vector with removed elements to original
-    csvData.updateDelData();
+        delete row1;
+    }
+    obj->updateDelData();
 };
 
 void deleteLocation(vector<vector<string>>& results, Storage& csvData, vector<string>& searchInputs) {
     vector<string> miniVec;
-    for (unsigned int k = 0; k < csvData.getOrigSize(); k++) { // searches for Location: lon/lat 
-        //miniVec = csvData.at(k);
-        if ((searchInputs.at(0).compare(csvData.getRow(k).getLat()) == 0 && searchInputs.at(1).compare(csvData.getRow(k).getLong()) == 0)) {
-            //results.push_back(miniVec);
-            csvData.deleteRow(k);
+    Storage* obj = &csvData;
+
+    for (unsigned int k = 0; k < obj->getOrigSize(); k++) { // searches for Location: lon/lat 
+        Use* row1 = new Use;
+        *row1 = obj->getRow(k);
+        if ((searchInputs.at(0).compare(row1->getLat()) == 0 && searchInputs.at(1).compare(row1->getLong()) == 0)) {
+            obj->deleteRow(k);
         }
-    }//results and cvsData should be equal
-    //csvData.clear();// clears old vector
-    //csvData = results;// copies new vector with removed elements to original
-    csvData.updateDelData();
+        delete row1;
+    }
+    obj->updateDelData();
 };
 
 void deleteBase(vector<vector<string>>& results, Storage& csvData, vector<string>& searchInputs) {
     vector<string> miniVec;
     searchInputs.at(0) = "\"" + searchInputs.at(0) + "\"";
-    for (unsigned int k = 0; k < csvData.getOrigSize(); k++) {// searches for Base#: BXXXXX 
-        //miniVec = csvData.at(k);
-        if ((searchInputs.at(0).compare(csvData.getRow(k).getBase()) == 0)) {
-            //results.push_back(miniVec);
-            csvData.deleteRow(k);
+    Storage* obj = &csvData;
+
+    for (unsigned int k = 0; k < obj->getOrigSize(); k++) {// searches for Base#: BXXXXX 
+        Use* row1 = new Use;
+        *row1 = obj->getRow(k);
+        if ((searchInputs.at(0).compare(row1->getBase()) == 0)) {
+            obj->deleteRow(k);
         }
-    }//results and cvsData should be equal
-    //csvData.clear();// clears old vector
-    //csvData = results;// copies new vector with removed elements to original
-    csvData.updateDelData();
+        delete row1;
+    }
+    obj->updateDelData();
 };
 
 void deleteSpecific(vector<vector<string>>& results, Storage& csvData, vector<string>& searchInputs) {
@@ -458,40 +557,34 @@ void deleteSpecific(vector<vector<string>>& results, Storage& csvData, vector<st
     string temp;
     searchInputs.at(4) = "\"" + searchInputs.at(4) + "\"";
     string dateAndTime = "\"" + searchInputs.at(1) + " " + searchInputs.at(0) + ":00" + "\"";
-    for (unsigned int k = 0; k < csvData.getOrigSize(); k++) {         // searches for Location: lon/lat 
-        //miniVec = csvData.at(k);
-        temp = "\"" + csvData.getRow(k).getDate() + " " + csvData.getRow(k).getTime() + "\"";
-        if ((dateAndTime.compare(temp) == 0 && searchInputs.at(2).compare(csvData.getRow(k).getLat()) == 0 && searchInputs.at(3).compare(csvData.getRow(k).getLong()) == 0 && searchInputs.at(4).compare(csvData.getRow(k).getBase()) == 0)) {
-            //results.push_back(miniVec);
-            csvData.deleteRow(k);
+    Storage* obj = &csvData;
+
+    for (unsigned int k = 0; k < obj->getOrigSize(); k++) {         // searches for Location: lon/lat 
+        Use* row1 = new Use;
+        *row1 = obj->getRow(k);
+        temp = "\"" + row1->getDate() + " " + row1->getTime() + "\"";
+        if ((dateAndTime.compare(temp) == 0 && searchInputs.at(2).compare(row1->getLat()) == 0 && searchInputs.at(3).compare(row1->getLong()) == 0 && searchInputs.at(4).compare(row1->getBase()) == 0)) {
+            obj->deleteRow(k);
         }
-    }//results and cvsData should be equal
-    //csvData.clear();// clears old vector
-    //csvData = results;// copies new vector with removed elements to original
-    csvData.updateDelData();
+        delete row1;
+    }
+    obj->updateDelData();
 };
 
 void insertData(vector<vector<string>>& results, Storage& csvData, vector<string>& insertInputs) { // pushes new data to end of csvData vector
-    //vector<string> miniVec;
     insertInputs.at(4) = "\"" + insertInputs.at(4) + "\"";
-    //string dateAndTime = "\"" + insertInputs.at(1) + " " + insertInputs.at(0) + ":00" + "\"";
-    //miniVec.push_back(dateAndTime);
-    //miniVec.push_back(insertInputs.at(2));
-    //miniVec.push_back(insertInputs.at(3));
-    //miniVec.push_back(insertInputs.at(4));
-    //csvData.insertRow()push_back(miniVec);
     string temp;
     temp = insertInputs.at(0) + ":00";
-    Use obj1; //implement set Day Monday -Sunday
-    obj1.setTime(temp);
-    obj1.setDate(insertInputs.at(1));
-    obj1.setLat(insertInputs.at(2));
-    obj1.setLong(insertInputs.at(3));
-    obj1.setExists(true);
-    obj1.setBase(insertInputs.at(4));
+    Use* obj1 = new Use;; //implement set Day Monday -Sunday
+    obj1->setTime(temp);
+    obj1->setDate(insertInputs.at(1));
+    obj1->setLat(insertInputs.at(2));
+    obj1->setLong(insertInputs.at(3));
+    obj1->setExists(true);
+    obj1->setBase(insertInputs.at(4));
 
-    csvData.insertRow(obj1);
-
+    csvData.insertRow(*obj1);
+    delete obj1;
 };
 
 bool checkIfExport(char buf[1024]) {
