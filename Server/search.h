@@ -16,6 +16,8 @@ class Use {
 	string latitude; // XX.XXXX
 	string base; // BXXXXX
 	bool exists; // will be false for a deleted object
+	int timeHour;
+	int timeMin;
 public:
 	void setTime(string arg); //sets time
 	void setDate(string arg); //sets date
@@ -23,6 +25,8 @@ public:
 	void setLong(string arg); //sets Longitude
 	void setLat(string arg); //sets Latitude
 	void setBase(string arg); // sets base
+	void setHour(int arg); //sets hour
+	void setMin(int arg); //set min
 	void setExists(bool arg); //sets exists bool variable for an object  
 	string getTime(); // returns time 
 	string getDate();// returns date
@@ -30,6 +34,8 @@ public:
 	string getLong(); // returns longitude
 	string getLat(); // returns latitude 
 	string getBase(); // returns base#
+	int getHour(); //gets hour
+	int getMin(); //get min
 	bool checkExists(); //checks if data exists- used for updating new storage after deleting
 	void clearUse(); // will clear the fields for a Use object 
 };
@@ -66,19 +72,17 @@ class Parsed {
 	string sec1;
 public:
 	void parseData(string arg);
-	void parseMonth(string arg); // mth1/d1/yr1 FIXME
-	void parseHours(string arg); // hr1/min1/sec1 FIXME
-	/*void parseTime(string arg);
-	void parseLongt(string arg);
-	void parseLat(string arg);
-	void parseBase(string arg);*/
-	void convertToDay(string arg); //maps the date XX/XX/XXXXX to appropriate day FIXME
+	void parseMonth(string arg); 
+	void parseHours(string arg); 
+	void convertToDay(); //maps the date XX/XX/XXXXX to appropriate day FIXME
 	string retDate();
 	string retTime();
 	string retLongt();
 	string retLat();
 	string retBase();
 	string retDay();
+	int retHour();
+	int retMin();
 };
 
 void parseLine(string line, vector<string>& results); //check where this is called
@@ -108,4 +112,9 @@ void importData(char buf[1024], vector<string>& importRows); // Pushes all messa
 void importFunction(vector<string>& importRows);//creates file with corresponding file name from client and adds in all data.
 bool importDone(char buf[1024]); //checks message for "Done" 
 
-
+//new functions artificat 5
+void searchMostUseTime(vector<vector<string>>& results, Storage& csvData, vector<string>& searchInputs);
+void searchLeastUseTime(vector<vector<string>>& results, Storage& csvData, vector<string>& searchInputs);
+void searchMostLoc(vector<vector<string>>& results, Storage& csvData, vector<string>& searchInputs);
+void searchLeastLoc(vector<vector<string>>& results, Storage& csvData, vector<string>& searchInputs);
+void calculateBusiestDay(vector<vector<string>>& results, Storage& csvData, vector<string>& searchInputs);

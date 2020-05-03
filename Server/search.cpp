@@ -54,6 +54,9 @@ void read(Storage & data1, string filename)
         line1 = line1 + " " + line2; // combines the date column string with the rest of its corresponding row "4/1/2014 + 0:11:00",40.769,-73.9549,"B02512"
         obj = new Parsed;
         obj->parseData(line1); // this will parse all the fields
+        obj->parseHours(obj->retTime());
+        obj->parseMonth(obj->retDate());
+        obj->convertToDay();
         row1 = new Use;
         
         row1->setTime(obj->retTime());
@@ -61,6 +64,9 @@ void read(Storage & data1, string filename)
         row1->setLong(obj->retLongt());
         row1->setLat(obj->retLat());
         row1->setBase(obj->retBase());
+        row1->setDay(obj->retDay());
+        row1->setHour(obj->retHour());
+        row1->setMin(obj->retMin());
         row1->setExists(true);
         //cout << row1->getDate() << endl;
         //row1.setDay(obj.retDay())
@@ -104,6 +110,14 @@ void Use::setBase(string arg) {
     base = arg;
 }; //sets base
 
+void Use::setHour(int arg) {
+    timeHour = arg;
+}; //sets hour
+
+void Use::setMin(int arg) {
+    timeMin = arg;
+}; //set min
+
 void Use::setExists(bool arg) {
     exists = arg;
 }; //sets exists bool variable for an object: either true or false
@@ -131,6 +145,13 @@ string Use::getLat() {
 string Use::getBase() {
     return base;
 }
+
+int Use::getHour() {
+    return timeHour;
+};
+int Use::getMin() {
+    return timeMin;
+};
 
 bool Use::checkExists() {
     return exists;
@@ -235,28 +256,32 @@ void Parsed::parseData(string arg) {
 };
 
 void Parsed::parseMonth(string arg) {
-    //parse XX/XX/XXXX set mth1/d1/yr1 FIXME
+    stringstream X(arg);
+    string column;
+    vector<string> results1;
+
+    while (getline(X, column, '/')) { //splits line into columns 
+        results1.push_back(column);
+    }
+    // parse XX/XX/XXXX set mth1/d1/yr1
+   mth1 = results1.at(0);
+   d1 = results1.at(1);
+   yr1 = results1.at(2);
 };
 
 void Parsed::parseHours(string arg) {
-    // parse 00:00:00 set hr1/min1/sec1
-}; 
+    stringstream X(arg);
+    string column;
+    vector<string> results1;
 
-//void Parsed::parseTime(string arg) {
-//
-//};
-//
-//void Parsed::parseLongt(string arg) {
-//
-//};
-//
-//void Parsed::parseLat(string arg) {
-//
-//};
-//
-//void Parsed::parseBase(string arg) {
-//
-//};
+    while (getline(X, column, ':')) { //splits line into columns 
+        results1.push_back(column);
+    } //index 0 in results is hour, index 1 is min and index 2 is seconds
+    // parse 00:00:00 set hr1/min1/sec1
+    hour1 = results1.at(0);
+    min1 = results1.at(1);
+    //sec1 = results1.at(2);
+}; 
 
 string Parsed::retDate() {
     return date;
@@ -282,8 +307,45 @@ string Parsed::retDay() {
     return day;
 };
 
-void Parsed::convertToDay(string arg) {
-    //FIXME
+int Parsed::retHour() {
+    return std::stoi(hour1);
+};
+int Parsed::retMin() {
+    return std::stoi(min1);
+};
+
+void Parsed::convertToDay() {
+    vector <int> monthDays = { 31,28,31,30,31,30,31,31,30,31,30,31 }; //365 total days first day starts Wednesday last day Wednesday
+    int month = std::stoi(mth1); // 1-12
+    int day1 = std::stoi(d1); //1-28,30,31
+    int totDays = 0;
+    string dayOfWeek = "";
+
+    for (int i = 0;i < month; i++) {//calculates range of days out of 365
+        totDays = monthDays.at(i) + totDays;
+    }
+    if (totDays % 7 == 1) {
+        day = "Wednesday";
+    }
+    else if (totDays % 7 == 2) {
+        day = "Thursday";
+    }
+    else if (totDays % 7 == 3) {
+        day = "Friday";
+    }
+    else if (totDays % 7 == 4) {
+        day = "Saturday";
+    }
+    else if (totDays % 7 == 5) {
+        day = "Sunday";
+    }
+    else if (totDays % 7 == 6) {
+        day = "Monday";
+    }
+    else if (totDays % 7 == 0) {
+        day = "Tuesday";
+    }
+    
 }; //maps the date XX/XX/XXXXX to appropriate day: figure out algorithm with days of each month for 2014
 
 
@@ -642,6 +704,212 @@ void importFunction(vector<string>& importRows) {
 
 }
 
+//Artifact 5 functions 
+
+void searchMostUseTime(vector<vector<string>>& results1, Storage& csvData, vector<string>& searchInputs) {
+    vector<string> miniVec;
+    Storage* obj = &csvData;
+    string in1;
+    int arr[24] = { 0 }; //for each hour of day 
+    int count = 0;
+
+    for (unsigned int k = 0; k < obj->getOrigSize(); k++) {//counts 
+        Use* row1 = new Use;
+        *row1 = obj->getRow(k);
+        count = arr[row1->getHour()];
+        count = count + 1;
+        arr[row1->getHour()] = count;
+        delete row1;
+    }
+    string str1;
+    string str2;
+    int max ;
+    int index;
+    for (int k = 0; k < 10; k++) {//gets top 10 in order
+        max = arr[0];
+        index = 0;
+        for (int j = 0; j < 24; j++) {
+            if (arr[j] > max) {
+                index = j;
+                max = arr[j];
+            }
+        }//gets largest coubt for particular time
+        arr[index] = 0; //set largest to 0 and loop again up to 10 times
+        str1 = to_string(max);
+        str2 = to_string(index);
+        miniVec.push_back(str2);//push back the hour
+        miniVec.push_back(str1); //push back the number of occurences for corresponding time - Format of miniVec: 00,15 => hour 00 has 15 occurences
+        results1.push_back(miniVec);
+        miniVec.clear();
+    }
+    
+
+};
+
+void searchLeastUseTime(vector<vector<string>>& results1, Storage& csvData, vector<string>& searchInputs) {
+    vector<string> miniVec;
+    Storage* obj = &csvData;
+    string in1;
+    int arr[24] = { 0 }; //for each hour of day 
+    int count = 0;
+
+    for (unsigned int k = 0; k < obj->getOrigSize(); k++) {//counts 
+        Use* row1 = new Use;
+        *row1 = obj->getRow(k);
+        count = arr[row1->getHour()];
+        count = count + 1;
+        arr[row1->getHour()] = count;
+        delete row1;
+    }
+    string str1;
+    string str2;
+    int min;
+    int index;
+    for (int k = 0; k < 10; k++) {//gets top 10 in order
+        min = arr[0];
+        index = 0;
+        for (int j = 0; j < 24; j++) {
+            if (arr[j] < min) {
+                index = j;
+                min = arr[j];
+            }
+        }//gets largest coubt for particular time
+        arr[index] = 1000000; //set smallest to 1000000 and loop again up to 10 times
+        str1 = to_string(min);
+        str2 = to_string(index);
+        miniVec.push_back(str2);//push back the hour
+        miniVec.push_back(str1); //push back the number of occurences for corresponding time - Format of miniVec: 00,15 => hour 00 has 15 occurences
+        results1.push_back(miniVec);
+        miniVec.clear();
+    }
+
+
+};
+
+void searchMostLoc(vector<vector<string>>& results1, Storage& csvData, vector<string>& searchInputs) { //FIXME
+    vector<string> miniVec;
+    Storage* obj = &csvData;
+    string in1;
+    int arr[24] = { 0 }; //for each location of day XX.XX YY.YY each can go from 00-99 
+    int count = 0;
+
+    for (unsigned int k = 0; k < obj->getOrigSize(); k++) {//counts 
+        Use* row1 = new Use;
+        *row1 = obj->getRow(k);
+        count = arr[row1->getHour()];
+        count = count + 1;
+        arr[row1->getHour()] = count;
+        delete row1;
+    }
+    string str1;
+    string str2;
+    int min;
+    int index;
+    for (int k = 0; k < 10; k++) {//gets top 10 in order
+        min = arr[0];
+        index = 0;
+        for (int j = 0; j < 24; j++) {
+            if (arr[j] < min) {
+                index = j;
+                min = arr[j];
+            }
+        }//gets largest coubt for particular time
+        arr[index] = 1000000; //set smallest to 1000000 and loop again up to 10 times
+        str1 = to_string(min);
+        str2 = to_string(index);
+        miniVec.push_back(str2);//push back the hour
+        miniVec.push_back(str1); //push back the number of occurences for corresponding time - Format of miniVec: 00,15 => hour 00 has 15 occurences
+        results1.push_back(miniVec);
+        miniVec.clear();
+    }
+
+
+};
+
+void searchLeastLoc(vector<vector<string>>& results1, Storage& csvData, vector<string>& searchInputs) { //FIXME
+    vector<string> miniVec;
+    Storage* obj = &csvData;
+    string in1;
+    int arr[24] = { 0 }; //for each hour of day 
+    int count = 0;
+
+    for (unsigned int k = 0; k < obj->getOrigSize(); k++) {//counts 
+        Use* row1 = new Use;
+        *row1 = obj->getRow(k);
+        count = arr[row1->getHour()];
+        count = count + 1;
+        arr[row1->getHour()] = count;
+        delete row1;
+    }
+    string str1;
+    string str2;
+    int min;
+    int index;
+    for (int k = 0; k < 10; k++) {//gets top 10 in order
+        min = arr[0];
+        index = 0;
+        for (int j = 0; j < 24; j++) {
+            if (arr[j] < min) {
+                index = j;
+                min = arr[j];
+            }
+        }//gets largest coubt for particular time
+        arr[index] = 1000000; //set smallest to 1000000 and loop again up to 10 times
+        str1 = to_string(min);
+        str2 = to_string(index);
+        miniVec.push_back(str2);//push back the hour
+        miniVec.push_back(str1); //push back the number of occurences for corresponding time - Format of miniVec: 00,15 => hour 00 has 15 occurences
+        results1.push_back(miniVec);
+        miniVec.clear();
+    }
+
+
+
+};
+
+void calculateBusiestDay(vector<vector<string>>& results1, Storage& csvData, vector<string>& searchInputs) {
+    vector<string> miniVec;
+    Storage* obj = &csvData;
+    string in1;
+    int arr[7] = { 0 }; //for each day 
+    string arr1[7] = { "Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday" }; // each day of week for comparison check
+    int count = 0;
+
+    for (unsigned int k = 0; k < obj->getOrigSize(); k++) {//counts 
+        Use* row1 = new Use;
+        *row1 = obj->getRow(k);
+
+        for (int g = 0;g < 7; g++) {
+            if (row1->getDay() == arr1[g]) {
+                count = arr[g] + 1;
+                arr[g] = count; //increment count for day
+            }
+        }
+        delete row1;
+    }
+    string str1;
+    string str2;
+    int max;
+    int index;
+    for (int k = 0; k < 7; k++) {//gets top 7 in order
+        max = arr[0];
+        index = 0;
+        for (int j = 0; j < 7; j++) {
+            if (arr[j] > max) {
+                index = j;
+                max = arr[j];
+            }
+        }//gets largest coubt for particular time
+        arr[index] = 0; //set largest to 0 and loop again up to 10 times
+        str1 = to_string(max);
+        //str2 = to_string(index);
+        miniVec.push_back(arr1[index]);//push back the day
+        miniVec.push_back(str1); //push back the number of occurences for corresponding day - Format of miniVec: "Monday","234" => Monday has 234 occurences
+        results1.push_back(miniVec);
+        miniVec.clear();
+    }
+};
+
 void parseClient(string buf, Storage & csvData, vector<vector<string>>& results) {
     int timeFlag = 0;
     int dateFlag = 0;
@@ -653,6 +921,13 @@ void parseClient(string buf, Storage & csvData, vector<vector<string>>& results)
     int searchFlag = 0;
     int deleteFlag = 0;
     int insertFlag = 0;
+   //new flags 
+    int searchMostLocFlag = 0; //expects "MostLoc"
+    int searchLeastLocFlag = 0; //expects "LeastLoc"
+    int searchMostTimeFlag = 0; //expects "MostTime"
+    int searchLeastTimeFlag = 0; //expects "LeastTime"
+    int searchMostDayFlag = 0; //expects "MostDay"
+
     vector<string> clientDat;
     stringstream X(buf);
     string columns;
@@ -725,6 +1000,56 @@ void parseClient(string buf, Storage & csvData, vector<vector<string>>& results)
                 locationFlag2 = 1;
             }
         }
+        compare = "MostLoc: ";
+        if (clientDat.at(i).find(compare) != string::npos) {
+            if (compare != clientDat.at(i)) {
+                cout << "Found MostLoc: " << clientDat.at(i) << endl;
+                string::size_type f = clientDat.at(i).find(compare);
+                clientDat.at(i).erase(f, compare.length());
+                searchInputs.push_back(clientDat.at(i));
+                searchMostLocFlag = 1;
+            }
+        }
+        compare = "LeastLoc: ";
+        if (clientDat.at(i).find(compare) != string::npos) {
+            if (compare != clientDat.at(i)) {
+                cout << "Found LeastLoc: " << clientDat.at(i) << endl;
+                string::size_type f = clientDat.at(i).find(compare);
+                clientDat.at(i).erase(f, compare.length());
+                searchInputs.push_back(clientDat.at(i));
+                searchLeastLocFlag = 1;
+            }
+        }
+        compare = "MostTime: ";
+        if (clientDat.at(i).find(compare) != string::npos) {
+            if (compare != clientDat.at(i)) {
+                cout << "Found MostTime: " << clientDat.at(i) << endl;
+                string::size_type f = clientDat.at(i).find(compare);
+                clientDat.at(i).erase(f, compare.length());
+                searchInputs.push_back(clientDat.at(i));
+                searchMostTimeFlag = 1;
+            }
+        }
+        compare = "LeastTime: ";
+        if (clientDat.at(i).find(compare) != string::npos) {
+            if (compare != clientDat.at(i)) {
+                cout << "Found LeastTime: " << clientDat.at(i) << endl;
+                string::size_type f = clientDat.at(i).find(compare);
+                clientDat.at(i).erase(f, compare.length());
+                searchInputs.push_back(clientDat.at(i));
+                searchLeastTimeFlag = 1;
+            }
+        }
+        compare = "MostDay: ";
+        if (clientDat.at(i).find(compare) != string::npos) {
+            if (compare != clientDat.at(i)) {
+                cout << "Found MostDay: " << clientDat.at(i) << endl;
+                string::size_type f = clientDat.at(i).find(compare);
+                clientDat.at(i).erase(f, compare.length());
+                searchInputs.push_back(clientDat.at(i));
+                searchMostDayFlag = 1;
+            }
+        }
     }
 
     if (searchFlag) { //if searchFlag was set: Different search methods
@@ -748,6 +1073,21 @@ void parseClient(string buf, Storage & csvData, vector<vector<string>>& results)
         }
         else if (baseFlag) {
             searchBase(results, csvData, searchInputs);
+        }
+        else if (searchMostLocFlag) { //searches for artifact 5
+            searchMostLoc(results, csvData, searchInputs);
+        }
+        else if (searchLeastLocFlag) {
+            searchLeastLoc(results, csvData, searchInputs);
+        }
+        else if (searchMostTimeFlag) {
+            searchMostUseTime(results, csvData, searchInputs);
+        }
+        else if (searchLeastTimeFlag) {
+            searchLeastUseTime(results, csvData, searchInputs);
+        }
+        else if (searchMostDayFlag) {
+            calculateBusiestDay(results, csvData, searchInputs);
         }
     }
     else if (deleteFlag) { // if deleteFlag was set: delete with different methods
