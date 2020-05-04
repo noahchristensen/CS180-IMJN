@@ -795,125 +795,10 @@ void searchLeastUseTime(vector<vector<string>>& results1, Storage& csvData, vect
 };
 
 void searchMostLoc(vector<vector<string>>& results1, Storage& csvData, vector<string>& searchInputs) { //FIXME
-    vector<string> miniVec; 
-    vector<string> temp1;
-    Storage* obj = &csvData;
-    string in1;
-    string in2;
-    int arr1[20000] = { 0 };//adding both XXXX and YYYY wouldnt exceed this
-    vector<int> eachEntry; // will contain the added long and lat value, lat, long : 3 elements
-    vector<vector<int>> allData; //will contain each entry
-    int count = 0;
-    int lt_val;
-    int ln_val;
-    int compVal;
-
-    for (unsigned int k = 0; k < obj->getOrigSize(); k++) {//counts 
-        pair<int, vector<int>>pairs;
-        Use* row1 = new Use;
-        *row1 = obj->getRow(k);
-        in1 = row1->getLat(); //XX.XXX
-        in2 = row1->getLong();//-YY.YY
-        //FIXME make this compatible with longitudes that dont have "-"
-        in2 = in2.substr(1, in2.length()); //now YY.YY
-        //parse by "." then check size and if 1 convert to a two digit int
-        stringstream X(in1);
-        string column;
-        vector<string> results1;
-        int indx = 0;//index for whole number or decimal
-        while (getline(X, column, '.')) { //splits line into columns 
-            if (column.size() == 1 && indx == 1) {//we are in decimal number
-                column = column + "0";
-            }
-            temp1.push_back(column);
-            indx++;
-        }
-        
-        in1 = temp1.at(0) + temp1.at(1); //string now XXXX or XXX
-        temp1.clear();
-        indx = 0;
-        stringstream Y(in2);
-        while (getline(X, column, '.')) { //splits line into columns 
-            if (column.size() == 1 && indx == 1) {//we are in decimal number
-                column = column + "0";
-            }
-            temp1.push_back(column);
-            indx++;
-        }
-        in2 = temp1.at(0) + temp1.at(1); //string now XXXX or XXX
-        temp1.clear();
-
-        //in1 and in2 are now XXXX YYYY
-        lt_val = std::stoi(in1);
-        ln_val = std::stoi(in2);
-        compVal = lt_val + ln_val; // ad them and increment its appropriate index
-        if (arr1[compVal] == 0) {//if it has already been pushed to vector dont repush new entry. just increment count for it
-            count = 1;
-            arr1[compVal] = count;
-            eachEntry.push_back(compVal);
-            eachEntry.push_back(lt_val);
-            eachEntry.push_back(ln_val);
-            allData.push_back(eachEntry);
-            eachEntry.clear();
-        }
-        else { // we already pushed this value into allData vector
-            count = arr1[compVal];
-            arr1[compVal] = count + 1;
-        }
-        delete row1;
-    }
-    string str1;
-    string str2;
-    string str3;
-    int max;
-    int index;
-    for (int k = 0; k < 10; k++) {//gets top 10 in order
-        max = arr1[0];
-        index = 0;
-        for (int j = 0; j < 20000; j++) {
-            if (arr1[j] > max) {
-                index = j; // this is the value of the lon and lat added
-                max = arr1[j];
-            }
-        }//gets largest coubt for particular time
-        //now we have to find corresponding coordinates 
-        int point = 0;
-
-        while (allData[point][0] != index) {
-            point++;
-        }
-        str1 = to_string(allData[point][1]);
-        str2 = to_string(allData[point][2]);
-        str3 = to_string(max);
-        if (str1.size() == 3) { //X.XX
-            str1.insert(1, ".");
-        }
-        else { //XX.XX
-            str1.insert(2, ".");
-        }
-        if (str2.size() == 3) {//Y.YY
-            str2.insert(1, ".");
-        }
-        else {
-            str2.insert(2, ".");//YY.YY
-        }
-        str2.insert(0, "-"); //-YY.YY
-
-        arr1[index] = 0; //set smallest to 1000000 and loop again up to 10 times
-        miniVec.push_back(str1);//push back the lat
-        miniVec.push_back(str2);//push back the lat
-        miniVec.push_back(str3);//push back the number of occurences for corresponding location
-        results1.push_back(miniVec);
-        miniVec.clear();
-    }
-
-
-};
-
-void searchLeastLoc(vector<vector<string>>& results1, Storage& csvData, vector<string>& searchInputs) { //FIXME
     vector<string> miniVec;
     vector<string> temp1;
     Storage* obj = &csvData;
+    int temp = 0;
     string in1;
     string in2;
     int arr1[20000] = { 0 };//adding both XXXX and YYYY wouldnt exceed this
@@ -930,39 +815,61 @@ void searchLeastLoc(vector<vector<string>>& results1, Storage& csvData, vector<s
         *row1 = obj->getRow(k);
         in1 = row1->getLat(); //XX.XXX
         in2 = row1->getLong();//-YY.YY
+        cout << in2 << endl;
         //FIXME make this compatible with longitudes that dont have "-"
         in2 = in2.substr(1, in2.length()); //now YY.YY
+        cout << in2 << endl;
         //parse by "." then check size and if 1 convert to a two digit int
         stringstream X(in1);
         string column;
         vector<string> results1;
         int indx = 0;//index for whole number or decimal
+
         while (getline(X, column, '.')) { //splits line into columns 
             if (column.size() == 1 && indx == 1) {//we are in decimal number
                 column = column + "0";
             }
             temp1.push_back(column);
+            cout << column << endl;
             indx++;
+        }
+        if (temp1.at(1).size() > 2) {
+            in1 = temp1.at(1);
+            temp1.at(1) = in1.substr(0, 2);
         }
 
         in1 = temp1.at(0) + temp1.at(1); //string now XXXX or XXX
+        cout << in1 << endl;
         temp1.clear();
         indx = 0;
         stringstream Y(in2);
-        while (getline(X, column, '.')) { //splits line into columns 
+
+        while (getline(Y, column, '.')) { //splits line into columns 
             if (column.size() == 1 && indx == 1) {//we are in decimal number
                 column = column + "0";
             }
             temp1.push_back(column);
+            cout << column << endl;
             indx++;
         }
-        in2 = temp1.at(0) + temp1.at(1); //string now XXXX or XXX
+
+        if (temp1.at(1).size() > 2) {
+            in2 = temp1.at(1);
+            temp1.at(1) = in2.substr(0, 2);
+        }
+
+        in2 = "";
+        in2.append(temp1.at(0));
+        in2.append(temp1.at(1)); //string now XXXX or XXX
+
         temp1.clear();
 
         //in1 and in2 are now XXXX YYYY
         lt_val = std::stoi(in1);
         ln_val = std::stoi(in2);
-        compVal = lt_val + ln_val; // ad them and increment its appropriate index
+
+        compVal = lt_val + ln_val; // add them and increment its appropriate index
+
         if (arr1[compVal] == 0) {//if it has already been pushed to vector dont repush new entry. just increment count for it
             count = 1;
             arr1[compVal] = count;
@@ -976,31 +883,48 @@ void searchLeastLoc(vector<vector<string>>& results1, Storage& csvData, vector<s
             count = arr1[compVal];
             arr1[compVal] = count + 1;
         }
+
         delete row1;
+        temp = compVal;
     }
     string str1;
     string str2;
     string str3;
-    int min;
+    int min = arr1[temp];
     int index;
+
     for (int k = 0; k < 10; k++) {//gets top 10 in order
-        min = arr1[0];
+
         index = 0;
+
         for (int j = 0; j < 20000; j++) {
-            if (arr1[j] < min) {
-                index = j; // this is the value of the lon and lat added
-                min = arr1[j];
+
+
+            if (arr1[j] > 0) {
+                if (arr1[j] > min) {
+                    index = j;
+                    min = arr1[j];
+                }
             }
-        }//gets largest coubt for particular time
-        //now we have to find corresponding coordinates 
+
+        }
+
         int point = 0;
 
-        while (allData[point][0] != index) {
-            point++;
+        for (int f = 0; f < allData.size();f++) {//
+            eachEntry = allData.at(f); //compVal long , lat
+            cout << eachEntry.at(0) << " = " << index << endl;
+            if (eachEntry.at(0) == index) {
+                cout << "We found corresponding value " << endl;
+                point = f;
+                f = allData.size();
+            }
         }
+
         str1 = to_string(allData[point][1]);
         str2 = to_string(allData[point][2]);
-        str3 = to_string(min);
+        str3 = to_string(arr1[index]);
+        str3.append("\n");
         if (str1.size() == 3) { //X.XX
             str1.insert(1, ".");
         }
@@ -1019,11 +943,167 @@ void searchLeastLoc(vector<vector<string>>& results1, Storage& csvData, vector<s
         miniVec.push_back(str1);//push back the lat
         miniVec.push_back(str2);//push back the lat
         miniVec.push_back(str3);//push back the number of occurences for corresponding location
+        cout << "We push: " << str1 << " " << str2 << " " << str3 << endl;
         results1.push_back(miniVec);
         miniVec.clear();
+        min = arr1[index];
     }
+};
 
+void searchLeastLoc(vector<vector<string>>& results1, Storage& csvData, vector<string>& searchInputs) { //FIXME
+    vector<string> miniVec;
+    vector<string> temp1;
+    Storage* obj = &csvData;
+    int temp = 0;
+    string in1;
+    string in2;
+    int arr1[20000] = {0};//adding both XXXX and YYYY wouldnt exceed this
+    vector<int> eachEntry; // will contain the added long and lat value, lat, long : 3 elements
+    vector<vector<int>> allData; //will contain each entry
+    int count = 0;
+    int lt_val;
+    int ln_val;
+    int compVal;
 
+    for (unsigned int k = 0; k < obj->getOrigSize(); k++) {//counts 
+        pair<int, vector<int>>pairs;
+        Use* row1 = new Use;
+        *row1 = obj->getRow(k);
+        in1 = row1->getLat(); //XX.XXX
+        in2 = row1->getLong();//-YY.YY
+        cout << in2 << endl;
+        //FIXME make this compatible with longitudes that dont have "-"
+        in2 = in2.substr(1, in2.length()); //now YY.YY
+        cout << in2 << endl;
+        //parse by "." then check size and if 1 convert to a two digit int
+        stringstream X(in1);
+        string column;
+        vector<string> results1;
+        int indx = 0;//index for whole number or decimal
+
+        while (getline(X, column, '.')) { //splits line into columns 
+            if (column.size() == 1 && indx == 1) {//we are in decimal number
+                column = column + "0";
+            }
+            temp1.push_back(column);
+            cout << column << endl;
+            indx++;
+        }
+        if (temp1.at(1).size() > 2) {
+            in1 = temp1.at(1);
+            temp1.at(1) = in1.substr(0, 2);
+        }
+        
+        in1 = temp1.at(0) + temp1.at(1); //string now XXXX or XXX
+        cout << in1 << endl;
+        temp1.clear();
+        indx = 0;
+        stringstream Y(in2);
+       
+        while (getline(Y, column, '.')) { //splits line into columns 
+            if (column.size() == 1 && indx == 1) {//we are in decimal number
+                column = column + "0";
+            }
+            temp1.push_back(column);
+            cout << column << endl;
+            indx++;
+        }
+       
+        if (temp1.at(1).size() > 2) {
+            in2 = temp1.at(1);
+            temp1.at(1) = in2.substr(0, 2);
+        }
+        
+        in2 = "";
+        in2.append(temp1.at(0));
+        in2.append(temp1.at(1)); //string now XXXX or XXX
+      
+        temp1.clear();
+
+        //in1 and in2 are now XXXX YYYY
+        lt_val = std::stoi(in1);
+        ln_val = std::stoi(in2);
+        
+        compVal = lt_val + ln_val; // add them and increment its appropriate index
+       
+        if (arr1[compVal] == 0) {//if it has already been pushed to vector dont repush new entry. just increment count for it
+            count = 1;
+            arr1[compVal] = count;
+            eachEntry.push_back(compVal);
+            eachEntry.push_back(lt_val);
+            eachEntry.push_back(ln_val);
+            allData.push_back(eachEntry);
+            eachEntry.clear();
+        }
+        else { // we already pushed this value into allData vector
+            count = arr1[compVal];
+            arr1[compVal] = count + 1;
+        }
+       
+        delete row1;
+        temp = compVal;
+    }
+    string str1;
+    string str2;
+    string str3;
+    int min = arr1[temp];
+    int index;
+   
+    for (int k = 0; k < 10; k++) {//gets top 10 in order
+        
+        index = 0;
+        
+        for (int j = 0; j < 20000; j++) {
+            
+            
+            if (arr1[j] > 0) {
+                if (arr1[j] < min) {
+                    index = j;
+                    min = arr1[j];
+                }
+            }
+           
+        }
+      
+        int point = 0;
+
+        for (int f = 0; f < allData.size();f++) {//
+            eachEntry = allData.at(f); //compVal long , lat
+            cout << eachEntry.at(0) << " = " << index << endl;
+            if (eachEntry.at(0) == index) {
+                cout << "We found corresponding value " << endl;
+                point = f;
+                f = allData.size();
+            }
+        }
+
+        str1 = to_string(allData[point][1]);
+        str2 = to_string(allData[point][2]);
+        str3 = to_string(arr1[index]);
+        str3.append("\n");
+        if (str1.size() == 3) { //X.XX
+            str1.insert(1, ".");
+        }
+        else { //XX.XX
+            str1.insert(2, ".");
+        }
+        if (str2.size() == 3) {//Y.YY
+            str2.insert(1, ".");
+        }
+        else {
+            str2.insert(2, ".");//YY.YY
+        }
+        str2.insert(0, "-"); //-YY.YY
+       
+        arr1[index] = 1000000; //set smallest to 1000000 and loop again up to 10 times
+        miniVec.push_back(str1);//push back the lat
+        miniVec.push_back(str2);//push back the lat
+        miniVec.push_back(str3);//push back the number of occurences for corresponding location
+        cout << "We push: " << str1 << " " << str2 << " " << str3 << endl;
+        results1.push_back(miniVec);
+        miniVec.clear();
+        min = arr1[index];
+    }
 };
 
 void calculateBusiestDay(vector<vector<string>>& results1, Storage& csvData, vector<string>& searchInputs) {
