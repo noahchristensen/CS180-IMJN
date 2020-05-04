@@ -17,12 +17,14 @@ using namespace std;
 void main()
 {
 	//parse the CSV file and put in ParseData
-	vector<vector<string>> parseData;
-	vector<string> clientDat;
-	vector<vector<string>> searchRes;
+	//vector<vector<string>> parseData;
+
+	vector<string> clientDat; //data from client?
+	vector<vector<string>> searchRes; // search results returned for any request
 	searchRes.clear();
 	cout << "Parsing Data..." << endl;
-	read(parseData, "uber-raw-data-apr14.csv");
+	Storage* ptr = new Storage;
+	read(*ptr, "uber-raw-data-apr14.csv");
 	cout << "Done Parsing... Server starting..." << endl;
 	// INITIALIZE WINSOCK
 
@@ -142,10 +144,14 @@ void main()
 			importFunction(importVector);
 			cout << "function complete" << endl;
 
-			read(parseData, "imported-data.csv");
+			//Storage parseData;
+
+
+			read(*ptr, "imported-data.csv"); // changed parsedData to ptr
 		}
 		else if (checkIfExport(buf))
 		{
+			//parseData.convertStorage(); // puts the data in a vector of vector strings. ParseData is a class Storage object that uses array data structure
 			ifstream fin;
 			string line1;
 			string line2;
@@ -187,13 +193,14 @@ void main()
 		}
 		else
 		{
-			parseClient(buf, parseData, searchRes); //searched results are in searchRes
+			parseClient(buf, *ptr, searchRes); //searched results are in searchRes //changed parseData to ptr
 
 			if (!searchRes.empty())
 			{
 				string dataString = "";
 				vector<string> miniVec;
 				int max = 0;
+
 				if (50 < searchRes.size())
 				{
 					max = 50;
@@ -205,6 +212,7 @@ void main()
 
 				for (int j = 0; j < max; j++)
 				{
+
 					miniVec = searchRes.at(j);
 					if (!miniVec.empty())
 					{
@@ -212,10 +220,12 @@ void main()
 						{
 							dataString.append(miniVec.at(i));
 						}
+
 					}
 
 					dataString.append("\n");
 				}
+
 				int num = dataString.size();
 
 				strcpy_s(bufS, num + 1, dataString.c_str());
