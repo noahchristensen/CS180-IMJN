@@ -68,6 +68,7 @@ void read(Storage & data1, string filename)
         row1->setHour(obj->retHour());
         row1->setMin(obj->retMin());
         row1->setExists(true);
+        cout << row1->getDay() << endl;
         //cout << row1->getDate() << endl;
         //row1.setDay(obj.retDay())
         data1.insertRow(*row1);    //Use row1 object is created, and added to the Storage data1 object
@@ -322,8 +323,15 @@ void Parsed::convertToDay() {
     string dayOfWeek = "";
 
     for (int i = 0;i < month; i++) {//calculates range of days out of 365
-        totDays = monthDays.at(i) + totDays;
+        if (i == month - 1) {
+            totDays = day1 + totDays;
+        }
+        else {
+            totDays = monthDays.at(i) + totDays;
+        }
+        
     }
+    
     if (totDays % 7 == 1) {
         day = "Wednesday";
     }
@@ -787,38 +795,114 @@ void searchLeastUseTime(vector<vector<string>>& results1, Storage& csvData, vect
 };
 
 void searchMostLoc(vector<vector<string>>& results1, Storage& csvData, vector<string>& searchInputs) { //FIXME
-    vector<string> miniVec;
+    vector<string> miniVec; 
+    vector<string> temp1;
     Storage* obj = &csvData;
     string in1;
-    int arr[24] = { 0 }; //for each location of day XX.XX YY.YY each can go from 00-99 
+    string in2;
+    int arr1[20000] = { 0 };//adding both XXXX and YYYY wouldnt exceed this
+    vector<int> eachEntry; // will contain the added long and lat value, lat, long : 3 elements
+    vector<vector<int>> allData; //will contain each entry
     int count = 0;
+    int lt_val;
+    int ln_val;
+    int compVal;
 
     for (unsigned int k = 0; k < obj->getOrigSize(); k++) {//counts 
+        pair<int, vector<int>>pairs;
         Use* row1 = new Use;
         *row1 = obj->getRow(k);
-        count = arr[row1->getHour()];
-        count = count + 1;
-        arr[row1->getHour()] = count;
+        in1 = row1->getLat(); //XX.XXX
+        in2 = row1->getLong();//-YY.YY
+        //FIXME make this compatible with longitudes that dont have "-"
+        in2 = in2.substr(1, in2.length()); //now YY.YY
+        //parse by "." then check size and if 1 convert to a two digit int
+        stringstream X(in1);
+        string column;
+        vector<string> results1;
+        int indx = 0;//index for whole number or decimal
+        while (getline(X, column, '.')) { //splits line into columns 
+            if (column.size() == 1 && indx == 1) {//we are in decimal number
+                column = column + "0";
+            }
+            temp1.push_back(column);
+            indx++;
+        }
+        
+        in1 = temp1.at(0) + temp1.at(1); //string now XXXX or XXX
+        temp1.clear();
+        indx = 0;
+        stringstream Y(in2);
+        while (getline(X, column, '.')) { //splits line into columns 
+            if (column.size() == 1 && indx == 1) {//we are in decimal number
+                column = column + "0";
+            }
+            temp1.push_back(column);
+            indx++;
+        }
+        in2 = temp1.at(0) + temp1.at(1); //string now XXXX or XXX
+        temp1.clear();
+
+        //in1 and in2 are now XXXX YYYY
+        lt_val = std::stoi(in1);
+        ln_val = std::stoi(in2);
+        compVal = lt_val + ln_val; // ad them and increment its appropriate index
+        if (arr1[compVal] == 0) {//if it has already been pushed to vector dont repush new entry. just increment count for it
+            count = 1;
+            arr1[compVal] = count;
+            eachEntry.push_back(compVal);
+            eachEntry.push_back(lt_val);
+            eachEntry.push_back(ln_val);
+            allData.push_back(eachEntry);
+            eachEntry.clear();
+        }
+        else { // we already pushed this value into allData vector
+            count = arr1[compVal];
+            arr1[compVal] = count + 1;
+        }
         delete row1;
     }
     string str1;
     string str2;
-    int min;
+    string str3;
+    int max;
     int index;
     for (int k = 0; k < 10; k++) {//gets top 10 in order
-        min = arr[0];
+        max = arr1[0];
         index = 0;
-        for (int j = 0; j < 24; j++) {
-            if (arr[j] < min) {
-                index = j;
-                min = arr[j];
+        for (int j = 0; j < 20000; j++) {
+            if (arr1[j] > max) {
+                index = j; // this is the value of the lon and lat added
+                max = arr1[j];
             }
         }//gets largest coubt for particular time
-        arr[index] = 1000000; //set smallest to 1000000 and loop again up to 10 times
-        str1 = to_string(min);
-        str2 = to_string(index);
-        miniVec.push_back(str2);//push back the hour
-        miniVec.push_back(str1); //push back the number of occurences for corresponding time - Format of miniVec: 00,15 => hour 00 has 15 occurences
+        //now we have to find corresponding coordinates 
+        int point = 0;
+
+        while (allData[point][0] != index) {
+            point++;
+        }
+        str1 = to_string(allData[point][1]);
+        str2 = to_string(allData[point][2]);
+        str3 = to_string(max);
+        if (str1.size() == 3) { //X.XX
+            str1.insert(1, ".");
+        }
+        else { //XX.XX
+            str1.insert(2, ".");
+        }
+        if (str2.size() == 3) {//Y.YY
+            str2.insert(1, ".");
+        }
+        else {
+            str2.insert(2, ".");//YY.YY
+        }
+        str2.insert(0, "-"); //-YY.YY
+
+        arr1[index] = 0; //set smallest to 1000000 and loop again up to 10 times
+        miniVec.push_back(str1);//push back the lat
+        miniVec.push_back(str2);//push back the lat
+        miniVec.push_back(str3);//push back the number of occurences for corresponding location
         results1.push_back(miniVec);
         miniVec.clear();
     }
@@ -828,41 +912,116 @@ void searchMostLoc(vector<vector<string>>& results1, Storage& csvData, vector<st
 
 void searchLeastLoc(vector<vector<string>>& results1, Storage& csvData, vector<string>& searchInputs) { //FIXME
     vector<string> miniVec;
+    vector<string> temp1;
     Storage* obj = &csvData;
     string in1;
-    int arr[24] = { 0 }; //for each hour of day 
+    string in2;
+    int arr1[20000] = { 0 };//adding both XXXX and YYYY wouldnt exceed this
+    vector<int> eachEntry; // will contain the added long and lat value, lat, long : 3 elements
+    vector<vector<int>> allData; //will contain each entry
     int count = 0;
+    int lt_val;
+    int ln_val;
+    int compVal;
 
     for (unsigned int k = 0; k < obj->getOrigSize(); k++) {//counts 
+        pair<int, vector<int>>pairs;
         Use* row1 = new Use;
         *row1 = obj->getRow(k);
-        count = arr[row1->getHour()];
-        count = count + 1;
-        arr[row1->getHour()] = count;
+        in1 = row1->getLat(); //XX.XXX
+        in2 = row1->getLong();//-YY.YY
+        //FIXME make this compatible with longitudes that dont have "-"
+        in2 = in2.substr(1, in2.length()); //now YY.YY
+        //parse by "." then check size and if 1 convert to a two digit int
+        stringstream X(in1);
+        string column;
+        vector<string> results1;
+        int indx = 0;//index for whole number or decimal
+        while (getline(X, column, '.')) { //splits line into columns 
+            if (column.size() == 1 && indx == 1) {//we are in decimal number
+                column = column + "0";
+            }
+            temp1.push_back(column);
+            indx++;
+        }
+
+        in1 = temp1.at(0) + temp1.at(1); //string now XXXX or XXX
+        temp1.clear();
+        indx = 0;
+        stringstream Y(in2);
+        while (getline(X, column, '.')) { //splits line into columns 
+            if (column.size() == 1 && indx == 1) {//we are in decimal number
+                column = column + "0";
+            }
+            temp1.push_back(column);
+            indx++;
+        }
+        in2 = temp1.at(0) + temp1.at(1); //string now XXXX or XXX
+        temp1.clear();
+
+        //in1 and in2 are now XXXX YYYY
+        lt_val = std::stoi(in1);
+        ln_val = std::stoi(in2);
+        compVal = lt_val + ln_val; // ad them and increment its appropriate index
+        if (arr1[compVal] == 0) {//if it has already been pushed to vector dont repush new entry. just increment count for it
+            count = 1;
+            arr1[compVal] = count;
+            eachEntry.push_back(compVal);
+            eachEntry.push_back(lt_val);
+            eachEntry.push_back(ln_val);
+            allData.push_back(eachEntry);
+            eachEntry.clear();
+        }
+        else { // we already pushed this value into allData vector
+            count = arr1[compVal];
+            arr1[compVal] = count + 1;
+        }
         delete row1;
     }
     string str1;
     string str2;
+    string str3;
     int min;
     int index;
     for (int k = 0; k < 10; k++) {//gets top 10 in order
-        min = arr[0];
+        min = arr1[0];
         index = 0;
-        for (int j = 0; j < 24; j++) {
-            if (arr[j] < min) {
-                index = j;
-                min = arr[j];
+        for (int j = 0; j < 20000; j++) {
+            if (arr1[j] < min) {
+                index = j; // this is the value of the lon and lat added
+                min = arr1[j];
             }
         }//gets largest coubt for particular time
-        arr[index] = 1000000; //set smallest to 1000000 and loop again up to 10 times
-        str1 = to_string(min);
-        str2 = to_string(index);
-        miniVec.push_back(str2);//push back the hour
-        miniVec.push_back(str1); //push back the number of occurences for corresponding time - Format of miniVec: 00,15 => hour 00 has 15 occurences
+        //now we have to find corresponding coordinates 
+        int point = 0;
+
+        while (allData[point][0] != index) {
+            point++;
+        }
+        str1 = to_string(allData[point][1]);
+        str2 = to_string(allData[point][2]);
+        str3 = to_string(min);
+        if (str1.size() == 3) { //X.XX
+            str1.insert(1, ".");
+        }
+        else { //XX.XX
+            str1.insert(2, ".");
+        }
+        if (str2.size() == 3) {//Y.YY
+            str2.insert(1, ".");
+        }
+        else {
+            str2.insert(2, ".");//YY.YY
+        }
+        str2.insert(0, "-"); //-YY.YY
+
+        arr1[index] = 1000000; //set smallest to 1000000 and loop again up to 10 times
+        miniVec.push_back(str1);//push back the lat
+        miniVec.push_back(str2);//push back the lat
+        miniVec.push_back(str3);//push back the number of occurences for corresponding location
         results1.push_back(miniVec);
         miniVec.clear();
     }
-
 
 
 };
