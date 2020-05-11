@@ -77,10 +77,23 @@ HINSTANCE hInst;
 #define ID_DEL_LOC_LONG 35 // enter time
 #define ID_DEL_LOC_BUTTON 36 // enter time
 
+//Uber Vs Lyft
+#define ID_UVL_DAY 80
+#define ID_UVL_LAT 81
+#define ID_UVL_LONG 82
+#define ID_UVL_BUTTON 83
+#define ID_UVL_DATA 84
+
+
+
 // Forward declarations of functions included in this code module:
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
 // definititions
+void RegisterUberVsLyft(HINSTANCE);
+LRESULT CALLBACK UberVsLyftProcedure(HWND, UINT, WPARAM, LPARAM);
+void DisplayUberVsLyft(HWND);
+
 void RegisterTimeSearch(HINSTANCE);
 LRESULT CALLBACK TimeSearchProcedure(HWND, UINT, WPARAM, LPARAM);
 void DisplayTimeSearch(HWND);
@@ -415,6 +428,124 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     return 0;
 }
 
+void RegisterUberVsLyft(HINSTANCE hInstance)
+{
+    WNDCLASSW uvl = { 0 };
+
+    uvl.hbrBackground = (HBRUSH)(COLOR_WINDOW);
+    uvl.hCursor = LoadCursor(NULL, IDC_ARROW);
+    uvl.style = CS_HREDRAW | CS_VREDRAW;
+    uvl.hInstance = hInstance;
+    uvl.lpszClassName = L"uberVsLyftClass";
+    uvl.lpfnWndProc = UberVsLyftProcedure;
+
+    RegisterClassW(&uvl);
+}
+HWND hWndDayField;
+HWND hWndLatField;
+HWND hWndLongField;
+
+LRESULT CALLBACK UberVsLyftProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lp)
+{
+    switch (msg)
+    {
+    case WM_CLOSE:
+        DestroyWindow(hWnd);
+        break;
+    case WM_COMMAND: // when an action happens
+        switch (LOWORD(wParam))
+        {
+        case ID_UVL_BUTTON:
+            wchar_t dayText[20]; 
+            wchar_t latText[20];
+            wchar_t longText[20];
+            GetWindowText(hWndDayField, dayText, 10);
+            GetWindowText(hWndLatField, latText, 10);
+            GetWindowText(hWndLongField, longText, 10);
+            ::MessageBox(hWnd, dayText, TEXT("CS180 Project - Day"), MB_OK); 
+            ::MessageBox(hWnd, latText, TEXT("CS180 Project - Latitude"), MB_OK);
+            ::MessageBox(hWnd, longText, TEXT("CS180 Project - Longitude"), MB_OK);
+
+            wstring wsDay(dayText);
+            string strDay(wsDay.begin(), wsDay.end()); 
+            wstring wsLat(latText);
+            string strLat(wsLat.begin(), wsLat.end());
+            wstring wsLong(longText);
+            string strLong(wsLong.begin(), wsLong.end());
+            string strTime = "Date: ";
+            strTime = strTime.append(strDay);
+            strTime = strTime.append(",Latitude: ");
+            strTime = strTime.append(strLat);
+            strTime = strTime.append(",Longitude: ");
+            strTime = strTime.append(strLong);
+            strTime = strTime.append(", Base:, Sort : , Search");
+            //"Date: 4/1/2014,Latitude: 1234 ,Longitude: 1234,Base: ,Sort: ,Search ";
+            strTime = strTime.append(" ,Search");
+            //SendRequest(strTime);
+            //wstring wsSort(sortText);
+            //string strSort(wsSort.begin(), wsSort.end());
+
+          
+
+            vector<string> miniVec;
+
+            //Server Response
+            string serverMessage = SendRequest(strTime);
+            wstring wideSM = wstring(serverMessage.begin(), serverMessage.end());
+            const wchar_t* wideCSM = wideSM.c_str();
+            ::MessageBox(hWnd, wideCSM, TEXT("CS180 Project - Server Response"), MB_OK);
+
+            HWND hwndSearchData = CreateWindow(
+                L"EDIT",  // Predefined class; Unicode assumed //STATIC, Edit
+                L"",      // Button text 
+                WS_VISIBLE | WS_CHILD | WS_BORDER | ES_MULTILINE | ES_WANTRETURN,  // Styles 
+                50,         // x position 
+                200,         // y position 
+                330,        // Button width
+                800,        // Button heighth
+                hWnd,     // Parent window
+                (HMENU)ID_UVL_DATA,
+                (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+                NULL
+            );
+
+            SetWindowText(hwndSearchData, wideCSM);
+
+            break;
+        }
+        break;
+    default:
+        return DefWindowProcW(hWnd, msg, wParam, lp);
+    }
+}
+
+void DisplayUberVsLyft(HWND hWnd)
+{
+    HWND hwndUberVLyft = CreateWindowW(
+        L"uberVsLyftClass",
+        L"CS180 Project - Uber Vs Lyft",
+        WS_VISIBLE | WS_OVERLAPPEDWINDOW,
+        400, 400, 200, 200,
+        hWnd,
+        NULL,
+        NULL,
+        NULL
+    );
+
+    HWND hwndUvLLabel = CreateWindow(
+        L"Static",
+        L"Uber Vs. Lyft"
+        WS_VISIBLE | WS_CHILD | BS_CENTER
+        50,
+        50,
+        400,
+        50,
+        hWndUberVLyft,
+        NULL,
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );
+}
 
 //SEARCH BY TIME
 void RegisterTimeSearch(HINSTANCE hInstance)
@@ -1068,7 +1199,6 @@ LRESULT CALLBACK ModifyDataProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARAM 
         return DefWindowProcW(hWnd, msg, wParam, lp);
     }
 }
-
 void DisplayModifyData(HWND hWnd)
 {
     HWND hWndModify = CreateWindowW(
