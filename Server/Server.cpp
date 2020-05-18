@@ -18,12 +18,18 @@ void main()
 {
 	//parse the CSV file and put in ParseData
 	//vector<vector<string>> parseData;
-	
+
+
 	vector<string> clientDat; //data from client?
 	vector<vector<string>> searchRes; // search results returned for any request
 	searchRes.clear();
 	cout << "Parsing Data..." << endl;
 	Storage* ptr = new Storage;
+
+	vector<vector<string>> foilStore;
+	foilStore.clear();
+	/*readFOIL(*ptr, "Uber-Jan-Feb-FOIL.csv", foilStore);*/
+
 	read(*ptr, "uber-raw-data-apr14.csv");
 	cout << "Done Parsing... Server starting..." << endl;
 	// INITIALIZE WINSOCK
@@ -193,14 +199,14 @@ void main()
 		}
 		else
 		{
-			parseClient(buf, *ptr, searchRes); //searched results are in searchRes //changed parseData to ptr
+			parseClient(buf, *ptr, foilStore, searchRes); //searched results are in searchRes //changed parseData to ptr
 
 			if (!searchRes.empty())
 			{
 				string dataString = "";
 				vector<string> miniVec;
 				int max = 0;
-		
+
 				if (50 < searchRes.size())
 				{
 					max = 50;
@@ -209,10 +215,10 @@ void main()
 				{
 					max = searchRes.size();
 				}
-				
+
 				for (int j = 0; j < max; j++)
 				{
-			
+
 					miniVec = searchRes.at(j);
 					if (!miniVec.empty())
 					{
@@ -220,16 +226,16 @@ void main()
 						{
 							dataString.append(miniVec.at(i));
 						}
-						
+
 					}
-					
+
 					dataString.append("\n");
 				}
-				
+
 				int num = dataString.size();
-				
+
 				strcpy_s(bufS, num + 1, dataString.c_str());
-				
+
 				int sendOk = sendto(in, bufS, 10000, 0, (sockaddr*)&client, sizeof(client));
 				cout << "Sending message to " << clientIp << " : " << bufS << endl;
 			}
