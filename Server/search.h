@@ -88,6 +88,9 @@ public:
 void parseLine(string line, vector<string>& results); //check where this is called
 void read(Storage& data1, string filename); //check where this is called
 
+//void parseLineFOIL(string line, vector<string>& results); //check where this is called
+void readFOIL(Storage& data1, string filename, vector<vector<string>>& results); //check where this is called
+
 void searchTime(vector<vector<string>>& results, Storage& csvData, vector<string>& searchInputs);
 void searchDate(vector<vector<string>>& results, Storage& csvData, vector<string>& searchInputs);
 void searchDateTime(vector<vector<string>>& results, Storage& csvData, vector<string>& searchInputs);
@@ -103,7 +106,7 @@ void deleteBase(vector<vector<string>>& results, Storage& csvData, vector<string
 void deleteSpecific(vector<vector<string>>& results, Storage& csvData, vector<string>& searchInputs); // delete specific
 
 void insertData(vector<vector<string>>& results, Storage& csvData, vector<string>& searchInputs); // insert
-void parseClient(string buf, Storage& csvData, vector<vector<string>>& results);
+void parseClient(string buf, Storage& csvData, vector<vector<string>> foilStore, vector<vector<string>>& results);
 
 bool checkIfExport(char buf[1024]); // returns triue if message from client is for import
 
@@ -118,3 +121,9 @@ void searchLeastUseTime(vector<vector<string>>& results, Storage& csvData, vecto
 void searchMostLoc(vector<vector<string>>& results, Storage& csvData, vector<string>& searchInputs);
 void searchLeastLoc(vector<vector<string>>& results, Storage& csvData, vector<string>& searchInputs);
 void calculateBusiestDay(vector<vector<string>>& results, Storage& csvData, vector<string>& searchInputs);
+
+// new
+void searchMostVehicles(vector<vector<string>>& results, vector<vector<string>> foilStore, vector<string>& searchInputs);
+void searchLeastVehicles(vector<vector<string>>& results, vector<vector<string>> foilStore, vector<string>& searchInputs);
+void searchHighestRatio(vector<vector<string>>& results, vector<vector<string>> foilStore, vector<string>& searchInputs);
+void searchLowestRatio(vector<vector<string>>& results, vector<vector<string>> foilStore, vector<string>& searchInputs);

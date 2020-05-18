@@ -32,8 +32,6 @@ void parseLine1(string line, vector<string>& results) {// parses date and time
     return;
 }
 
-
-
 void read(Storage& data1, string filename)
 {
     ifstream fin;
@@ -79,6 +77,38 @@ void read(Storage& data1, string filename)
             cout << index << endl;
         }
 
+        index++;
+    }
+    return;
+};
+
+void readFOIL(Storage& data1, string filename, vector<vector <string>>& foilStore)
+{
+    ifstream fin;
+    string line1;
+    string line2;
+
+    // Open an existing file
+    fin.open(filename);
+    int index = 0;
+    //Storage data1;
+    //vector<string> results;
+    cout << "we are about to open file to parse" << endl;
+    Parsed* obj;
+    // Use* row1;
+    while (!fin.eof()) {
+        fin >> line1;   //These two are to format the first column of the csv file
+
+        vector<string> results;
+        parseLine(line1, results);
+
+
+        if (index % 10000 == 0) {
+            //cout << "just pushed " << index << endl;
+            cout << index << endl;
+        }
+
+        foilStore.push_back(results);
         index++;
     }
     return;
@@ -457,7 +487,7 @@ void searchLocation(vector<vector<string>>& results1, Storage& csvData, vector<s
     for (unsigned int k = 0; k < obj->getOrigSize(); k++) {// searches for Location: lon/lat 
         Use* row1 = new Use;
         *row1 = obj->getRow(k);
-        if (searchInputs.at(0).compare(row1->getLat()) == 0 && searchInputs.at(1).compare(row1->getLat()) == 0) {
+        if (searchInputs.at(0).compare(row1->getLat()) == 0 && searchInputs.at(1).compare(row1->getLong()) == 0) {
             in1 = "\"" + row1->getDate() + " " + row1->getTime() + "\"";
 
             miniVec.push_back(in1);
@@ -1198,7 +1228,1156 @@ void calculateBusiestDay(vector<vector<string>>& results1, Storage& csvData, vec
     }
 };
 
-void parseClient(string buf, Storage& csvData, vector<vector<string>>& results) {
+
+
+void searchMostVehicles(vector<vector<string>>& results, vector<vector<string>> foilStore, vector<string>& searchInputs)
+{
+    // given date find base ID with largest number of vehicles
+    string date = searchInputs.at(0);
+    date = date.substr(1, date.length());
+    cout << date << endl;
+
+    vector<string> current;
+    vector<vector<string>> unsorted;
+    for (int i = 0; i < foilStore.size(); i++)
+    {
+        current = foilStore.at(i);
+        if (current.at(1) == date)
+        {
+            cout << current.at(1) << endl;
+            unsorted.push_back(current);
+        }
+    }
+
+    int max = 0;
+    vector<string> maxEntry;
+    int iterate = unsorted.size();
+    int maxPos = 0;
+    for (int i = 0; i < iterate; i++)
+    {
+        max = 0;
+        for (int j = 0; j < unsorted.size(); j++)
+        {
+            current = unsorted.at(j);
+            if (stoi(current.at(2)) > max)
+            {
+                max = stoi(current.at(2));
+                maxEntry = current;
+                maxPos = j;
+            }
+        }
+
+        vector<string> resultRow;
+        resultRow.push_back(maxEntry.at(0) + "                                                                                  ");
+        resultRow.push_back(maxEntry.at(3) + "                                      ");
+        results.push_back(resultRow);
+
+        /*for (int k = 0; k < resultRow.size(); k++)
+        {
+            cout << resultRow.at(k) << " ";
+        }
+        cout << endl;*/
+
+        unsorted.erase(unsorted.begin() + maxPos);
+    }
+};
+
+void searchLeastVehicles(vector<vector<string>>& results, vector<vector<string>> foilStore, vector<string>& searchInputs)
+{
+    // given date find base ID with largest number of vehicles
+    string date = searchInputs.at(0);
+    date = date.substr(1, date.length());
+    cout << date << endl;
+
+    vector<string> current;
+    vector<vector<string>> unsorted;
+    for (int i = 0; i < foilStore.size(); i++)
+    {
+        current = foilStore.at(i);
+        if (current.at(1) == date)
+        {
+            cout << current.at(1) << endl;
+            unsorted.push_back(current);
+        }
+    }
+
+    int min = 100000000;
+    vector<string> minEntry;
+    int iterate = unsorted.size();
+    int minPos = 0;
+    for (int i = 0; i < iterate; i++)
+    {
+        min = 100000000;
+        for (int j = 0; j < unsorted.size(); j++)
+        {
+            current = unsorted.at(j);
+            if (stoi(current.at(2)) < min)
+            {
+                min = stoi(current.at(2));
+                minEntry = current;
+                minPos = j;
+            }
+        }
+        vector<string> resultRow;
+        resultRow.push_back(minEntry.at(0) + "                                                                                  ");
+        resultRow.push_back(minEntry.at(3) + "                                      ");
+        results.push_back(resultRow);
+
+        /*for (int k = 0; k < resultRow.size(); k++)
+        {
+            cout << resultRow.at(k) << " ";
+        }
+        cout << endl;*/
+
+        unsorted.erase(unsorted.begin() + minPos);
+    }
+};
+
+void searchHighestRatio(vector<vector<string>>& results, vector<vector<string>> foilStore, vector<string>& searchInputs)
+{
+    // given base ID, find date with highest ratio of trips to vehicles
+    string base = searchInputs.at(0);
+    base = base.substr(1, base.length());
+    cout << base << endl;
+
+    vector<string> current;
+    vector<vector<string>> unsorted;
+    for (int i = 0; i < foilStore.size(); i++)
+    {
+        current = foilStore.at(i);
+        if (current.at(0) == base)
+        {
+            cout << current.at(1) << endl;
+            unsorted.push_back(current);
+        }
+    }
+
+    float max = 0;
+    vector<string> maxEntry;
+    int iterate = unsorted.size();
+    int maxPos = 0;
+    for (int i = 0; i < iterate; i++)
+    {
+        max = 0;
+        for (int j = 0; j < unsorted.size(); j++)
+        {
+            current = unsorted.at(j);
+            if ((stof(current.at(2))/stof(current.at(3))) > max)
+            {
+                max = stof(current.at(2)) / stof(current.at(3));
+                maxEntry = current;
+                maxPos = j;
+            }
+        }
+
+        vector<string> resultRow;
+        resultRow.push_back(maxEntry.at(1) + "                                                                                  ");
+        resultRow.push_back(maxEntry.at(3) + ":" + maxEntry.at(2) + "                    ");
+        results.push_back(resultRow);
+
+        for (int k = 0; k < resultRow.size(); k++)
+        {
+            cout << resultRow.at(k) << " ";
+        }
+        cout << endl;
+
+        unsorted.erase(unsorted.begin() + maxPos);
+    }
+};
+
+void searchLowestRatio(vector<vector<string>>& results, vector<vector<string>> foilStore, vector<string>& searchInputs)
+{
+    // given base ID, find date with highest ratio of trips to vehicles
+    string base = searchInputs.at(0);
+    base = base.substr(1, base.length());
+    cout << base << endl;
+
+    vector<string> current;
+    vector<vector<string>> unsorted;
+    for (int i = 0; i < foilStore.size(); i++)
+    {
+        current = foilStore.at(i);
+        if (current.at(0) == base)
+        {
+            cout << current.at(1) << endl;
+            unsorted.push_back(current);
+        }
+    }
+
+    float min = 100000000;
+    vector<string> minEntry;
+    int iterate = unsorted.size();
+    int minPos = 0;
+    for (int i = 0; i < iterate; i++)
+    {
+        min = 100000000;
+        for (int j = 0; j < unsorted.size(); j++)
+        {
+            current = unsorted.at(j);
+            if ((stof(current.at(2)) / stof(current.at(3))) < min)
+            {
+                min = stof(current.at(2)) / stof(current.at(3));
+                minEntry = current;
+                minPos = j;
+            }
+        }
+
+        vector<string> resultRow;
+        resultRow.push_back(minEntry.at(1) + "                                                                                  ");
+        resultRow.push_back(minEntry.at(3) + ":" + minEntry.at(2) + "                   ");
+        results.push_back(resultRow);
+
+        for (int k = 0; k < resultRow.size(); k++)
+        {
+            cout << resultRow.at(k) << " ";
+        }
+        cout << endl;
+
+        unsorted.erase(unsorted.begin() + minPos);
+    }
+};
+
+void calculateShortestInterval(vector<vector<string>>& results1, Storage& csvData, vector<string>& searchInputs) {
+    vector<string> miniVec;
+    Storage* obj = &csvData;
+    string in1;
+    vector<string> temp1;
+    vector<string> temp2;
+    vector<string> saveMin;
+    string save1;
+    string save2;
+    int daydiff = 0, hourdiff = 0, mindiff = 0;
+    int minimum = 0, mimtemp = 0;
+    string tempresult;
+    for (unsigned int k = 0; k < obj->getOrigSize(); k++) {// searches for Location: lon/lat 
+        Use* row1 = new Use;
+        *row1 = obj->getRow(k);
+        if (searchInputs.at(0).compare(row1->getLat()) == 0 && searchInputs.at(1).compare(row1->getLong()) == 0) {
+            in1 = row1->getDate() + " " + row1->getTime() + " ";
+
+            temp2.push_back(in1);
+            in1 = row1->getLat() + " ";
+
+            temp2.push_back(in1);
+            in1 = row1->getLong() + " ";
+
+            temp2.push_back(in1);
+            in1 = row1->getBase();
+
+            //          miniVec.push_back(in1);
+            temp2.push_back(in1);
+
+            if (temp1.empty()) {
+                temp1 = temp2;
+            }
+            else {
+                for (vector<string>::iterator i = temp1.begin(); i != temp1.end(); ++i) {
+                    save1 += *i;
+                }
+                for (vector<string>::iterator i = temp2.begin(); i != temp2.end(); ++i) {
+                    save2 += *i;
+                }
+                if (save1[3] == '/' && save2[3] == '/') {   // 4/1/2014 9:58:00 && 4/1/2014 9:58:00 or 4/1/2014 10:01:00
+                    daydiff = save2[2] - save1[2];
+                    if (save1[10] == ':' && save2[10] == ':') {
+                        hourdiff = save2[9] - save1[9];
+                        if (save2[11] >= save1[11] && save2[12] >= save1[12]) {
+                            mindiff = (save2[11] - save1[11]) * 10 + (save2[12] - save1[12]);
+                        }
+                        else if (save2[11] >= save1[11] && save2[12] < save1[12]) {
+                            mindiff = (save2[11] - save1[11] - 1) * 10 + (10 + save2[12] - save1[12]);
+                        }
+                        else if (save2[11] < save1[11] && save2[12] >= save1[12]) {
+                            mindiff = (save2[11] - save1[11] + 6) * 10 + (save2[12] - save1[12]);
+                            hourdiff = hourdiff - 1;
+                        }
+                        else if (save2[11] < save1[11] && save2[12] < save1[12]) {
+                            mindiff = (save2[11] - save1[11] + 6 - 1) * 10 + (10 + save2[12] - save1[12]);
+                            hourdiff = hourdiff - 1;
+                        }
+                    }
+                    else if (save1[10] == ':' && save2[10] != ':') {    // 4/1/2014 9:58:00 && 4/1/2014 10:01:00
+                        hourdiff = (save2[9] - 48) * 10 + save2[10] - save1[9];
+                        if (save2[12] >= save1[11] && save2[13] >= save1[12]) {
+                            mindiff = (save2[12] - save1[11]) * 10 + (save2[13] - save1[12]);
+                        }
+                        else if (save2[12] >= save1[11] && save2[13] < save1[12]) {
+                            mindiff = (save2[12] - save1[11] - 1) * 10 + (10 + save2[13] - save1[12]);
+                        }
+                        else if (save2[12] < save1[11] && save2[13] >= save1[12]) {
+                            mindiff = (save2[12] - save1[11] + 6) * 10 + (save2[13] - save1[12]);
+                            hourdiff = hourdiff - 1;
+                        }
+                        else if (save2[12] < save1[11] && save2[13] < save1[12]) {
+                            mindiff = (save2[12] - save1[11] + 6 - 1) * 10 + (10 + save2[13] - save1[12]);
+                            hourdiff = hourdiff - 1;
+                        }
+                    }
+                    else if (save1[10] != ':' && save2[10] != ':') {    // 4/1/2014 10:01:00 && 4/1/2014 10:01:00
+                        if (save2[9] >= save1[9] && save2[10] > save1[10]) {
+                            hourdiff = (save2[9] - save1[9]) * 10 + save2[10] - save1[10];
+                        }
+                        else if (save2[9] > save1[9] && save2[10] < save1[10]) {
+                            hourdiff = (save2[9] - save1[9] - 1) * 10 + 10 + save2[10] - save1[10];
+                        }
+
+                        if (save2[12] >= save1[12] && save2[13] >= save1[13]) {
+                            mindiff = (save2[12] - save1[12]) * 10 + (save2[13] - save1[13]);
+                        }
+                        else if (save2[12] >= save1[12] && save2[13] < save1[13]) {
+                            mindiff = (save2[12] - save1[12] - 1) * 10 + (10 + save2[13] - save1[13]);
+                        }
+                        else if (save2[12] < save1[12] && save2[13] >= save1[13]) {
+                            mindiff = (save2[12] - save1[12] + 6) * 10 + (save2[13] - save1[13]);
+                            hourdiff = hourdiff - 1;
+                        }
+                        else if (save2[12] < save1[12] && save2[13] < save1[13]) {
+                            mindiff = (save2[12] - save1[12] + 6 - 1) * 10 + (10 + save2[13] - save1[13]);
+                            hourdiff = hourdiff - 1;
+                        }
+                    }
+                    save1 = "";
+                    save2 = "";
+                    temp1 = temp2;
+                    temp2.clear();
+
+                    tempresult = to_string(daydiff);
+                    tempresult.append("day ");
+                    tempresult += to_string(hourdiff);
+                    tempresult.append("hour ");
+                    tempresult += to_string(mindiff);
+                    tempresult.append("minute");
+                    miniVec.push_back(tempresult);
+                    mimtemp = (1440 * daydiff) + (60 * hourdiff) + (mindiff);
+                    if (minimum == 0) {
+                        minimum = mimtemp;
+                        saveMin.push_back(tempresult);
+                    }
+                    else if (minimum > mimtemp) {
+                        minimum = mimtemp;
+                        saveMin.clear();
+                        saveMin.push_back(tempresult);
+                    }
+
+                    results1.push_back(miniVec);
+                    miniVec.clear();
+                }
+                else if (save1[3] == '/' && save2[3] != '/') {  // 4/1/2014 9:58:00 && 4/11/2014 9:58:00 or 4/11/2014 10:01:00
+                    daydiff = (save2[2] - 48) * 10 + save2[3] - save1[2];
+                    if (save1[10] == ':' && save2[11] == ':') {
+                        hourdiff = save2[10] - save1[9];
+                        if (save2[12] >= save1[11] && save2[13] >= save1[12]) {
+                            mindiff = (save2[12] - save1[11]) * 10 + (save2[13] - save1[12]);
+                        }
+                        else if (save2[12] >= save1[11] && save2[13] < save1[12]) {
+                            mindiff = (save2[12] - save1[11] - 1) * 10 + (10 + save2[13] - save1[12]);
+                        }
+                        else if (save2[12] < save1[11] && save2[13] >= save1[12]) {
+                            mindiff = (save2[12] - save1[11] + 6) * 10 + (save2[13] - save1[12]);
+                            hourdiff = hourdiff - 1;
+                        }
+                        else if (save2[12] < save1[11] && save2[13] < save1[12]) {
+                            mindiff = (save2[12] - save1[11] + 6 - 1) * 10 + (10 + save2[13] - save1[12]);
+                            hourdiff = hourdiff - 1;
+                        }
+                    }
+                    else if (save1[10] == ':' && save2[11] != ':') {    // 4/1/2014 9:58:00 && 4/1/2014 10:01:00
+                        hourdiff = (save2[10] - 48) * 10 + save2[11] - save1[9];
+                        if (save2[13] >= save1[11] && save2[14] >= save1[12]) {
+                            mindiff = (save2[13] - save1[11]) * 10 + (save2[14] - save1[12]);
+                        }
+                        else if (save2[13] >= save1[11] && save2[14] < save1[12]) {
+                            mindiff = (save2[13] - save1[11] - 1) * 10 + (10 + save2[14] - save1[12]);
+                        }
+                        else if (save2[13] < save1[11] && save2[14] >= save1[12]) {
+                            mindiff = (save2[13] - save1[11] + 6) * 10 + (save2[14] - save1[12]);
+                            hourdiff = hourdiff - 1;
+                        }
+                        else if (save2[13] < save1[11] && save2[14] < save1[12]) {
+                            mindiff = (save2[13] - save1[11] + 6 - 1) * 10 + (10 + save2[14] - save1[12]);
+                            hourdiff = hourdiff - 1;
+                        }
+                    }
+                    else if (save1[10] != ':' && save2[11] != ':') {    // 4/1/2014 10:01:00 && 4/1/2014 10:01:00
+                        if (save2[10] >= save1[9] && save2[11] > save1[10]) {
+                            hourdiff = (save2[10] - save1[9]) * 10 + save2[11] - save1[10];
+                        }
+                        else if (save2[10] > save1[9] && save2[11] < save1[10]) {
+                            hourdiff = (save2[10] - save1[9] - 1) * 10 + 10 + save2[11] - save1[10];
+                        }
+
+                        if (save2[13] >= save1[12] && save2[14] >= save1[13]) {
+                            mindiff = (save2[13] - save1[12]) * 10 + (save2[14] - save1[13]);
+                        }
+                        else if (save2[13] >= save1[12] && save2[14] < save1[13]) {
+                            mindiff = (save2[13] - save1[12] - 1) * 10 + (10 + save2[14] - save1[13]);
+                        }
+                        else if (save2[13] < save1[12] && save2[14] >= save1[13]) {
+                            mindiff = (save2[13] - save1[12] + 6) * 10 + (save2[14] - save1[13]);
+                            hourdiff = hourdiff - 1;
+                        }
+                        else if (save2[13] < save1[12] && save2[14] < save1[13]) {
+                            mindiff = (save2[13] - save1[12] + 6 - 1) * 10 + (10 + save2[14] - save1[13]);
+                            hourdiff = hourdiff - 1;
+                        }
+                    }
+                    save1 = "";
+                    save2 = "";
+                    temp1 = temp2;
+                    temp2.clear();
+                    tempresult = to_string(daydiff);
+                    tempresult.append("day ");
+                    tempresult += to_string(hourdiff);
+                    tempresult.append("hour ");
+                    tempresult += to_string(mindiff);
+                    tempresult.append("minute");
+                    miniVec.push_back(tempresult);
+                    mimtemp = (1440 * daydiff) + (60 * hourdiff) + (mindiff);
+                    if (minimum == 0) {
+                        minimum = mimtemp;
+                        saveMin.push_back(tempresult);
+                    }
+                    else if (minimum > mimtemp) {
+                        minimum = mimtemp;
+                        saveMin.clear();
+                        saveMin.push_back(tempresult);
+                    }
+
+                    results1.push_back(miniVec);
+                    miniVec.clear();
+                }
+                else if (save1[3] != '/' && save2[3] != '/') {  // 4/10/2014 9:58:00 && 4/11/2014 9:58:00 or 4/11/2014 10:01:00
+                    daydiff = (save2[2] - save1[2]) * 10 + save2[3] - save1[3];
+                    if (save1[11] == ':' && save2[11] == ':') {
+                        hourdiff = save2[10] - save1[10];
+                        if (save2[12] >= save1[12] && save2[13] >= save1[13]) {
+                            mindiff = (save2[12] - save1[12]) * 10 + (save2[13] - save1[13]);
+                        }
+                        else if (save2[12] >= save1[12] && save2[13] < save1[13]) {
+                            mindiff = (save2[12] - save1[12] - 1) * 10 + (10 + save2[13] - save1[13]);
+                        }
+                        else if (save2[12] < save1[12] && save2[13] >= save1[13]) {
+                            mindiff = (save2[12] - save1[12] + 6) * 10 + (save2[13] - save1[13]);
+                            hourdiff = hourdiff - 1;
+                        }
+                        else if (save2[12] < save1[12] && save2[13] < save1[13]) {
+                            mindiff = (save2[12] - save1[12] + 6 - 1) * 10 + (10 + save2[13] - save1[13]);
+                            hourdiff = hourdiff - 1;
+                        }
+                    }
+                    else if (save1[11] == ':' && save2[11] != ':') {    // 4/1/2014 9:58:00 && 4/1/2014 10:01:00
+                        hourdiff = (save2[11] - 48) * 10 + save2[11] - save1[10];
+                        if (save2[13] >= save1[12] && save2[14] >= save1[13]) {
+                            mindiff = (save2[13] - save1[12]) * 10 + (save2[14] - save1[13]);
+                        }
+                        else if (save2[13] >= save1[12] && save2[14] < save1[13]) {
+                            mindiff = (save2[13] - save1[12] - 1) * 10 + (10 + save2[14] - save1[13]);
+                        }
+                        else if (save2[13] < save1[12] && save2[14] >= save1[13]) {
+                            mindiff = (save2[13] - save1[12] + 6) * 10 + (save2[14] - save1[13]);
+                            hourdiff = hourdiff - 1;
+                        }
+                        else if (save2[13] < save1[12] && save2[14] < save1[13]) {
+                            mindiff = (save2[13] - save1[12] + 6 - 1) * 10 + (10 + save2[14] - save1[13]);
+                            hourdiff = hourdiff - 1;
+                        }
+                    }
+                    else if (save1[11] != ':' && save2[11] != ':') {    // 4/1/2014 10:01:00 && 4/1/2014 10:01:00
+                        if (save2[10] >= save1[10] && save2[11] > save1[11]) {
+                            hourdiff = (save2[10] - save1[10]) * 10 + save2[11] - save1[11];
+                        }
+                        else if (save2[10] > save1[10] && save2[11] < save1[11]) {
+                            hourdiff = (save2[10] - save1[10] - 1) * 10 + 10 + save2[11] - save1[11];
+                        }
+
+                        if (save2[13] >= save1[13] && save2[14] >= save1[14]) {
+                            mindiff = (save2[13] - save1[13]) * 10 + (save2[14] - save1[14]);
+                        }
+                        else if (save2[13] >= save1[13] && save2[14] < save1[14]) {
+                            mindiff = (save2[13] - save1[13] - 1) * 10 + (10 + save2[14] - save1[14]);
+                        }
+                        else if (save2[13] < save1[13] && save2[14] >= save1[14]) {
+                            mindiff = (save2[13] - save1[13] + 6) * 10 + (save2[14] - save1[14]);
+                            hourdiff = hourdiff - 1;
+                        }
+                        else if (save2[13] < save1[13] && save2[14] < save1[14]) {
+                            mindiff = (save2[13] - save1[13] + 6 - 1) * 10 + (10 + save2[14] - save1[14]);
+                            hourdiff = hourdiff - 1;
+                        }
+                    }
+                    save1 = "";
+                    save2 = "";
+                    temp1 = temp2;
+                    temp2.clear();
+                    tempresult = to_string(daydiff);
+                    tempresult.append("day ");
+                    tempresult += to_string(hourdiff);
+                    tempresult.append("hour ");
+                    tempresult += to_string(mindiff);
+                    tempresult.append("minute");
+                    miniVec.push_back(tempresult);
+                    mimtemp = (1440 * daydiff) + (60 * hourdiff) + (mindiff);
+                    if (minimum == 0) {
+                        minimum = mimtemp;
+                        saveMin.push_back(tempresult);
+                    }
+                    else if (minimum > mimtemp) {
+                        minimum = mimtemp;
+                        saveMin.clear();
+                        saveMin.push_back(tempresult);
+                    }
+
+                    results1.push_back(miniVec);
+                    miniVec.clear();
+                }
+                /*
+                std::string s;
+                for (std::vector<std::string>::const_iterator i = v.begin(); i != v.end(); ++i)
+                s += *i;
+                */
+
+            }
+            temp2.clear();
+
+            //pushes found searches to results
+        }
+
+        delete row1;
+    }
+
+    results1.push_back(saveMin);
+    saveMin.clear();
+};
+
+void calculateLongestInterval(vector<vector<string>>& results1, Storage& csvData, vector<string>& searchInputs) {
+    vector<string> miniVec;
+    Storage* obj = &csvData;
+    string in1;
+    vector<string> temp1;
+    vector<string> temp2;
+    vector<string> saveMax;
+    string save1;
+    string save2;
+    int daydiff = 0, hourdiff = 0, mindiff = 0;
+    int maximum = 0, maxtemp = 0;
+    string tempresult;
+    for (unsigned int k = 0; k < obj->getOrigSize(); k++) {// searches for Location: lon/lat 
+        Use* row1 = new Use;
+        *row1 = obj->getRow(k);
+        if (searchInputs.at(0).compare(row1->getLat()) == 0 && searchInputs.at(1).compare(row1->getLong()) == 0) {
+            in1 = row1->getDate() + " " + row1->getTime() + " ";
+
+            temp2.push_back(in1);
+            in1 = row1->getLat() + " ";
+
+            temp2.push_back(in1);
+            in1 = row1->getLong() + " ";
+
+            temp2.push_back(in1);
+            in1 = row1->getBase();
+
+            //          miniVec.push_back(in1);
+            temp2.push_back(in1);
+
+            if (temp1.empty()) {
+                temp1 = temp2;
+            }
+            else {
+                for (vector<string>::iterator i = temp1.begin(); i != temp1.end(); ++i) {
+                    save1 += *i;
+                }
+                for (vector<string>::iterator i = temp2.begin(); i != temp2.end(); ++i) {
+                    save2 += *i;
+                }
+                if (save1[3] == '/' && save2[3] == '/') {   // 4/1/2014 9:58:00 && 4/1/2014 9:58:00 or 4/1/2014 10:01:00
+                    daydiff = save2[2] - save1[2];
+                    if (save1[10] == ':' && save2[10] == ':') {
+                        hourdiff = save2[9] - save1[9];
+                        if (save2[11] >= save1[11] && save2[12] >= save1[12]) {
+                            mindiff = (save2[11] - save1[11]) * 10 + (save2[12] - save1[12]);
+                        }
+                        else if (save2[11] >= save1[11] && save2[12] < save1[12]) {
+                            mindiff = (save2[11] - save1[11] - 1) * 10 + (10 + save2[12] - save1[12]);
+                        }
+                        else if (save2[11] < save1[11] && save2[12] >= save1[12]) {
+                            mindiff = (save2[11] - save1[11] + 6) * 10 + (save2[12] - save1[12]);
+                            hourdiff = hourdiff - 1;
+                        }
+                        else if (save2[11] < save1[11] && save2[12] < save1[12]) {
+                            mindiff = (save2[11] - save1[11] + 6 - 1) * 10 + (10 + save2[12] - save1[12]);
+                            hourdiff = hourdiff - 1;
+                        }
+                    }
+                    else if (save1[10] == ':' && save2[10] != ':') {    // 4/1/2014 9:58:00 && 4/1/2014 10:01:00
+                        hourdiff = (save2[9] - 48) * 10 + save2[10] - save1[9];
+                        if (save2[12] >= save1[11] && save2[13] >= save1[12]) {
+                            mindiff = (save2[12] - save1[11]) * 10 + (save2[13] - save1[12]);
+                        }
+                        else if (save2[12] >= save1[11] && save2[13] < save1[12]) {
+                            mindiff = (save2[12] - save1[11] - 1) * 10 + (10 + save2[13] - save1[12]);
+                        }
+                        else if (save2[12] < save1[11] && save2[13] >= save1[12]) {
+                            mindiff = (save2[12] - save1[11] + 6) * 10 + (save2[13] - save1[12]);
+                            hourdiff = hourdiff - 1;
+                        }
+                        else if (save2[12] < save1[11] && save2[13] < save1[12]) {
+                            mindiff = (save2[12] - save1[11] + 6 - 1) * 10 + (10 + save2[13] - save1[12]);
+                            hourdiff = hourdiff - 1;
+                        }
+                    }
+                    else if (save1[10] != ':' && save2[10] != ':') {    // 4/1/2014 10:01:00 && 4/1/2014 10:01:00
+                        if (save2[9] >= save1[9] && save2[10] > save1[10]) {
+                            hourdiff = (save2[9] - save1[9]) * 10 + save2[10] - save1[10];
+                        }
+                        else if (save2[9] > save1[9] && save2[10] < save1[10]) {
+                            hourdiff = (save2[9] - save1[9] - 1) * 10 + 10 + save2[10] - save1[10];
+                        }
+
+                        if (save2[12] >= save1[12] && save2[13] >= save1[13]) {
+                            mindiff = (save2[12] - save1[12]) * 10 + (save2[13] - save1[13]);
+                        }
+                        else if (save2[12] >= save1[12] && save2[13] < save1[13]) {
+                            mindiff = (save2[12] - save1[12] - 1) * 10 + (10 + save2[13] - save1[13]);
+                        }
+                        else if (save2[12] < save1[12] && save2[13] >= save1[13]) {
+                            mindiff = (save2[12] - save1[12] + 6) * 10 + (save2[13] - save1[13]);
+                            hourdiff = hourdiff - 1;
+                        }
+                        else if (save2[12] < save1[12] && save2[13] < save1[13]) {
+                            mindiff = (save2[12] - save1[12] + 6 - 1) * 10 + (10 + save2[13] - save1[13]);
+                            hourdiff = hourdiff - 1;
+                        }
+                    }
+                    save1 = "";
+                    save2 = "";
+                    temp1 = temp2;
+                    temp2.clear();
+
+                    tempresult = to_string(daydiff);
+                    tempresult.append("day ");
+                    tempresult += to_string(hourdiff);
+                    tempresult.append("hour ");
+                    tempresult += to_string(mindiff);
+                    tempresult.append("minute");
+                    miniVec.push_back(tempresult);
+                    maxtemp = (1440 * daydiff) + (60 * hourdiff) + (mindiff);
+                    if (maximum == 0) {
+                        maximum = maxtemp;
+                        saveMax.push_back(tempresult);
+                    }
+                    else if (maximum < maxtemp) {
+                        maximum = maxtemp;
+                        saveMax.clear();
+                        saveMax.push_back(tempresult);
+                    }
+
+                    results1.push_back(miniVec);
+                    miniVec.clear();
+                }
+                else if (save1[3] == '/' && save2[3] != '/') {  // 4/1/2014 9:58:00 && 4/11/2014 9:58:00 or 4/11/2014 10:01:00
+                    daydiff = (save2[2] - 48) * 10 + save2[3] - save1[2];
+                    if (save1[10] == ':' && save2[11] == ':') {
+                        hourdiff = save2[10] - save1[9];
+                        if (save2[12] >= save1[11] && save2[13] >= save1[12]) {
+                            mindiff = (save2[12] - save1[11]) * 10 + (save2[13] - save1[12]);
+                        }
+                        else if (save2[12] >= save1[11] && save2[13] < save1[12]) {
+                            mindiff = (save2[12] - save1[11] - 1) * 10 + (10 + save2[13] - save1[12]);
+                        }
+                        else if (save2[12] < save1[11] && save2[13] >= save1[12]) {
+                            mindiff = (save2[12] - save1[11] + 6) * 10 + (save2[13] - save1[12]);
+                            hourdiff = hourdiff - 1;
+                        }
+                        else if (save2[12] < save1[11] && save2[13] < save1[12]) {
+                            mindiff = (save2[12] - save1[11] + 6 - 1) * 10 + (10 + save2[13] - save1[12]);
+                            hourdiff = hourdiff - 1;
+                        }
+                    }
+                    else if (save1[10] == ':' && save2[11] != ':') {    // 4/1/2014 9:58:00 && 4/1/2014 10:01:00
+                        hourdiff = (save2[10] - 48) * 10 + save2[11] - save1[9];
+                        if (save2[13] >= save1[11] && save2[14] >= save1[12]) {
+                            mindiff = (save2[13] - save1[11]) * 10 + (save2[14] - save1[12]);
+                        }
+                        else if (save2[13] >= save1[11] && save2[14] < save1[12]) {
+                            mindiff = (save2[13] - save1[11] - 1) * 10 + (10 + save2[14] - save1[12]);
+                        }
+                        else if (save2[13] < save1[11] && save2[14] >= save1[12]) {
+                            mindiff = (save2[13] - save1[11] + 6) * 10 + (save2[14] - save1[12]);
+                            hourdiff = hourdiff - 1;
+                        }
+                        else if (save2[13] < save1[11] && save2[14] < save1[12]) {
+                            mindiff = (save2[13] - save1[11] + 6 - 1) * 10 + (10 + save2[14] - save1[12]);
+                            hourdiff = hourdiff - 1;
+                        }
+                    }
+                    else if (save1[10] != ':' && save2[11] != ':') {    // 4/1/2014 10:01:00 && 4/1/2014 10:01:00
+                        if (save2[10] >= save1[9] && save2[11] > save1[10]) {
+                            hourdiff = (save2[10] - save1[9]) * 10 + save2[11] - save1[10];
+                        }
+                        else if (save2[10] > save1[9] && save2[11] < save1[10]) {
+                            hourdiff = (save2[10] - save1[9] - 1) * 10 + 10 + save2[11] - save1[10];
+                        }
+
+                        if (save2[13] >= save1[12] && save2[14] >= save1[13]) {
+                            mindiff = (save2[13] - save1[12]) * 10 + (save2[14] - save1[13]);
+                        }
+                        else if (save2[13] >= save1[12] && save2[14] < save1[13]) {
+                            mindiff = (save2[13] - save1[12] - 1) * 10 + (10 + save2[14] - save1[13]);
+                        }
+                        else if (save2[13] < save1[12] && save2[14] >= save1[13]) {
+                            mindiff = (save2[13] - save1[12] + 6) * 10 + (save2[14] - save1[13]);
+                            hourdiff = hourdiff - 1;
+                        }
+                        else if (save2[13] < save1[12] && save2[14] < save1[13]) {
+                            mindiff = (save2[13] - save1[12] + 6 - 1) * 10 + (10 + save2[14] - save1[13]);
+                            hourdiff = hourdiff - 1;
+                        }
+                    }
+                    save1 = "";
+                    save2 = "";
+                    temp1 = temp2;
+                    temp2.clear();
+                    tempresult = to_string(daydiff);
+                    tempresult.append("day ");
+                    tempresult += to_string(hourdiff);
+                    tempresult.append("hour ");
+                    tempresult += to_string(mindiff);
+                    tempresult.append("minute");
+                    miniVec.push_back(tempresult);
+                    maxtemp = (1440 * daydiff) + (60 * hourdiff) + (mindiff);
+                    if (maximum == 0) {
+                        maximum = maxtemp;
+                        saveMax.push_back(tempresult);
+                    }
+                    else if (maximum < maxtemp) {
+                        maximum = maxtemp;
+                        saveMax.clear();
+                        saveMax.push_back(tempresult);
+                    }
+
+                    results1.push_back(miniVec);
+                    miniVec.clear();
+                }
+                else if (save1[3] != '/' && save2[3] != '/') {  // 4/10/2014 9:58:00 && 4/11/2014 9:58:00 or 4/11/2014 10:01:00
+                    daydiff = (save2[2] - save1[2]) * 10 + save2[3] - save1[3];
+                    if (save1[11] == ':' && save2[11] == ':') {
+                        hourdiff = save2[10] - save1[10];
+                        if (save2[12] >= save1[12] && save2[13] >= save1[13]) {
+                            mindiff = (save2[12] - save1[12]) * 10 + (save2[13] - save1[13]);
+                        }
+                        else if (save2[12] >= save1[12] && save2[13] < save1[13]) {
+                            mindiff = (save2[12] - save1[12] - 1) * 10 + (10 + save2[13] - save1[13]);
+                        }
+                        else if (save2[12] < save1[12] && save2[13] >= save1[13]) {
+                            mindiff = (save2[12] - save1[12] + 6) * 10 + (save2[13] - save1[13]);
+                            hourdiff = hourdiff - 1;
+                        }
+                        else if (save2[12] < save1[12] && save2[13] < save1[13]) {
+                            mindiff = (save2[12] - save1[12] + 6 - 1) * 10 + (10 + save2[13] - save1[13]);
+                            hourdiff = hourdiff - 1;
+                        }
+                    }
+                    else if (save1[11] == ':' && save2[11] != ':') {    // 4/1/2014 9:58:00 && 4/1/2014 10:01:00
+                        hourdiff = (save2[11] - 48) * 10 + save2[11] - save1[10];
+                        if (save2[13] >= save1[12] && save2[14] >= save1[13]) {
+                            mindiff = (save2[13] - save1[12]) * 10 + (save2[14] - save1[13]);
+                        }
+                        else if (save2[13] >= save1[12] && save2[14] < save1[13]) {
+                            mindiff = (save2[13] - save1[12] - 1) * 10 + (10 + save2[14] - save1[13]);
+                        }
+                        else if (save2[13] < save1[12] && save2[14] >= save1[13]) {
+                            mindiff = (save2[13] - save1[12] + 6) * 10 + (save2[14] - save1[13]);
+                            hourdiff = hourdiff - 1;
+                        }
+                        else if (save2[13] < save1[12] && save2[14] < save1[13]) {
+                            mindiff = (save2[13] - save1[12] + 6 - 1) * 10 + (10 + save2[14] - save1[13]);
+                            hourdiff = hourdiff - 1;
+                        }
+                    }
+                    else if (save1[11] != ':' && save2[11] != ':') {    // 4/1/2014 10:01:00 && 4/1/2014 10:01:00
+                        if (save2[10] >= save1[10] && save2[11] > save1[11]) {
+                            hourdiff = (save2[10] - save1[10]) * 10 + save2[11] - save1[11];
+                        }
+                        else if (save2[10] > save1[10] && save2[11] < save1[11]) {
+                            hourdiff = (save2[10] - save1[10] - 1) * 10 + 10 + save2[11] - save1[11];
+                        }
+
+                        if (save2[13] >= save1[13] && save2[14] >= save1[14]) {
+                            mindiff = (save2[13] - save1[13]) * 10 + (save2[14] - save1[14]);
+                        }
+                        else if (save2[13] >= save1[13] && save2[14] < save1[14]) {
+                            mindiff = (save2[13] - save1[13] - 1) * 10 + (10 + save2[14] - save1[14]);
+                        }
+                        else if (save2[13] < save1[13] && save2[14] >= save1[14]) {
+                            mindiff = (save2[13] - save1[13] + 6) * 10 + (save2[14] - save1[14]);
+                            hourdiff = hourdiff - 1;
+                        }
+                        else if (save2[13] < save1[13] && save2[14] < save1[14]) {
+                            mindiff = (save2[13] - save1[13] + 6 - 1) * 10 + (10 + save2[14] - save1[14]);
+                            hourdiff = hourdiff - 1;
+                        }
+                    }
+                    save1 = "";
+                    save2 = "";
+                    temp1 = temp2;
+                    temp2.clear();
+                    tempresult = to_string(daydiff);
+                    tempresult.append("day ");
+                    tempresult += to_string(hourdiff);
+                    tempresult.append("hour ");
+                    tempresult += to_string(mindiff);
+                    tempresult.append("minute");
+                    miniVec.push_back(tempresult);
+                    maxtemp = (1440 * daydiff) + (60 * hourdiff) + (mindiff);
+                    if (maximum == 0) {
+                        maximum = maxtemp;
+                        saveMax.push_back(tempresult);
+                    }
+                    else if (maximum < maxtemp) {
+                        maximum = maxtemp;
+                        saveMax.clear();
+                        saveMax.push_back(tempresult);
+                    }
+
+                    results1.push_back(miniVec);
+                    miniVec.clear();
+                }
+                /*
+                std::string s;
+                for (std::vector<std::string>::const_iterator i = v.begin(); i != v.end(); ++i)
+                s += *i;
+                */
+
+            }
+            temp2.clear();
+
+            //pushes found searches to results
+        }
+
+        delete row1;
+    }
+
+    results1.push_back(saveMax);
+    saveMax.clear();
+};
+
+void calculateAverageInterval(vector<vector<string>>& results1, Storage& csvData, vector<string>& searchInputs) {
+    vector<string> miniVec;
+    Storage* obj = &csvData;
+    string in1;
+    vector<string> temp1;
+    vector<string> temp2;
+    vector<string> saveAvg;
+    string save1;
+    string save2;
+    string avg;
+    int daydiff = 0, hourdiff = 0, mindiff = 0;
+    int average = 0, avgcount = 0, avgtemp = 0;
+    string tempresult;
+    for (unsigned int k = 0; k < obj->getOrigSize(); k++) {// searches for Location: lon/lat 
+        Use* row1 = new Use;
+        *row1 = obj->getRow(k);
+        if (searchInputs.at(0).compare(row1->getLat()) == 0 && searchInputs.at(1).compare(row1->getLong()) == 0) {
+            in1 = row1->getDate() + " " + row1->getTime() + " ";
+
+            temp2.push_back(in1);
+            in1 = row1->getLat() + " ";
+
+            temp2.push_back(in1);
+            in1 = row1->getLong() + " ";
+
+            temp2.push_back(in1);
+            in1 = row1->getBase();
+
+            //          miniVec.push_back(in1);
+            temp2.push_back(in1);
+
+            if (temp1.empty()) {
+                temp1 = temp2;
+            }
+            else {
+                for (vector<string>::iterator i = temp1.begin(); i != temp1.end(); ++i) {
+                    save1 += *i;
+                }
+                for (vector<string>::iterator i = temp2.begin(); i != temp2.end(); ++i) {
+                    save2 += *i;
+                }
+                if (save1[3] == '/' && save2[3] == '/') {   // 4/1/2014 9:58:00 && 4/1/2014 9:58:00 or 4/1/2014 10:01:00
+                    daydiff = save2[2] - save1[2];
+                    if (save1[10] == ':' && save2[10] == ':') {
+                        hourdiff = save2[9] - save1[9];
+                        if (save2[11] >= save1[11] && save2[12] >= save1[12]) {
+                            mindiff = (save2[11] - save1[11]) * 10 + (save2[12] - save1[12]);
+                        }
+                        else if (save2[11] >= save1[11] && save2[12] < save1[12]) {
+                            mindiff = (save2[11] - save1[11] - 1) * 10 + (10 + save2[12] - save1[12]);
+                        }
+                        else if (save2[11] < save1[11] && save2[12] >= save1[12]) {
+                            mindiff = (save2[11] - save1[11] + 6) * 10 + (save2[12] - save1[12]);
+                            hourdiff = hourdiff - 1;
+                        }
+                        else if (save2[11] < save1[11] && save2[12] < save1[12]) {
+                            mindiff = (save2[11] - save1[11] + 6 - 1) * 10 + (10 + save2[12] - save1[12]);
+                            hourdiff = hourdiff - 1;
+                        }
+                    }
+                    else if (save1[10] == ':' && save2[10] != ':') {    // 4/1/2014 9:58:00 && 4/1/2014 10:01:00
+                        hourdiff = (save2[9] - 48) * 10 + save2[10] - save1[9];
+                        if (save2[12] >= save1[11] && save2[13] >= save1[12]) {
+                            mindiff = (save2[12] - save1[11]) * 10 + (save2[13] - save1[12]);
+                        }
+                        else if (save2[12] >= save1[11] && save2[13] < save1[12]) {
+                            mindiff = (save2[12] - save1[11] - 1) * 10 + (10 + save2[13] - save1[12]);
+                        }
+                        else if (save2[12] < save1[11] && save2[13] >= save1[12]) {
+                            mindiff = (save2[12] - save1[11] + 6) * 10 + (save2[13] - save1[12]);
+                            hourdiff = hourdiff - 1;
+                        }
+                        else if (save2[12] < save1[11] && save2[13] < save1[12]) {
+                            mindiff = (save2[12] - save1[11] + 6 - 1) * 10 + (10 + save2[13] - save1[12]);
+                            hourdiff = hourdiff - 1;
+                        }
+                    }
+                    else if (save1[10] != ':' && save2[10] != ':') {    // 4/1/2014 10:01:00 && 4/1/2014 10:01:00
+                        if (save2[9] >= save1[9] && save2[10] > save1[10]) {
+                            hourdiff = (save2[9] - save1[9]) * 10 + save2[10] - save1[10];
+                        }
+                        else if (save2[9] > save1[9] && save2[10] < save1[10]) {
+                            hourdiff = (save2[9] - save1[9] - 1) * 10 + 10 + save2[10] - save1[10];
+                        }
+
+                        if (save2[12] >= save1[12] && save2[13] >= save1[13]) {
+                            mindiff = (save2[12] - save1[12]) * 10 + (save2[13] - save1[13]);
+                        }
+                        else if (save2[12] >= save1[12] && save2[13] < save1[13]) {
+                            mindiff = (save2[12] - save1[12] - 1) * 10 + (10 + save2[13] - save1[13]);
+                        }
+                        else if (save2[12] < save1[12] && save2[13] >= save1[13]) {
+                            mindiff = (save2[12] - save1[12] + 6) * 10 + (save2[13] - save1[13]);
+                            hourdiff = hourdiff - 1;
+                        }
+                        else if (save2[12] < save1[12] && save2[13] < save1[13]) {
+                            mindiff = (save2[12] - save1[12] + 6 - 1) * 10 + (10 + save2[13] - save1[13]);
+                            hourdiff = hourdiff - 1;
+                        }
+                    }
+                    save1 = "";
+                    save2 = "";
+                    temp1 = temp2;
+                    temp2.clear();
+
+                    tempresult = to_string(daydiff);
+                    tempresult.append("day ");
+                    tempresult += to_string(hourdiff);
+                    tempresult.append("hour ");
+                    tempresult += to_string(mindiff);
+                    tempresult.append("minute");
+                    miniVec.push_back(tempresult);
+                    avgtemp = (1440 * daydiff) + (60 * hourdiff) + (mindiff);
+                    if (average == 0) {
+                        average = avgtemp;
+                        avgcount = avgcount + 1;
+                    }
+                    else {
+                        average = average + avgtemp;
+                        avgcount = avgcount + 1;
+                    }
+
+                    results1.push_back(miniVec);
+                    miniVec.clear();
+                }
+                else if (save1[3] == '/' && save2[3] != '/') {  // 4/1/2014 9:58:00 && 4/11/2014 9:58:00 or 4/11/2014 10:01:00
+                    daydiff = (save2[2] - 48) * 10 + save2[3] - save1[2];
+                    if (save1[10] == ':' && save2[11] == ':') {
+                        hourdiff = save2[10] - save1[9];
+                        if (save2[12] >= save1[11] && save2[13] >= save1[12]) {
+                            mindiff = (save2[12] - save1[11]) * 10 + (save2[13] - save1[12]);
+                        }
+                        else if (save2[12] >= save1[11] && save2[13] < save1[12]) {
+                            mindiff = (save2[12] - save1[11] - 1) * 10 + (10 + save2[13] - save1[12]);
+                        }
+                        else if (save2[12] < save1[11] && save2[13] >= save1[12]) {
+                            mindiff = (save2[12] - save1[11] + 6) * 10 + (save2[13] - save1[12]);
+                            hourdiff = hourdiff - 1;
+                        }
+                        else if (save2[12] < save1[11] && save2[13] < save1[12]) {
+                            mindiff = (save2[12] - save1[11] + 6 - 1) * 10 + (10 + save2[13] - save1[12]);
+                            hourdiff = hourdiff - 1;
+                        }
+                    }
+                    else if (save1[10] == ':' && save2[11] != ':') {    // 4/1/2014 9:58:00 && 4/1/2014 10:01:00
+                        hourdiff = (save2[10] - 48) * 10 + save2[11] - save1[9];
+                        if (save2[13] >= save1[11] && save2[14] >= save1[12]) {
+                            mindiff = (save2[13] - save1[11]) * 10 + (save2[14] - save1[12]);
+                        }
+                        else if (save2[13] >= save1[11] && save2[14] < save1[12]) {
+                            mindiff = (save2[13] - save1[11] - 1) * 10 + (10 + save2[14] - save1[12]);
+                        }
+                        else if (save2[13] < save1[11] && save2[14] >= save1[12]) {
+                            mindiff = (save2[13] - save1[11] + 6) * 10 + (save2[14] - save1[12]);
+                            hourdiff = hourdiff - 1;
+                        }
+                        else if (save2[13] < save1[11] && save2[14] < save1[12]) {
+                            mindiff = (save2[13] - save1[11] + 6 - 1) * 10 + (10 + save2[14] - save1[12]);
+                            hourdiff = hourdiff - 1;
+                        }
+                    }
+                    else if (save1[10] != ':' && save2[11] != ':') {    // 4/1/2014 10:01:00 && 4/1/2014 10:01:00
+                        if (save2[10] >= save1[9] && save2[11] > save1[10]) {
+                            hourdiff = (save2[10] - save1[9]) * 10 + save2[11] - save1[10];
+                        }
+                        else if (save2[10] > save1[9] && save2[11] < save1[10]) {
+                            hourdiff = (save2[10] - save1[9] - 1) * 10 + 10 + save2[11] - save1[10];
+                        }
+
+                        if (save2[13] >= save1[12] && save2[14] >= save1[13]) {
+                            mindiff = (save2[13] - save1[12]) * 10 + (save2[14] - save1[13]);
+                        }
+                        else if (save2[13] >= save1[12] && save2[14] < save1[13]) {
+                            mindiff = (save2[13] - save1[12] - 1) * 10 + (10 + save2[14] - save1[13]);
+                        }
+                        else if (save2[13] < save1[12] && save2[14] >= save1[13]) {
+                            mindiff = (save2[13] - save1[12] + 6) * 10 + (save2[14] - save1[13]);
+                            hourdiff = hourdiff - 1;
+                        }
+                        else if (save2[13] < save1[12] && save2[14] < save1[13]) {
+                            mindiff = (save2[13] - save1[12] + 6 - 1) * 10 + (10 + save2[14] - save1[13]);
+                            hourdiff = hourdiff - 1;
+                        }
+                    }
+                    save1 = "";
+                    save2 = "";
+                    temp1 = temp2;
+                    temp2.clear();
+                    tempresult = to_string(daydiff);
+                    tempresult.append("day ");
+                    tempresult += to_string(hourdiff);
+                    tempresult.append("hour ");
+                    tempresult += to_string(mindiff);
+                    tempresult.append("minute");
+                    miniVec.push_back(tempresult);
+                    avgtemp = (1440 * daydiff) + (60 * hourdiff) + (mindiff);
+                    if (average == 0) {
+                        average = avgtemp;
+                        avgcount = avgcount + 1;
+                    }
+                    else {
+                        average = average + avgtemp;
+                        avgcount = avgcount + 1;
+                    }
+
+                    results1.push_back(miniVec);
+                    miniVec.clear();
+                }
+                else if (save1[3] != '/' && save2[3] != '/') {  // 4/10/2014 9:58:00 && 4/11/2014 9:58:00 or 4/11/2014 10:01:00
+                    daydiff = (save2[2] - save1[2]) * 10 + save2[3] - save1[3];
+                    if (save1[11] == ':' && save2[11] == ':') {
+                        hourdiff = save2[10] - save1[10];
+                        if (save2[12] >= save1[12] && save2[13] >= save1[13]) {
+                            mindiff = (save2[12] - save1[12]) * 10 + (save2[13] - save1[13]);
+                        }
+                        else if (save2[12] >= save1[12] && save2[13] < save1[13]) {
+                            mindiff = (save2[12] - save1[12] - 1) * 10 + (10 + save2[13] - save1[13]);
+                        }
+                        else if (save2[12] < save1[12] && save2[13] >= save1[13]) {
+                            mindiff = (save2[12] - save1[12] + 6) * 10 + (save2[13] - save1[13]);
+                            hourdiff = hourdiff - 1;
+                        }
+                        else if (save2[12] < save1[12] && save2[13] < save1[13]) {
+                            mindiff = (save2[12] - save1[12] + 6 - 1) * 10 + (10 + save2[13] - save1[13]);
+                            hourdiff = hourdiff - 1;
+                        }
+                    }
+                    else if (save1[11] == ':' && save2[11] != ':') {    // 4/1/2014 9:58:00 && 4/1/2014 10:01:00
+                        hourdiff = (save2[11] - 48) * 10 + save2[11] - save1[10];
+                        if (save2[13] >= save1[12] && save2[14] >= save1[13]) {
+                            mindiff = (save2[13] - save1[12]) * 10 + (save2[14] - save1[13]);
+                        }
+                        else if (save2[13] >= save1[12] && save2[14] < save1[13]) {
+                            mindiff = (save2[13] - save1[12] - 1) * 10 + (10 + save2[14] - save1[13]);
+                        }
+                        else if (save2[13] < save1[12] && save2[14] >= save1[13]) {
+                            mindiff = (save2[13] - save1[12] + 6) * 10 + (save2[14] - save1[13]);
+                            hourdiff = hourdiff - 1;
+                        }
+                        else if (save2[13] < save1[12] && save2[14] < save1[13]) {
+                            mindiff = (save2[13] - save1[12] + 6 - 1) * 10 + (10 + save2[14] - save1[13]);
+                            hourdiff = hourdiff - 1;
+                        }
+                    }
+                    else if (save1[11] != ':' && save2[11] != ':') {    // 4/1/2014 10:01:00 && 4/1/2014 10:01:00
+                        if (save2[10] >= save1[10] && save2[11] > save1[11]) {
+                            hourdiff = (save2[10] - save1[10]) * 10 + save2[11] - save1[11];
+                        }
+                        else if (save2[10] > save1[10] && save2[11] < save1[11]) {
+                            hourdiff = (save2[10] - save1[10] - 1) * 10 + 10 + save2[11] - save1[11];
+                        }
+
+                        if (save2[13] >= save1[13] && save2[14] >= save1[14]) {
+                            mindiff = (save2[13] - save1[13]) * 10 + (save2[14] - save1[14]);
+                        }
+                        else if (save2[13] >= save1[13] && save2[14] < save1[14]) {
+                            mindiff = (save2[13] - save1[13] - 1) * 10 + (10 + save2[14] - save1[14]);
+                        }
+                        else if (save2[13] < save1[13] && save2[14] >= save1[14]) {
+                            mindiff = (save2[13] - save1[13] + 6) * 10 + (save2[14] - save1[14]);
+                            hourdiff = hourdiff - 1;
+                        }
+                        else if (save2[13] < save1[13] && save2[14] < save1[14]) {
+                            mindiff = (save2[13] - save1[13] + 6 - 1) * 10 + (10 + save2[14] - save1[14]);
+                            hourdiff = hourdiff - 1;
+                        }
+                    }
+                    save1 = "";
+                    save2 = "";
+                    temp1 = temp2;
+                    temp2.clear();
+                    tempresult = to_string(daydiff);
+                    tempresult.append("day ");
+                    tempresult += to_string(hourdiff);
+                    tempresult.append("hour ");
+                    tempresult += to_string(mindiff);
+                    tempresult.append("minute");
+                    miniVec.push_back(tempresult);
+                    avgtemp = (1440 * daydiff) + (60 * hourdiff) + (mindiff);
+                    if (average == 0) {
+                        average = avgtemp;
+                        avgcount = avgcount + 1;
+                    }
+                    else {
+                        average = average + avgtemp;
+                        avgcount = avgcount + 1;
+                    }
+
+                    results1.push_back(miniVec);
+                    miniVec.clear();
+                }
+                /*
+                std::string s;
+                for (std::vector<std::string>::const_iterator i = v.begin(); i != v.end(); ++i)
+                s += *i;
+                */
+
+            }
+            temp2.clear();
+
+            //pushes found searches to results
+        }
+
+        delete row1;
+    }
+    avg = to_string(average / avgcount / 1440);
+    avg.append("day ");
+    avg += to_string(((average / avgcount) % 1440) / 60);
+    avg.append("hour ");
+    avg += to_string(((average / avgcount) % 1440) % 60);
+    avg.append("minute");
+    saveAvg.push_back(avg);
+    results1.push_back(saveAvg);
+    saveAvg.clear();
+};
+
+void parseClient(string buf, Storage& csvData, vector<vector<string>> foilStore, vector<vector<string>>& results) {
     int timeFlag = 0;
     int dateFlag = 0;
     int locationFlag1 = 0;
@@ -1215,6 +2394,16 @@ void parseClient(string buf, Storage& csvData, vector<vector<string>>& results) 
     int searchMostTimeFlag = 0; //expects "MostTime"
     int searchLeastTimeFlag = 0; //expects "LeastTime"
     int searchMostDayFlag = 0; //expects "MostDay"
+    // 
+    int searchMostVehiclesFlag = 0; // expects "MostVehicles"
+    int searchLeastVehiclesFlag = 0; // expects "MostVehicles"
+    int searchHighestRatioFlag = 0; // expects "HighestRatio"
+    int searchLowestRatioFlag = 0; // expects "HighestRatio"
+    //
+    int searchShortestIntervalFlag = 0; //expects "Shortest Time Interval"
+    int searchLongestIntervalFlag = 0; //expects "Longest Time Interval"
+    int searchAverageIntervalFlag = 0;
+
 
     vector<string> clientDat;
     stringstream X(buf);
@@ -1338,6 +2527,76 @@ void parseClient(string buf, Storage& csvData, vector<vector<string>>& results) 
                 searchMostDayFlag = 1;
             }
         }
+        compare = "MostVehicles:";
+        if (clientDat.at(i).find(compare) != string::npos) {
+            if (compare != clientDat.at(i)) {
+                cout << "Found MostVehicles: " << clientDat.at(i) << endl;
+                string::size_type f = clientDat.at(i).find(compare);
+                clientDat.at(i).erase(f, compare.length());
+                searchInputs.push_back(clientDat.at(i));
+                searchMostVehiclesFlag = 1;
+            }
+        }
+        compare = "LeastVehicles:";
+        if (clientDat.at(i).find(compare) != string::npos) {
+            if (compare != clientDat.at(i)) {
+                cout << "Found LeastVehicles: " << clientDat.at(i) << endl;
+                string::size_type f = clientDat.at(i).find(compare);
+                clientDat.at(i).erase(f, compare.length());
+                searchInputs.push_back(clientDat.at(i));
+                searchLeastVehiclesFlag = 1;
+            }
+        }
+        compare = "HighestRatio:";
+        if (clientDat.at(i).find(compare) != string::npos) {
+            if (compare != clientDat.at(i)) {
+                cout << "Found HighestRatio: " << clientDat.at(i) << endl;
+                string::size_type f = clientDat.at(i).find(compare);
+                clientDat.at(i).erase(f, compare.length());
+                searchInputs.push_back(clientDat.at(i));
+                searchHighestRatioFlag = 1;
+            }
+        }
+        compare = "LowestRatio:";
+        if (clientDat.at(i).find(compare) != string::npos) {
+            if (compare != clientDat.at(i)) {
+                cout << "Found LowestRatio: " << clientDat.at(i) << endl;
+                string::size_type f = clientDat.at(i).find(compare);
+                clientDat.at(i).erase(f, compare.length());
+                searchInputs.push_back(clientDat.at(i));
+                searchLowestRatioFlag = 1;
+            }
+        }
+        compare = "Shortest: ";
+        if (clientDat.at(i).find(compare) != string::npos) {
+            if (compare != clientDat.at(i)) {
+                cout << "Found Shortest Interval: " << clientDat.at(i) << endl;
+                string::size_type f = clientDat.at(i).find(compare);
+                clientDat.at(i).erase(f, compare.length());
+                searchInputs.push_back(clientDat.at(i));
+                searchShortestIntervalFlag = 1;
+            }
+        }
+        compare = "Longest: ";
+        if (clientDat.at(i).find(compare) != string::npos) {
+            if (compare != clientDat.at(i)) {
+                cout << "Found Longest Interval: " << clientDat.at(i) << endl;
+                string::size_type f = clientDat.at(i).find(compare);
+                clientDat.at(i).erase(f, compare.length());
+                searchInputs.push_back(clientDat.at(i));
+                searchLongestIntervalFlag = 1;
+            }
+        }
+        compare = "Average: ";
+        if (clientDat.at(i).find(compare) != string::npos) {
+            if (compare != clientDat.at(i)) {
+                cout << "Found Average Interval: " << clientDat.at(i) << endl;
+                string::size_type f = clientDat.at(i).find(compare);
+                clientDat.at(i).erase(f, compare.length());
+                searchInputs.push_back(clientDat.at(i));
+                searchAverageIntervalFlag = 1;
+            }
+        }
     }
 
     if (searchFlag) { //if searchFlag was set: Different search methods
@@ -1355,6 +2614,15 @@ void parseClient(string buf, Storage& csvData, vector<vector<string>>& results) 
         }
         else if (dateFlag) {
             searchDate(results, csvData, searchInputs);
+        }
+        else if (locationFlag1 && locationFlag2 && searchAverageIntervalFlag) {
+            calculateAverageInterval(results, csvData, searchInputs);
+        }
+        else if (locationFlag1 && locationFlag2 && searchShortestIntervalFlag) {
+            calculateShortestInterval(results, csvData, searchInputs);
+        }
+        else if (locationFlag1 && locationFlag2 && searchLongestIntervalFlag) {
+            calculateLongestInterval(results, csvData, searchInputs);
         }
         else if (locationFlag1 && locationFlag2) {
             searchLocation(results, csvData, searchInputs);
@@ -1376,6 +2644,22 @@ void parseClient(string buf, Storage& csvData, vector<vector<string>>& results) 
         }
         else if (searchMostDayFlag) {
             calculateBusiestDay(results, csvData, searchInputs);
+        }
+        else if (searchMostVehiclesFlag)
+        {
+            searchMostVehicles(results, foilStore, searchInputs);
+        }
+        else if (searchLeastVehiclesFlag)
+        {
+            searchLeastVehicles(results, foilStore, searchInputs);
+        }
+        else if (searchHighestRatioFlag)
+        {
+            searchHighestRatio(results, foilStore, searchInputs);
+        }
+        else if (searchLowestRatioFlag)
+        {
+            searchLowestRatio(results, foilStore, searchInputs);
         }
     }
     else if (deleteFlag) { // if deleteFlag was set: delete with different methods
