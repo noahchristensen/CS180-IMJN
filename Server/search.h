@@ -71,6 +71,8 @@ public:
 	void resetCount(); // resets count and vectors
 	bool checkCount();//returns true if count== 1000
 	bool checkFlag(string arg); //check if passed in flag is raised
+	void flagChecks1(Storage& csvData, vector<string>& insertInputs);//for inserts
+	void flagChecks2(Storage& csvData, vector<string>& insertInputs);//for deletes
 	vector <vector<string>>& getMTime();
 	vector <vector<string>>& getLTime();
 	vector <vector<string>>& getMLoc();

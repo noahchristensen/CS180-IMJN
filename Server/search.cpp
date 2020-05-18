@@ -347,16 +347,17 @@ int Parsed::retMin() {
 };
 
 void Parsed::convertToDay() {
-    vector <int> monthDays = { 31,28,31,30,31,30,31,31,30,31,30,31,31,28,31,30,31,30,31,31,30,31,30,31 }; //365 total days first day starts Wednesday last day Wednesday
+    vector <int> monthDays = { 31,28,31,30,31,30,31,31,30,31,30,31 }; //, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
+ //365 total days first day starts Wednesday last day Wednesday
     int month = std::stoi(mth1); // 1-12
     int day1 = std::stoi(d1); //1-28,30,31
-    int year1 = std::stoi(yr1); //2014 or 2015
+    //int year1 = std::stoi(yr1); //2014 or 2015
     int totDays = 0;
     string dayOfWeek = "";
 
-    if (year1 == 2015) {
+    /*if (year1 == 2015) {
         month = month + 12;
-    }
+    }*/
     for (int i = 0; i < month; i++) {//calculates range of days out of 365
         if (i == month - 1)
         {
@@ -659,6 +660,11 @@ void deleteBase(vector<vector<string>>& results, Storage& csvData, vector<string
 };
 
 void deleteSpecific(vector<vector<string>>& results, Storage& csvData, vector<string>& searchInputs) {
+    csvData.flagChecks2(csvData, searchInputs); // this will handle checking flags and updating any results already calculated.
+    csvData.incCount();
+    if (csvData.checkCount()) {//more than 1000 inputs/deletes. recalculate data
+        csvData.resetCount();
+    }
     vector<string> miniVec;
     string temp;
     searchInputs.at(4) = "\"" + searchInputs.at(4) + "\"";
@@ -680,14 +686,546 @@ void deleteSpecific(vector<vector<string>>& results, Storage& csvData, vector<st
     }
 };
 
-void Storage::flagChecks(Storage& csvData, vector<string>& insertInputs) {
+void Storage::flagChecks1(Storage& csvData, vector<string>& insertInputs) { //insertInputs format: time,date,lat,long,base#
+    //vector<vector<string>> newResults;
+    int num;
+    vector<string> temp;
+    vector<string> results1;
+    string column;
+    int i = 0;
+    string in1;
+    //string tempStr1;
+    int index = 0;
+    string ltd;
+    string lgt;
 
+    if (csvData.checkFlag("mostTime")) {
+        stringstream X(insertInputs.at(0));
+        while (getline(X, column, ':')) { //splits hour/min into columns 
+            results1.push_back(column);
+        }
+        column = results1.at(0);
+        for (i = 0; i < csvData.getMTime().size(); i++) {
+            results1 = csvData.getMTime().at(i); // vector for MTime has format time,count
+            if (results1.at(0) == column) { //found matching time 
+                num = std::stoi(results1.at(1)); // converts string to int
+                num = num + 1;
+                results1.at(1) = std::to_string(num); //converts int to string and stores value
+                csvData.getMTime().at(i) = results1; //update element
+                if (csvData.getMTime().at(0) == results1) {
+                    //do nothing: we incremented the largest value
+                }
+                else if (std::stoi(csvData.getMTime().at(i - 1).at(1)) > num) {//upper element is smaller: Swap
+                    temp = csvData.getMTime().at(i - 1);
+                    csvData.getMTime().at(i - 1) = results1;
+                    csvData.getMTime().at(i) = temp;
+
+                }
+                i = csvData.getMTime().size(); // break from this for loop
+            }
+        }
+    }
+    results1.clear();
+    if (csvData.checkFlag("leastTime")) {
+        stringstream Y(insertInputs.at(0));
+        while (getline(Y, column, ':')) { //splits hour/min into columns 
+            results1.push_back(column);
+        }
+        column = results1.at(0);
+        for (i = 0; i < csvData.getLTime().size(); i++) {
+            results1 = csvData.getLTime().at(i); // vector for LTime has format time,count
+            if (results1.at(0) == column) { //found matching time 
+                num = std::stoi(results1.at(1)); // converts string to int
+                num = num + 1;
+                results1.at(1) = std::to_string(num); //converts int to string and stores value
+                csvData.getLTime().at(i) = results1; //update element
+                if (csvData.getLTime().at(csvData.getLTime().size() -1) == results1) {
+                    //do nothing: we incremented the last value
+                }
+                else if (std::stoi(csvData.getLTime().at(i + 1).at(1)) < num) {//lower element is smaller: Swap
+                    temp = csvData.getLTime().at(i + 1);
+                    csvData.getLTime().at(i + 1) = results1;
+                    csvData.getLTime().at(i) = temp;
+
+                }
+                i = csvData.getLTime().size(); // break from this for loop
+            }
+        }
+    }
+    results1.clear();
+    if (csvData.checkFlag("mostLoc")) {
+        stringstream Z(insertInputs.at(2)); //lat
+        
+        while (getline(Z, column, '.')) { //splits line into columns 
+            if (column.size() == 1 && index == 1) {//we are in decimal number
+                column = column + "0";
+            }
+            results1.push_back(column);
+            //cout << column << endl;
+            index++;
+        }
+        if (results1.at(1).size() > 2) {
+            in1 = results1.at(1);
+            results1.at(1) = in1.substr(0, 2);
+        }
+        if (results1.size() == 1) { //takes care of whole values
+            results1.push_back("00");
+        }
+
+        ltd = results1.at(0) + "." + results1.at(1) + "  "; //XX.XX or X.XX
+        results1.clear();
+        stringstream T(insertInputs.at(3)); //longitude
+        index = 0;
+        while (getline(T, column, '.')) { //splits line into columns 
+            if (column.size() == 1 && index == 1) {//we are in decimal number
+                column = column + "0";
+            }
+            results1.push_back(column);
+            //cout << column << endl;
+            index++;
+        }
+        if (results1.at(1).size() > 2) {
+            in1 = results1.at(1);
+            results1.at(1) = in1.substr(0, 2);
+        }
+        if (results1.size() == 1) { //takes care of whole values
+            results1.push_back("00");
+        }
+
+        lgt = results1.at(0) + "." + results1.at(1) + "  "; // -Y.YY or -YY.YY
+        results1.clear();
+        for (int j = 0; j < csvData.getMLoc().size();j++) {
+            if (ltd == csvData.getMLoc().at(j).at(0) && lgt == csvData.getMLoc().at(j).at(1)) {
+                num = std::stoi(csvData.getMLoc().at(j).at(2));
+                num = num + 1;
+                csvData.getMLoc().at(j).at(2) = std::to_string(num); //update new count if in results
+                if (csvData.getMLoc().at(0).at(0) == ltd && csvData.getMLoc().at(0).at(1) == lgt) {
+                    //do nothing we incremented highest count
+                }
+                else if (num > std::stoi(csvData.getMLoc().at(j - 1).at(2))) { // current num is greater than upper num: swap
+                    results1.push_back(csvData.getMLoc().at(j).at(0));
+                    results1.push_back(csvData.getMLoc().at(j).at(1));
+                    results1.push_back(csvData.getMLoc().at(j).at(2));
+                    temp = csvData.getMLoc().at(j - 1);
+                    csvData.getMLoc().at(j - 1) = results1;
+                    csvData.getMLoc().at(j) = temp;
+                }
+            }
+            j = csvData.getMLoc().size(); // break from this for loop
+        }
+
+    }
+    index = 0;
+    results1.clear();
+    if (csvData.checkFlag("leastLoc")) {
+        stringstream L(insertInputs.at(2)); //lat
+
+        while (getline(L, column, '.')) { //splits line into columns 
+            if (column.size() == 1 && index == 1) {//we are in decimal number
+                column = column + "0";
+            }
+            results1.push_back(column);
+            //cout << column << endl;
+            index++;
+        }
+        if (results1.at(1).size() > 2) {
+            in1 = results1.at(1);
+            results1.at(1) = in1.substr(0, 2);
+        }
+        if (results1.size() == 1) { //takes care of whole values
+            results1.push_back("00");
+        }
+
+        ltd = results1.at(0) + "." + results1.at(1) + "  "; //-YY.YY or -Y.YY
+        results1.clear();
+        stringstream M(insertInputs.at(3)); //longitude
+        index = 0;
+        while (getline(M, column, '.')) { //splits line into columns 
+            if (column.size() == 1 && index == 1) {//we are in decimal number
+                column = column + "0";
+            }
+            results1.push_back(column);
+            //cout << column << endl;
+            index++;
+        }
+        if (results1.at(1).size() > 2) {
+            in1 = results1.at(1);
+            results1.at(1) = in1.substr(0, 2);
+        }
+        if (results1.size() == 1) { //takes care of whole values
+            results1.push_back("00");
+        }
+
+        lgt = results1.at(0) + "." + results1.at(1) + "  "; // -Y.YY or -YY.YY
+        results1.clear();
+        for (int j = 0; j < csvData.getLLoc().size();j++) {
+            if (ltd == csvData.getLLoc().at(j).at(0) && lgt == csvData.getLLoc().at(j).at(1)) {
+                num = std::stoi(csvData.getLLoc().at(j).at(2));
+                num = num + 1;
+                csvData.getLLoc().at(j).at(2) = std::to_string(num); //update new count if in results
+                if (csvData.getLLoc().at(csvData.getLLoc().size() - 1).at(0) == ltd && csvData.getLLoc().at(csvData.getLLoc().size() - 1).at(1) == lgt) {
+                    //do nothing we incremented last count
+                }
+                else if (num > std::stoi(csvData.getLLoc().at(j + 1).at(2))) { // current num is greater than lower num: swap
+                    results1.push_back(csvData.getLLoc().at(j).at(0));
+                    results1.push_back(csvData.getLLoc().at(j).at(1));
+                    results1.push_back(csvData.getLLoc().at(j).at(2));
+                    temp = csvData.getLLoc().at(j + 1);
+                    csvData.getLLoc().at(j + 1) = results1;
+                    csvData.getLLoc().at(j) = temp;
+                }
+            }
+            j = csvData.getLLoc().size(); // break from this for loop
+        }
+    }
+    results1.clear();
+    index = 0;
+    if (csvData.checkFlag("busiestDay")) {
+        string day;
+        stringstream B(insertInputs.at(0));
+        while (getline(B, column, '/')) { //splits hour/min into columns 
+            results1.push_back(column);
+        }
+        vector <int> monthDays = { 31,28,31,30,31,30,31,31,30,31,30,31 }; //, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
+     //365 total days first day starts Wednesday last day Wednesday
+        int month = std::stoi(results1.at(0)); // 1-12
+        int day1 = std::stoi(results1.at(1)); //1-28,30,31
+        //int year1 = std::stoi(results1.at(2)); //2014 or 2015
+        int totDays = 0;
+        string dayOfWeek = "";
+
+        /*if (year1 == 2015) {
+            month = month + 12;
+        }*/
+        for (int i = 0; i < month; i++) {//calculates range of days out of 365
+            if (i == month - 1)
+            {
+                totDays = day1 + totDays;
+            }
+            else
+            {
+                totDays = monthDays.at(i) + totDays;
+            }
+        }
+
+        if (totDays % 7 == 1) {
+            day = "Wednesday";
+        }
+        else if (totDays % 7 == 2) {
+            day = "Thursday";
+        }
+        else if (totDays % 7 == 3) {
+            day = "Friday";
+        }
+        else if (totDays % 7 == 4) {
+            day = "Saturday";
+        }
+        else if (totDays % 7 == 5) {
+            day = "Sunday";
+        }
+        else if (totDays % 7 == 6) {
+            day = "Monday";
+        }
+        else if (totDays % 7 == 0) {
+            day = "Tuesday";
+        }
+        for (i = 0;i < csvData.getBDay().size();i++) {
+            if (csvData.getBDay().at(i).at(0).find(day) != string::npos) { // we found the day
+                num = std::stoi(csvData.getBDay().at(i).at(1));
+                num = num + 1;
+                csvData.getBDay().at(i).at(1) = std::to_string(num);
+                if (csvData.getBDay().at(0).at(0).find(day) != string::npos) { //we incremented the largest, do nothing
+                    //nothing
+                }
+                else if (std::stoi(csvData.getBDay().at(i + 1).at(1)) > num) { //lower count is bigger: swap
+                    results1.push_back(csvData.getBDay().at(i).at(0));
+                    results1.push_back(csvData.getBDay().at(i).at(1));
+                    
+                    temp = csvData.getBDay().at(i + 1);
+                    csvData.getBDay().at(i + 1) = results1;
+                    csvData.getBDay().at(i) = temp;
+                }
+            }
+            i = csvData.getBDay().size(); // break from this for loop
+        }
+    }
+
+
+};
+
+void Storage::flagChecks2(Storage& csvData, vector<string>& insertInputs) { //insertInputs format: time,date,lat,long,base#
+    //vector<vector<string>> newResults;
+    int num;
+    vector<string> temp;
+    vector<string> results1;
+    string column;
+    int i = 0;
+    string in1;
+    //string tempStr1;
+    int index = 0;
+    string ltd;
+    string lgt;
+
+    if (csvData.checkFlag("mostTime")) {
+        stringstream X(insertInputs.at(0));
+        while (getline(X, column, ':')) { //splits hour/min into columns 
+            results1.push_back(column);
+        }
+        column = results1.at(0);
+        for (i = 0; i < csvData.getMTime().size(); i++) {
+            results1 = csvData.getMTime().at(i); // vector for MTime has format time,count
+            if (results1.at(0) == column) { //found matching time 
+                num = std::stoi(results1.at(1)); // converts string to int
+                num = num - 1;
+                results1.at(1) = std::to_string(num); //converts int to string and stores value
+                csvData.getMTime().at(i) = results1; //update element
+                if (csvData.getMTime().at(csvData.getMTime().size() - 1) == results1) {
+                    //do nothing: we deccremented the smallest value
+                }
+                else if (std::stoi(csvData.getMTime().at(i + 1).at(1)) > num) {//lower element is smaller: Swap
+                    temp = csvData.getMTime().at(i + 1);
+                    csvData.getMTime().at(i + 1) = results1;
+                    csvData.getMTime().at(i) = temp;
+
+                }
+                i = csvData.getMTime().size(); // break from this for loop
+            }
+        }
+    }
+    results1.clear();
+    if (csvData.checkFlag("leastTime")) {
+        stringstream Y(insertInputs.at(0));
+        while (getline(Y, column, ':')) { //splits hour/min into columns 
+            results1.push_back(column);
+        }
+        column = results1.at(0);
+        for (i = 0; i < csvData.getLTime().size(); i++) {
+            results1 = csvData.getLTime().at(i); // vector for LTime has format time,count
+            if (results1.at(0) == column) { //found matching time 
+                num = std::stoi(results1.at(1)); // converts string to int
+                num = num - 1;
+                results1.at(1) = std::to_string(num); //converts int to string and stores value
+                csvData.getLTime().at(i) = results1; //update element
+                if (csvData.getLTime().at(0) == results1) {
+                    //do nothing: we decremented the top value
+                }
+                else if (std::stoi(csvData.getLTime().at(i - 1).at(1)) < num) {//current element is smaller than upper: Swap
+                    temp = csvData.getLTime().at(i - 1);
+                    csvData.getLTime().at(i - 1) = results1;
+                    csvData.getLTime().at(i) = temp;
+
+                }
+                i = csvData.getLTime().size(); // break from this for loop
+            }
+        }
+    }
+    results1.clear();
+    if (csvData.checkFlag("mostLoc")) {
+        stringstream Z(insertInputs.at(2)); //lat
+
+        while (getline(Z, column, '.')) { //splits line into columns 
+            if (column.size() == 1 && index == 1) {//we are in decimal number
+                column = column + "0";
+            }
+            results1.push_back(column);
+            //cout << column << endl;
+            index++;
+        }
+        if (results1.at(1).size() > 2) {
+            in1 = results1.at(1);
+            results1.at(1) = in1.substr(0, 2);
+        }
+        if (results1.size() == 1) { //takes care of whole values
+            results1.push_back("00");
+        }
+
+        ltd = results1.at(0) + "." + results1.at(1) + "  "; //XX.XX or X.XX
+        results1.clear();
+        stringstream T(insertInputs.at(3)); //longitude
+        index = 0;
+        while (getline(T, column, '.')) { //splits line into columns 
+            if (column.size() == 1 && index == 1) {//we are in decimal number
+                column = column + "0";
+            }
+            results1.push_back(column);
+            //cout << column << endl;
+            index++;
+        }
+        if (results1.at(1).size() > 2) {
+            in1 = results1.at(1);
+            results1.at(1) = in1.substr(0, 2);
+        }
+        if (results1.size() == 1) { //takes care of whole values
+            results1.push_back("00");
+        }
+
+        lgt = results1.at(0) + "." + results1.at(1) + "  "; // -Y.YY or -YY.YY
+        results1.clear();
+        for (int j = 0; j < csvData.getMLoc().size();j++) {
+            if (ltd == csvData.getMLoc().at(j).at(0) && lgt == csvData.getMLoc().at(j).at(1)) {
+                num = std::stoi(csvData.getMLoc().at(j).at(2));
+                num = num - 1;
+                csvData.getMLoc().at(j).at(2) = std::to_string(num); //update new count if in results
+                if (csvData.getMLoc().at(0).at(0) == ltd && csvData.getMLoc().at(0).at(1) == lgt) {
+                    //do nothing we deccremented last
+                }
+                else if (num < std::stoi(csvData.getMLoc().at(j + 1).at(2))) { // current num is lower than lower num: swap
+                    results1.push_back(csvData.getMLoc().at(j).at(0));
+                    results1.push_back(csvData.getMLoc().at(j).at(1));
+                    results1.push_back(csvData.getMLoc().at(j).at(2));
+                    temp = csvData.getMLoc().at(j + 1);
+                    csvData.getMLoc().at(j + 1) = results1;
+                    csvData.getMLoc().at(j) = temp;
+                }
+            }
+            j = csvData.getMLoc().size(); // break from this for loop
+        }
+
+    }
+    index = 0;
+    results1.clear();
+    if (csvData.checkFlag("leastLoc")) {
+        stringstream L(insertInputs.at(2)); //lat
+
+        while (getline(L, column, '.')) { //splits line into columns 
+            if (column.size() == 1 && index == 1) {//we are in decimal number
+                column = column + "0";
+            }
+            results1.push_back(column);
+            //cout << column << endl;
+            index++;
+        }
+        if (results1.at(1).size() > 2) {
+            in1 = results1.at(1);
+            results1.at(1) = in1.substr(0, 2);
+        }
+        if (results1.size() == 1) { //takes care of whole values
+            results1.push_back("00");
+        }
+
+        ltd = results1.at(0) + "." + results1.at(1) + "  "; //-YY.YY or -Y.YY
+        results1.clear();
+        stringstream M(insertInputs.at(3)); //longitude
+        index = 0;
+        while (getline(M, column, '.')) { //splits line into columns 
+            if (column.size() == 1 && index == 1) {//we are in decimal number
+                column = column + "0";
+            }
+            results1.push_back(column);
+            //cout << column << endl;
+            index++;
+        }
+        if (results1.at(1).size() > 2) {
+            in1 = results1.at(1);
+            results1.at(1) = in1.substr(0, 2);
+        }
+        if (results1.size() == 1) { //takes care of whole values
+            results1.push_back("00");
+        }
+
+        lgt = results1.at(0) + "." + results1.at(1) + "  "; // -Y.YY or -YY.YY
+        results1.clear();
+        for (int j = 0; j < csvData.getLLoc().size();j++) {
+            if (ltd == csvData.getLLoc().at(j).at(0) && lgt == csvData.getLLoc().at(j).at(1)) {
+                num = std::stoi(csvData.getLLoc().at(j).at(2));
+                num = num - 1;
+                csvData.getLLoc().at(j).at(2) = std::to_string(num); //update new count if in results
+                if (csvData.getLLoc().at(0).at(0) == ltd && csvData.getLLoc().at(0).at(1) == lgt) {
+                    //do nothing we decremented top count
+                }
+                else if (num < std::stoi(csvData.getLLoc().at(j - 1).at(2))) { // current num is smaller than upper num: swap
+                    results1.push_back(csvData.getLLoc().at(j).at(0));
+                    results1.push_back(csvData.getLLoc().at(j).at(1));
+                    results1.push_back(csvData.getLLoc().at(j).at(2));
+                    temp = csvData.getLLoc().at(j - 1);
+                    csvData.getLLoc().at(j - 1) = results1;
+                    csvData.getLLoc().at(j) = temp;
+                }
+            }
+            j = csvData.getLLoc().size(); // break from this for loop
+        }
+    }
+    results1.clear();
+    index = 0;
+    if (csvData.checkFlag("busiestDay")) {
+        string day;
+        stringstream B(insertInputs.at(0));
+        while (getline(B, column, '/')) { //splits hour/min into columns 
+            results1.push_back(column);
+        }
+        vector <int> monthDays = { 31,28,31,30,31,30,31,31,30,31,30,31 }; //, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
+    //}; //365 total days first day starts Wednesday last day Wednesday
+        int month = std::stoi(results1.at(0)); // 1-12
+        int day1 = std::stoi(results1.at(1)); //1-28,30,31
+        //int year1 = std::stoi(results1.at(2)); //2014 or 2015
+        int totDays = 0;
+        string dayOfWeek = "";
+
+        /*if (year1 == 2015) {
+            month = month + 12;
+        }*/
+        for (int i = 0; i < month; i++) {//calculates range of days out of 365
+            if (i == month - 1)
+            {
+                totDays = day1 + totDays;
+            }
+            else
+            {
+                totDays = monthDays.at(i) + totDays;
+            }
+        }
+
+        if (totDays % 7 == 1) {
+            day = "Wednesday";
+        }
+        else if (totDays % 7 == 2) {
+            day = "Thursday";
+        }
+        else if (totDays % 7 == 3) {
+            day = "Friday";
+        }
+        else if (totDays % 7 == 4) {
+            day = "Saturday";
+        }
+        else if (totDays % 7 == 5) {
+            day = "Sunday";
+        }
+        else if (totDays % 7 == 6) {
+            day = "Monday";
+        }
+        else if (totDays % 7 == 0) {
+            day = "Tuesday";
+        }
+        for (i = 0;i < csvData.getBDay().size();i++) {
+            if (csvData.getBDay().at(i).at(0).find(day) != string::npos) { // we found the day
+                num = std::stoi(csvData.getBDay().at(i).at(1));
+                num = num - 1;
+                csvData.getBDay().at(i).at(1) = std::to_string(num);
+                if (csvData.getBDay().at(6).at(0).find(day) != string::npos) { //we decremented the smallest, do nothing
+                    //nothing
+                }
+                else if (std::stoi(csvData.getBDay().at(i + 1).at(1)) > num) { //lower count is bigger: swap
+                    results1.push_back(csvData.getBDay().at(i).at(0));
+                    results1.push_back(csvData.getBDay().at(i).at(1));
+
+                    temp = csvData.getBDay().at(i + 1);
+                    csvData.getBDay().at(i + 1) = results1;
+                    csvData.getBDay().at(i) = temp;
+                }
+            }
+            i = csvData.getBDay().size(); // break from this for loop
+        }
+    }
 
 
 };
 
 void insertData(vector<vector<string>>& results, Storage& csvData, vector<string>& insertInputs) { // pushes new data to end of csvData vector
-    flagChecks(Storage& csvData, vector<string>& insertInputs); // this will handle checking flags and updating any results already calculated.
+    csvData.flagChecks1(csvData,insertInputs); // this will handle checking flags and updating any results already calculated.
+    csvData.incCount();
+    if (csvData.checkCount()) {//more than 1000 inputs/deletes. recalculate data
+        csvData.resetCount();
+    }
     insertInputs.at(4) = "\"" + insertInputs.at(4) + "\"";
     string temp;
     temp = insertInputs.at(0) + ":00";
@@ -849,7 +1387,7 @@ void searchLeastUseTime(vector<vector<string>>& results1, Storage& csvData, vect
         string str2;
         int min;
         int index;
-        for (int k = 0; k < 20; k++) {//gets top 10 in order
+        for (int k = 0; k < 20; k++) {//gets top 20 in order
             min = arr[0];
             index = 0;
             for (int j = 0; j < 24; j++) {
@@ -1000,7 +1538,7 @@ void searchMostLoc(vector<vector<string>>& results1, Storage& csvData, vector<st
         int min = arr1[temp];
         int index;
 
-        for (int k = 0; k < 15; k++) {//gets top 15 in order
+        for (int k = 0; k < 20; k++) {//gets top 20 in order
 
             index = 0;
 
@@ -1183,7 +1721,7 @@ void searchLeastLoc(vector<vector<string>>& results1, Storage& csvData, vector<s
         int min = arr1[temp];
         int index;
 
-        for (int k = 0; k < 15; k++) {//gets top 15 in order
+        for (int k = 0; k < 20; k++) {//gets top 15 in order
 
             index = 0;
 
