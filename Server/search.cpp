@@ -839,7 +839,7 @@ void searchLeastUseTime(vector<vector<string>>& results1, Storage& csvData, vect
         string str2;
         int min;
         int index;
-        for (int k = 0; k < 10; k++) {//gets top 10 in order
+        for (int k = 0; k < 20; k++) {//gets top 10 in order
             min = arr[0];
             index = 0;
             for (int j = 0; j < 24; j++) {
@@ -898,10 +898,13 @@ void searchMostLoc(vector<vector<string>>& results1, Storage& csvData, vector<st
             *row1 = obj->getRow(k);
             in1 = row1->getLat(); //XX.XXX
             in2 = row1->getLong();//-YY.YY
-            cout << in2 << endl;
+            if (k % 1000 == 0) {
+                cout << k << endl;
+            }
+            
             //FIXME make this compatible with longitudes that dont have "-"
             in2 = in2.substr(1, in2.length()); //now YY.YY
-            cout << in2 << endl;
+            //cout << in2 << endl;
             //parse by "." then check size and if 1 convert to a two digit int
             stringstream X(in1);
             string column;
@@ -913,16 +916,21 @@ void searchMostLoc(vector<vector<string>>& results1, Storage& csvData, vector<st
                     column = column + "0";
                 }
                 temp1.push_back(column);
-                cout << column << endl;
+                //cout << column << endl;
                 indx++;
             }
+
+            if (temp1.size() == 1) { //takes care of whole values
+                temp1.push_back("00");
+            }
+
             if (temp1.at(1).size() > 2) {
                 in1 = temp1.at(1);
                 temp1.at(1) = in1.substr(0, 2);
             }
 
             in1 = temp1.at(0) + temp1.at(1); //string now XXXX or XXX
-            cout << in1 << endl;
+            //cout << in1 << endl;
             temp1.clear();
             indx = 0;
             stringstream Y(in2);
@@ -932,8 +940,12 @@ void searchMostLoc(vector<vector<string>>& results1, Storage& csvData, vector<st
                     column = column + "0";
                 }
                 temp1.push_back(column);
-                cout << column << endl;
+                //cout << column << endl;
                 indx++;
+            }
+
+            if (temp1.size() == 1) { //takes care of whole values
+                temp1.push_back("00");
             }
 
             if (temp1.at(1).size() > 2) {
@@ -976,7 +988,7 @@ void searchMostLoc(vector<vector<string>>& results1, Storage& csvData, vector<st
         int min = arr1[temp];
         int index;
 
-        for (int k = 0; k < 15; k++) {//gets top 15 in order
+        for (int k = 0; k < 10; k++) {//gets top 10 in order
 
             index = 0;
 
@@ -994,11 +1006,11 @@ void searchMostLoc(vector<vector<string>>& results1, Storage& csvData, vector<st
 
             int point = 0;
 
-            for (int f = 0; f < allData.size(); f++) {//
+            for (int f = 0; f < allData.size();f++) {//
                 eachEntry = allData.at(f); //compVal long , lat
-                cout << eachEntry.at(0) << " = " << index << endl;
+                //cout << eachEntry.at(0) << " = " << index << endl;
                 if (eachEntry.at(0) == index) {
-                    cout << "We found corresponding value " << endl;
+                    //cout << "We found corresponding value " << endl;
                     point = f;
                     f = allData.size();
                 }
@@ -1007,7 +1019,7 @@ void searchMostLoc(vector<vector<string>>& results1, Storage& csvData, vector<st
             str1 = to_string(allData[point][1]);
             str2 = to_string(allData[point][2]);
             str3 = to_string(arr1[index]);
-            str3.append("\n");
+            //str3.append("\n");
             if (str1.size() == 3) { //X.XX
                 str1.insert(1, ".");
             }
@@ -1021,12 +1033,13 @@ void searchMostLoc(vector<vector<string>>& results1, Storage& csvData, vector<st
                 str2.insert(2, ".");//YY.YY
             }
             str2.insert(0, "-"); //-YY.YY
-
-            arr1[index] = 1000000; //set smallest to 1000000 and loop again up to 10 times
+            str1.append("  ");
+            str2.append("  ");
+            arr1[index] = 0; //set smallest to 1000000 and loop again up to 10 times
             miniVec.push_back(str1);//push back the lat
             miniVec.push_back(str2);//push back the lat
             miniVec.push_back(str3);//push back the number of occurences for corresponding location
-            cout << "We push: " << str1 << " " << str2 << " " << str3 << endl;
+            //cout << "We push: " << str1 << " " << str2 << " " << str3 << endl;
             results1.push_back(miniVec);
             obj->getMLoc().push_back(miniVec);
             miniVec.clear();
@@ -1066,10 +1079,12 @@ void searchLeastLoc(vector<vector<string>>& results1, Storage& csvData, vector<s
             *row1 = obj->getRow(k);
             in1 = row1->getLat(); //XX.XXX
             in2 = row1->getLong();//-YY.YY
-            cout << in2 << endl;
+            if (k % 10000 == 0) {
+                cout << k << endl;
+            }
             //FIXME make this compatible with longitudes that dont have "-"
             in2 = in2.substr(1, in2.length()); //now YY.YY
-            cout << in2 << endl;
+            //cout << in2 << endl;
             //parse by "." then check size and if 1 convert to a two digit int
             stringstream X(in1);
             string column;
@@ -1081,16 +1096,19 @@ void searchLeastLoc(vector<vector<string>>& results1, Storage& csvData, vector<s
                     column = column + "0";
                 }
                 temp1.push_back(column);
-                cout << column << endl;
+                //cout << column << endl;
                 indx++;
             }
             if (temp1.at(1).size() > 2) {
                 in1 = temp1.at(1);
                 temp1.at(1) = in1.substr(0, 2);
             }
+            if (temp1.size() == 1) { //takes care of whole values
+                temp1.push_back("00");
+            }
 
             in1 = temp1.at(0) + temp1.at(1); //string now XXXX or XXX
-            cout << in1 << endl;
+            //cout << in1 << endl;
             temp1.clear();
             indx = 0;
             stringstream Y(in2);
@@ -1100,8 +1118,11 @@ void searchLeastLoc(vector<vector<string>>& results1, Storage& csvData, vector<s
                     column = column + "0";
                 }
                 temp1.push_back(column);
-                cout << column << endl;
+                //cout << column << endl;
                 indx++;
+            }
+            if (temp1.size() == 1) { //takes care of whole values
+                temp1.push_back("00");
             }
 
             if (temp1.at(1).size() > 2) {
@@ -1131,10 +1152,13 @@ void searchLeastLoc(vector<vector<string>>& results1, Storage& csvData, vector<s
                 eachEntry.clear();
             }
             else { // we already pushed this value into allData vector
-                count = arr1[compVal];
+                //count = arr1[compVal];
                 arr1[compVal] = count + 1;
             }
 
+            if (allData.size() % 10000 == 0) {
+                cout << allData.size() << endl;
+            }
             delete row1;
             temp = compVal;
         }
@@ -1144,7 +1168,7 @@ void searchLeastLoc(vector<vector<string>>& results1, Storage& csvData, vector<s
         int min = arr1[temp];
         int index;
 
-        for (int k = 0; k < 15; k++) {//gets top 15 in order
+        for (int k = 0; k < 10; k++) {//gets top 10 in order
 
             index = 0;
 
@@ -1162,11 +1186,11 @@ void searchLeastLoc(vector<vector<string>>& results1, Storage& csvData, vector<s
 
             int point = 0;
 
-            for (int f = 0; f < allData.size(); f++) {//
+            for (int f = 0; f < allData.size();f++) {//
                 eachEntry = allData.at(f); //compVal long , lat
-                cout << eachEntry.at(0) << " = " << index << endl;
+                //cout << eachEntry.at(0) << " = " << index << endl;
                 if (eachEntry.at(0) == index) {
-                    cout << "We found corresponding value " << endl;
+                    //cout << "We found corresponding value " << endl;
                     point = f;
                     f = allData.size();
                 }
@@ -1189,7 +1213,8 @@ void searchLeastLoc(vector<vector<string>>& results1, Storage& csvData, vector<s
                 str2.insert(2, ".");//YY.YY
             }
             str2.insert(0, "-"); //-YY.YY
-
+            str1.append("  ");
+            str2.append("  ");
             arr1[index] = 1000000; //set smallest to 1000000 and loop again up to 10 times
             miniVec.push_back(str1);//push back the lat
             miniVec.push_back(str2);//push back the lat
@@ -1215,7 +1240,7 @@ void calculateBusiestDay(vector<vector<string>>& results1, Storage& csvData, vec
     cout << "Right before check " << endl;
     if (obj->checkFlag("busiestDay")) {
         cout << "flag check was true" << endl;
-        for (int var = 0; var < 10; var++) {
+        for (int var = 0; var < 7; var++) {
             miniVec = obj->getBDay().at(var);
             results1.push_back(miniVec);
             miniVec.clear();
@@ -2481,10 +2506,16 @@ bool Storage::checkFlag(string arg) { // checks whether passed in flag is raised
         if (mTimeFlag == 1) {
             return true;
         }
+        else {
+            return false;
+        }
     }
     else if (arg.find(lt) != string::npos) {
         if (lTimeFlag == 1) {
             return true;
+        }
+        else {
+            return false;
         }
     }
     else if (arg.find(bd) != string::npos) {
@@ -2493,15 +2524,24 @@ bool Storage::checkFlag(string arg) { // checks whether passed in flag is raised
             cout << "Check was true" << endl;
             return true;
         }
+        else {
+            return false;
+        }
     }
     else if (arg.find(ml) != string::npos) {
         if (mLocFlag == 1) {
             return true;
         }
+        else {
+            return false;
+        }
     }
     else if (arg.find(ll) != string::npos) {
         if (lLocFlag == 1) {
             return true;
+        }
+        else {
+            return false;
         }
     }
     else {
@@ -2574,7 +2614,7 @@ void parseClient(string buf, Storage& csvData, vector<vector<string>> foilStore,
     string columns;
     string column;
     vector<string> searchInputs;
-
+    cout <<  buf << endl;
     while (getline(X, columns, ',')) {
         cout << "This is pushed: " << columns << endl;
 
@@ -2796,6 +2836,7 @@ void parseClient(string buf, Storage& csvData, vector<vector<string>> foilStore,
         }
         else if (searchMostLocFlag) { //searches for artifact 5
             searchMostLoc(results, csvData, searchInputs);
+            //searchLeastLoc(results, csvData, searchInputs);
         }
         else if (searchLeastLocFlag) {
             searchLeastLoc(results, csvData, searchInputs);
