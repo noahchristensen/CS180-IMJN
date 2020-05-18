@@ -680,7 +680,14 @@ void deleteSpecific(vector<vector<string>>& results, Storage& csvData, vector<st
     }
 };
 
+void Storage::flagChecks(Storage& csvData, vector<string>& insertInputs) {
+
+
+
+};
+
 void insertData(vector<vector<string>>& results, Storage& csvData, vector<string>& insertInputs) { // pushes new data to end of csvData vector
+    flagChecks(Storage& csvData, vector<string>& insertInputs); // this will handle checking flags and updating any results already calculated.
     insertInputs.at(4) = "\"" + insertInputs.at(4) + "\"";
     string temp;
     temp = insertInputs.at(0) + ":00";
@@ -804,7 +811,10 @@ void searchMostUseTime(vector<vector<string>>& results1, Storage& csvData, vecto
             }
             //miniVec.push_back(str2 + "                                             ");//push back the hour
             miniVec.push_back(str1 + " "); //push back the number of occurences for corresponding time - Format of miniVec: 00,15 => hour 00 has 15 occurences
-            results1.push_back(miniVec);
+            if (k < 10) {
+                results1.push_back(miniVec);
+            }
+            
             obj->getMTime().push_back(miniVec); // pushes to mostTime Vector to save calculation results for faster future calculations
             miniVec.clear();
         }
@@ -861,7 +871,9 @@ void searchLeastUseTime(vector<vector<string>>& results1, Storage& csvData, vect
             }
             //miniVec.push_back(str2 + "                                                 ");//push back the hour
             miniVec.push_back(str1 + " "); //push back the number of occurences for corresponding time - Format of miniVec: 00,15 => hour 00 has 15 occurences
-            results1.push_back(miniVec);
+            if (k < 10) {
+                results1.push_back(miniVec);
+            }
             obj->getLTime().push_back(miniVec);
             miniVec.clear();
         }
@@ -988,7 +1000,7 @@ void searchMostLoc(vector<vector<string>>& results1, Storage& csvData, vector<st
         int min = arr1[temp];
         int index;
 
-        for (int k = 0; k < 10; k++) {//gets top 10 in order
+        for (int k = 0; k < 15; k++) {//gets top 15 in order
 
             index = 0;
 
@@ -1040,7 +1052,10 @@ void searchMostLoc(vector<vector<string>>& results1, Storage& csvData, vector<st
             miniVec.push_back(str2);//push back the lat
             miniVec.push_back(str3);//push back the number of occurences for corresponding location
             //cout << "We push: " << str1 << " " << str2 << " " << str3 << endl;
-            results1.push_back(miniVec);
+            if (k < 10) {
+                results1.push_back(miniVec);
+            }
+            
             obj->getMLoc().push_back(miniVec);
             miniVec.clear();
             min = arr1[index];
@@ -1168,7 +1183,7 @@ void searchLeastLoc(vector<vector<string>>& results1, Storage& csvData, vector<s
         int min = arr1[temp];
         int index;
 
-        for (int k = 0; k < 10; k++) {//gets top 10 in order
+        for (int k = 0; k < 15; k++) {//gets top 15 in order
 
             index = 0;
 
@@ -1220,7 +1235,9 @@ void searchLeastLoc(vector<vector<string>>& results1, Storage& csvData, vector<s
             miniVec.push_back(str2);//push back the lat
             miniVec.push_back(str3);//push back the number of occurences for corresponding location
             cout << "We push: " << str1 << " " << str2 << " " << str3 << endl;
-            results1.push_back(miniVec);
+            if (k < 10) {
+                results1.push_back(miniVec);
+            }
             obj->getLLoc().push_back(miniVec);
             miniVec.clear();
             min = arr1[index];
@@ -2479,15 +2496,19 @@ bool Storage::checkCount() {
 void Storage::setFlag(string arg) { //sets flags for incrementality functionality 
     if (arg == "mostTime") {
         mTimeFlag = 1;
+        return;
     }
     else if (arg == "leastTime") {
         lTimeFlag = 1;
+        return;
     }
     else if (arg == "busiestDay") {
         bDayFlag = 1;
+        return;
     }
     else if (arg == "mostLoc") {
         mLocFlag = 1;
+
     }
     else if (arg == "leastLoc") {
         lLocFlag = 1;
