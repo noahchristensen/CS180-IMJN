@@ -41,7 +41,7 @@ public:
 };
 
 class Storage {
-	Use data[1200000]; // largest file will be 1.03 Million entries -set size array size 1.2 mil
+	Use data[700000]; // largest file will be 560k entries -set size array size 700k
 	int size = 0; //initial size will be 0
 	int size2 = 0; // keeps track of original size
 	vector <vector<string>> results;
@@ -95,6 +95,7 @@ class Parsed {
 	string sec1;
 public:
 	void parseData(string arg);
+	void parseData2(string arg); //parses the data for Lyft data
 	void parseMonth(string arg);
 	void parseHours(string arg);
 	void convertToDay(); //maps the date XX/XX/XXXXX to appropriate day FIXME
@@ -113,6 +114,7 @@ void read(Storage& data1, string filename); //check where this is called
 
 //void parseLineFOIL(string line, vector<string>& results); //check where this is called
 void readFOIL(Storage& data1, string filename, vector<vector<string>>& results); //check where this is called
+void readCsvFiles(Storage& data0, Storage& data1, string filename1, string filename2, string filename3); //parses data for app comparisons
 
 void searchTime(vector<vector<string>>& results, Storage& csvData, vector<string>& searchInputs);
 void searchDate(vector<vector<string>>& results, Storage& csvData, vector<string>& searchInputs);
@@ -129,7 +131,7 @@ void deleteBase(vector<vector<string>>& results, Storage& csvData, vector<string
 void deleteSpecific(vector<vector<string>>& results, Storage& csvData, vector<string>& searchInputs); // delete specific
 
 void insertData(vector<vector<string>>& results, Storage& csvData, vector<string>& searchInputs); // insert
-void parseClient(string buf, Storage& csvData, vector<vector<string>> foilStore, vector<vector<string>>& results);
+void parseClient(string buf, Storage& csvData, Storage& csvData1, Storage& csvData2, vector<vector<string>> foilStore, vector<vector<string>>& results);
 
 bool checkIfExport(char buf[1024]); // returns triue if message from client is for import
 
@@ -150,3 +152,12 @@ void searchMostVehicles(vector<vector<string>>& results, vector<vector<string>> 
 void searchLeastVehicles(vector<vector<string>>& results, vector<vector<string>> foilStore, vector<string>& searchInputs);
 void searchHighestRatio(vector<vector<string>>& results, vector<vector<string>> foilStore, vector<string>& searchInputs);
 void searchLowestRatio(vector<vector<string>>& results, vector<vector<string>> foilStore, vector<string>& searchInputs);
+
+//new app comparison functions
+void compDay(Storage& csvData1, Storage& csvData2, vector<vector<string>>& results, vector<string>& searchInputs);//given a day compares rides that day
+void compLoc(Storage& csvData1, Storage& csvData2, vector<vector<string>>& results, vector<string>& searchInputs);//given a location compares locations for that day
+void compareMostUseTime(vector<vector<string>>& results, Storage& csvData1, Storage& csvData2, vector<string>& searchInputs);
+void compareLeastUseTime(vector<vector<string>>& results, Storage& csvData1, Storage& csvData2, vector<string>& searchInputs);
+void compareMostLoc(vector<vector<string>>& results, Storage& csvData1, Storage& csvData2, vector<string>& searchInputs);
+void compareLeastLoc(vector<vector<string>>& results, Storage& csvData1, Storage& csvData2, vector<string>& searchInputs);
+
