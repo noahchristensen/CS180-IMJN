@@ -25,11 +25,17 @@ void main()
 	searchRes.clear();
 	cout << "Parsing Data..." << endl;
 	Storage* ptr = new Storage;
+	Storage* ptr1 = new Storage;
+	Storage* ptr2 = new Storage;
+
+	string filename1 = "uber-raw-data-aug14.csv";//for app comparison
+	string filename2 = "uber-raw-data-sep14.csv";//
+	string filename3 = "other-Lyft_B02510.csv";//
 
 	vector<vector<string>> foilStore;
 	foilStore.clear();
-	/*readFOIL(*ptr, "Uber-Jan-Feb-FOIL.csv", foilStore);*/
-
+	readFOIL(*ptr, "Uber-Jan-Feb-FOIL.csv", foilStore);
+	readCsvFiles(*ptr1, *ptr2,filename1, filename2, filename3);
 	read(*ptr, "uber-raw-data-apr14.csv");
 	cout << "Done Parsing... Server starting..." << endl;
 	// INITIALIZE WINSOCK
@@ -199,8 +205,8 @@ void main()
 		}
 		else
 		{
-			parseClient(buf, *ptr, foilStore, searchRes); //searched results are in searchRes //changed parseData to ptr
-
+			parseClient(buf, *ptr,*ptr1,*ptr2, foilStore, searchRes); //searched results are in searchRes //changed parseData to ptr
+			//ptr is main data, ptr1 is UBER app compare data, ptr2 is Lfyt compare data
 			if (!searchRes.empty())
 			{
 				string dataString = "";
