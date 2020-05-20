@@ -41,15 +41,16 @@ void read(Storage& data1, string filename)
     // Open an existing file
     fin.open(filename);
     int index = 0;
-    //Storage data1;
-    //vector<string> results;
-    cout << "we are about to open file to parse" << endl;
+    
     Parsed* obj;
     Use* row1;
+    
     while (!fin.eof()) {
+        
         fin >> line1;   //These two are to format the first column of the csv file
         fin >> line2;
         line1 = line1 + " " + line2; // combines the date column string with the rest of its corresponding row "4/1/2014 + 0:11:00",40.769,-73.9549,"B02512"
+        
         obj = new Parsed;
         obj->parseData(line1); // this will parse all the fields
         obj->parseHours(obj->retTime());
@@ -66,19 +67,17 @@ void read(Storage& data1, string filename)
         row1->setHour(obj->retHour());
         row1->setMin(obj->retMin());
         row1->setExists(true);
-        //cout << row1->getDate() << endl;
-        //row1.setDay(obj.retDay())
+     
         data1.insertRow(*row1);    //Use row1 object is created, and added to the Storage data1 object
-
-        //parseLine(line1, results, index); // parses line1 to results vector with four elements:  "Date Time", Lat, Lon, "Base",
-        //result.push_back(results); //pushes results vector to result vector
+       
         if (index % 10000 == 0) {
-            //cout << "just pushed " << index << endl;
+          
             cout << index << endl;
         }
 
         index++;
     }
+    fin.close();
     return;
 };
 
@@ -91,11 +90,10 @@ void readFOIL(Storage& data1, string filename, vector<vector <string>>& foilStor
     // Open an existing file
     fin.open(filename);
     int index = 0;
-    //Storage data1;
-    //vector<string> results;
+    
     cout << "we are about to open file to parse" << endl;
     Parsed* obj;
-    // Use* row1;
+    
     while (!fin.eof()) {
         fin >> line1;   //These two are to format the first column of the csv file
 
@@ -104,7 +102,7 @@ void readFOIL(Storage& data1, string filename, vector<vector <string>>& foilStor
 
 
         if (index % 10000 == 0) {
-            //cout << "just pushed " << index << endl;
+            
             cout << index << endl;
         }
 
@@ -114,42 +112,179 @@ void readFOIL(Storage& data1, string filename, vector<vector <string>>& foilStor
     return;
 };
 
+void readCsvFiles(Storage& data1, Storage& data2, string filename1, string filename2, string filename3) { //parsed both files for app comparison
+    cout << "We just entered the function" << endl;
+    ifstream fin;
+
+    string line1;
+    string line2;
+
+    // Open an existing file
+    fin.open(filename2);
+    int index = 0;
+    
+    Parsed* obj;
+    Use* row1;
+    cout << "we are about to open file0 to parse" << endl;
+    while (!fin.eof()) {
+
+        fin >> line1;   //These two are to format the first column of the csv file
+        fin >> line2;
+        line1 = line1 + " " + line2; // combines the date column string with the rest of its corresponding row "4/1/2014 + 0:11:00",40.769,-73.9549,"B02512"
+        
+        obj = new Parsed;
+        obj->parseData(line1); // this will parse all the fields
+        obj->parseHours(obj->retTime());
+        obj->parseMonth(obj->retDate());
+        obj->convertToDay();
+        row1 = new Use;
+
+        row1->setTime(obj->retTime());
+        row1->setDate(obj->retDate());
+        row1->setLong(obj->retLongt());
+        row1->setLat(obj->retLat());
+        row1->setBase(obj->retBase());
+        row1->setDay(obj->retDay());
+        row1->setHour(obj->retHour());
+        row1->setMin(obj->retMin());
+        row1->setExists(true);
+        
+        data1.insertRow(*row1);    //Use row1 object is created, and added to the Storage data1 object
+        
+        if (index % 10000 == 0) {
+          
+            cout << index << endl;
+        }
+
+        index++;
+    }
+    
+    fin.close();
+    cout << "we are about to open file1 to parse" << endl;
+    fin.open(filename1);
+    while (!fin.eof()) {
+       
+        fin >> line1;   //These two are to format the first column of the csv file
+        fin >> line2;
+        line1 = line1 + " " + line2; // combines the date column string with the rest of its corresponding row "4/1/2014 + 0:11:00",40.769,-73.9549,"B02512"
+        
+        obj = new Parsed;
+        obj->parseData(line1); // this will parse all the fields
+        obj->parseHours(obj->retTime());
+        obj->parseMonth(obj->retDate());
+        obj->convertToDay();
+        row1 = new Use;
+
+        row1->setTime(obj->retTime());
+        row1->setDate(obj->retDate());
+        row1->setLong(obj->retLongt());
+        row1->setLat(obj->retLat());
+        row1->setBase(obj->retBase());
+        row1->setDay(obj->retDay());
+        row1->setHour(obj->retHour());
+        row1->setMin(obj->retMin());
+        row1->setExists(true);
+       
+        data1.insertRow(*row1);    //Use row1 object is created, and added to the Storage data1 object
+        
+        if (index % 10000 == 0) {
+           
+            cout << index << endl;
+        }
+
+        index++;
+    }
+
+    fin.close();
+   
+  
+
+     // Open an existing file
+    cout << "we are about to open file3 to parse" << endl;
+     fin.open(filename3);
+     int index2 = 0;
+     
+     while (!fin.eof()) {
+         fin >> line1;   //These two are to format the first column of the csv file
+         fin >> line2;
+         line1 = line1 + " " + line2; // combines the date column string with the rest of its corresponding row "4/1/2014 + 0:11:00",40.769,-73.9549,
+         
+         obj = new Parsed;
+         obj->parseData2(line1); // this will parse all the fields
+         obj->parseHours(obj->retTime());
+         obj->parseMonth(obj->retDate());
+         obj->convertToDay();
+         row1 = new Use;
+
+         row1->setTime(obj->retTime());
+         row1->setDate(obj->retDate());
+         row1->setLong(obj->retLongt());
+         row1->setLat(obj->retLat());
+         row1->setBase("B02510");
+         row1->setDay(obj->retDay());
+         row1->setHour(obj->retHour());
+         row1->setMin(obj->retMin());
+         row1->setExists(true);
+
+         data2.insertRow(*row1);
+         
+         if (index2 % 10000 == 0) {
+            
+             cout << index2 << endl;
+         }
+
+         index2++;
+     }
+     fin.close();
+
+     return;
+}
+
 //class Use
 
 void Use::setTime(string arg) {
     time = arg;
+    return;
 }; //sets time
 
 void Use::setDate(string arg) {
     date = arg;
+    return;
 }; //sets date
 
 void Use::setDay(string arg) {
     day = arg;
+    return;
 }; //sets day: Monday-Sunday
 
 void Use::setLong(string arg) {
     longitude = arg;
+    return;
 }; //sets Longitude
 
 void Use::setLat(string arg) {
     latitude = arg;
+    return;
 }; //sets Latitude
 
 void Use::setBase(string arg) {
     base = arg;
+    return;
 }; //sets base
 
 void Use::setHour(int arg) {
     timeHour = arg;
+    return;
 }; //sets hour
 
 void Use::setMin(int arg) {
     timeMin = arg;
+    return;
 }; //set min
 
 void Use::setExists(bool arg) {
     exists = arg;
+    return;
 }; //sets exists bool variable for an object: either true or false
 
 string Use::getTime() {
@@ -223,6 +358,7 @@ void Storage::deleteRow(int index) {
     data[index].clearUse();
     size--;
     incCount();
+    return;
 }; // clears fields of an index object & sets its exists = false
 
 void Storage::convertStorage() { // pushes data in format: "Date Time", Lat, Lon, "Base" to results
@@ -240,6 +376,7 @@ void Storage::convertStorage() { // pushes data in format: "Date Time", Lat, Lon
         miniVec.clear();
 
     }
+    return;
 }; // done right before sending the client data : client imports
 
 Use& Storage::getRow(int index) {
@@ -265,12 +402,14 @@ void Storage::updateDelData() {
             adjustData(i); //switch element from the back to deleted index
         }
     }
+    return;
 };
 
 void Storage::adjustData(int index) {
     data[index] = data[size2 - 1];
     getRow(size2 - 1).clearUse();
     size2--;
+    return;
 }; // moves element from end to index passed in: for updateDelData
 
 vector <vector<string>>& Storage::getResults() {
@@ -300,8 +439,34 @@ void Parsed::parseData(string arg) {
     date = temp;
     time = temp1;
     results.clear();
-
+    return;
 };
+
+void Parsed::parseData2(string arg) { //parses data for Lyft csv file
+    vector<string> results;
+    string temp;
+    string temp1;
+
+    parseLine(arg, results); //parses arg int vector with elements: Date Time, Lat, Lon,
+  
+    lat = results.at(1); //sets object variables
+    longt = results.at(2);
+    //base = results.at(3);
+
+    temp = results.at(0);
+    results.clear();
+    parseLine1(temp, results); //parses date and time by space => "Date and Time" >>still has quotes
+    temp = results.at(0); //Date
+   
+    temp1 = results.at(1); // Time
+   
+
+    date = temp;
+    time = temp1;
+    results.clear();
+    return;
+};
+
 
 void Parsed::parseMonth(string arg) {
     stringstream X(arg);
@@ -481,7 +646,7 @@ void searchDateTime(vector<vector<string>>& results1, Storage& csvData, vector<s
     vector<string> miniVec;
     Storage* obj = &csvData;
     string in1;
-    //string dateAndTime = "\"" + searchInputs.at(1) + " " + searchInputs.at(0) + ":00" + "\"";
+    
     for (unsigned int k = 0; k < obj->getOrigSize(); k++) { // searches for time and day "XX/XX/XXXX 00:00:00" 
         Use* row1 = new Use;
         *row1 = obj->getRow(k);
@@ -687,11 +852,6 @@ void deleteBase(vector<vector<string>>& results, Storage& csvData, vector<string
 };
 
 void deleteSpecific(vector<vector<string>>& results, Storage& csvData, vector<string>& searchInputs) {
-    //csvData.flagChecks2(csvData, searchInputs); // this will handle checking flags and updating any results already calculated.
-    //csvData.incCount();
-    //if (csvData.checkCount()) {//more than 1000 inputs/deletes. recalculate data
-    //    csvData.resetCount();
-    //}
     vector<string> miniVec;
     string temp;
     searchInputs.at(4) = "\"" + searchInputs.at(4) + "\"";
@@ -704,14 +864,14 @@ void deleteSpecific(vector<vector<string>>& results, Storage& csvData, vector<st
         temp = "\"" + row1->getDate() + " " + row1->getTime() + "\"";
         if ((dateAndTime.compare(temp) == 0 && searchInputs.at(2).compare(row1->getLat()) == 0 && searchInputs.at(3).compare(row1->getLong()) == 0 && searchInputs.at(4).compare(row1->getBase()) == 0)) {
             obj->deleteRow(k);
-            cout << "we returned from delete row" << endl;
+            //cout << "we returned from delete row" << endl;
             k = obj->getOrigSize();
         }
         delete row1;
     }
-    cout << "We exited the for loop" << endl;
+    //cout << "We exited the for loop" << endl;
     obj->updateDelData();
-    cout << "we returned from updateDelData" << endl;
+    //cout << "we returned from updateDelData" << endl;
     if (obj->checkCount()) {
         obj->resetCount();
     }
@@ -842,8 +1002,9 @@ void Storage::flagChecks1(Storage& csvData, vector<string>& insertInputs) { //in
                     csvData.getMLoc().at(j - 1) = results1;
                     csvData.getMLoc().at(j) = temp;
                 }
+                j = csvData.getMLoc().size(); // break from this for loop
             }
-            j = csvData.getMLoc().size(); // break from this for loop
+            
         }
 
     }
@@ -906,19 +1067,20 @@ void Storage::flagChecks1(Storage& csvData, vector<string>& insertInputs) { //in
                     csvData.getLLoc().at(j + 1) = results1;
                     csvData.getLLoc().at(j) = temp;
                 }
+                j = csvData.getLLoc().size(); // break from this for loop // moved this
             }
-            j = csvData.getLLoc().size(); // break from this for loop
+            
         }
     }
     results1.clear();
     index = 0;
     if (csvData.checkFlag("busiestDay")) {
-        cout << "We are inside the busiest day incremental analysis" << endl;
+        //cout << "We are inside the busiest day incremental analysis" << endl;
         string day;
-        for (int k = 0; k < insertInputs.size(); k++) {
+        /*for (int k = 0; k < insertInputs.size(); k++) {
             cout << insertInputs.at(k) << endl;
         }
-        cout << endl;
+        cout << endl;*/
         stringstream B(insertInputs.at(1));
         while (getline(B, column, '/')) { //splits date into month,day and year
             results1.push_back(column);
@@ -967,29 +1129,31 @@ void Storage::flagChecks1(Storage& csvData, vector<string>& insertInputs) { //in
             day = "Tuesday";
         }
         for (i = 0;i < csvData.getBDay().size();i++) {
-            cout << "Looking at: " << csvData.getBDay().at(i).at(0) << endl;
+            //cout << "Looking at: " << csvData.getBDay().at(i).at(0) << endl;
             if (csvData.getBDay().at(i).at(0).find(day) != string::npos) { // we found the day
-                cout << "We found day in stored results" << endl;
+                //cout << "We found day in stored results" << endl;
                 num = std::stoi(csvData.getBDay().at(i).at(1));
                 num = num + 1;
-                cout << "New count: " << num << endl;
+                //cout << "New count: " << num << endl;
                 csvData.getBDay().at(i).at(1) = std::to_string(num);
                 if (csvData.getBDay().at(i).at(0).find(day) != string::npos) { //we incremented the largest, do nothing
                     //nothing
-                    cout << "incremented largest: DO NOTHING" << endl;
+                    //cout << "incremented largest: DO NOTHING" << endl;
+                    i = csvData.getBDay().size(); // break from this for loop
                 }
                 else if (std::stoi(csvData.getBDay().at(i + 1).at(1)) > num) { //lower count is bigger: swap
-                    cout << "Lower count is bigger: perform swap" << endl;
+                    //cout << "Lower count is bigger: perform swap" << endl;
                     results1.push_back(csvData.getBDay().at(i).at(0));
                     results1.push_back(csvData.getBDay().at(i).at(1));
 
                     temp = csvData.getBDay().at(i + 1);
                     csvData.getBDay().at(i + 1) = results1;
                     csvData.getBDay().at(i) = temp;
+                    i = csvData.getBDay().size(); // break from this for loop
                 }
             }
-            i = csvData.getBDay().size(); // break from this for loop
-        } cout << "We are out of the for loop" << endl;
+            
+        } //cout << "We are out of the for loop" << endl;
     }
     cout << "Reached end of flagCheck1" << endl;
     return;
@@ -1119,8 +1283,9 @@ void Storage::flagChecks2(Storage& csvData, vector<string>& insertInputs) { //in
                     csvData.getMLoc().at(j + 1) = results1;
                     csvData.getMLoc().at(j) = temp;
                 }
+                j = csvData.getMLoc().size(); // break from this for loop // moved this
             }
-            j = csvData.getMLoc().size(); // break from this for loop
+            
         }
 
     }
@@ -1183,8 +1348,9 @@ void Storage::flagChecks2(Storage& csvData, vector<string>& insertInputs) { //in
                     csvData.getLLoc().at(j - 1) = results1;
                     csvData.getLLoc().at(j) = temp;
                 }
+                j = csvData.getLLoc().size(); // break from this for loop
             }
-            j = csvData.getLLoc().size(); // break from this for loop
+            
         }
     }
     results1.clear();
@@ -1240,17 +1406,17 @@ void Storage::flagChecks2(Storage& csvData, vector<string>& insertInputs) { //in
         }
         for (i = 0;i < csvData.getBDay().size();i++) {
             if (csvData.getBDay().at(i).at(0).find(day) != string::npos) { // we found the day
-                cout << "We found the day: " << csvData.getBDay().at(i).at(0) << endl;
+                //cout << "We found the day: " << csvData.getBDay().at(i).at(0) << endl;
                 num = std::stoi(csvData.getBDay().at(i).at(1));
                 num = num - 1;
-                cout << "New count: " << num << endl;
+                //cout << "New count: " << num << endl;
                 csvData.getBDay().at(i).at(1) = std::to_string(num);
                 if (csvData.getBDay().at(6).at(0).find(day) != string::npos) { //we decremented the smallest, do nothing
-                    cout << "Decremented smallest count: DO NOTHING" << endl;
+                    //cout << "Decremented smallest count: DO NOTHING" << endl;
                     //nothing
                 }
                 else if (std::stoi(csvData.getBDay().at(i + 1).at(1)) > num) { //: swap
-                    cout << "Lower index count is bigger: swap" << endl;
+                    //cout << "Lower index count is bigger: swap" << endl;
                     results1.push_back(csvData.getBDay().at(i).at(0));
                     results1.push_back(csvData.getBDay().at(i).at(1));
 
@@ -1258,8 +1424,9 @@ void Storage::flagChecks2(Storage& csvData, vector<string>& insertInputs) { //in
                     csvData.getBDay().at(i + 1) = results1;
                     csvData.getBDay().at(i) = temp;
                 }
+                i = csvData.getBDay().size(); // break from this for loop
             }
-            i = csvData.getBDay().size(); // break from this for loop
+           
         }
     }
     cout << "Reached end of flagCheck2" << endl;
@@ -1301,6 +1468,7 @@ void insertData(vector<vector<string>>& results, Storage& csvData, vector<string
     if (csvData.checkCount()) {
         csvData.resetCount();
     }
+    return;
 };
 
 bool checkIfExport(char buf[1024]) {
@@ -1355,7 +1523,7 @@ void importFunction(vector<string>& importRows) {
         file << importRows.at(i);
     }
     file.close();
-
+    return;
 }
 
 //Artifact 5 functions 
@@ -1374,7 +1542,7 @@ void searchMostUseTime(vector<vector<string>>& results1, Storage& csvData, vecto
         } // will push back the 10 results in mostTime vector from previous calculation
     }
     else {
-        cout << "MostTime for loop" << endl;
+        //cout << "MostTime for loop" << endl;
         for (unsigned int k = 0; k < obj->getOrigSize(); k++) {//counts 
             Use* row1 = new Use;
             *row1 = obj->getRow(k);
@@ -1383,7 +1551,7 @@ void searchMostUseTime(vector<vector<string>>& results1, Storage& csvData, vecto
             arr[row1->getHour()] = count;
             delete row1;
         }
-        cout << "Past for loop" << endl;
+        //cout << "Past for loop" << endl;
         string str1;
         string str2;
         int max;
@@ -1419,7 +1587,7 @@ void searchMostUseTime(vector<vector<string>>& results1, Storage& csvData, vecto
         }
         obj->setFlag("mostTime");
     }
-    
+    return;
 };
 
 void searchLeastUseTime(vector<vector<string>>& results1, Storage& csvData, vector<string>& searchInputs) {
@@ -1478,6 +1646,7 @@ void searchLeastUseTime(vector<vector<string>>& results1, Storage& csvData, vect
         }
         obj->setFlag("leastTime");
     }
+    return;
 };
 
 void searchMostLoc(vector<vector<string>>& results1, Storage& csvData, vector<string>& searchInputs) { //FIXME
@@ -1503,14 +1672,14 @@ void searchMostLoc(vector<vector<string>>& results1, Storage& csvData, vector<st
         }
     }
     else {
-        cout << "We are entering mostloc first calculation SIZE: " << obj->getOrigSize() << endl;
+        //cout << "We are entering mostloc first calculation SIZE: " << obj->getOrigSize() << endl;
         for (unsigned int k = 0; k < obj->getSize(); k++) {//counts 
             pair<int, vector<int>>pairs;
             Use* row1 = new Use;
             *row1 = obj->getRow(k);
-            cout << "Part 1" << endl;
+            //cout << "Part 1" << endl;
             in1 = row1->getLat(); //XX.XXX
-            cout << "Part 2" << endl;
+            //cout << "Part 2" << endl;
             in2 = row1->getLong();//-YY.YY
             if (k % 1000 == 0) {
                 cout << k << endl;
@@ -1846,6 +2015,7 @@ void searchLeastLoc(vector<vector<string>>& results1, Storage& csvData, vector<s
         }
         obj->setFlag("leastLoc");
     }
+    return;
 };
 
 
@@ -1935,6 +2105,7 @@ void calculateBusiestDay(vector<vector<string>>& results1, Storage& csvData, vec
         }
         obj->setFlag("busiestDay");
     }
+    return;
 };
 
 
@@ -1989,6 +2160,7 @@ void searchMostVehicles(vector<vector<string>>& results, vector<vector<string>> 
 
         unsorted.erase(unsorted.begin() + maxPos);
     }
+    return;
 };
 
 void searchLeastVehicles(vector<vector<string>>& results, vector<vector<string>> foilStore, vector<string>& searchInputs)
@@ -3220,7 +3392,178 @@ vector <vector<string>>& Storage::getBDay() {
     return busiestDay;
 };
 
-void parseClient(string buf, Storage& csvData, vector<vector<string>> foilStore, vector<vector<string>>& results) {
+//app comparison functions
+void compDay(Storage& csvData1, Storage& csvData2, vector<vector<string>>& results, vector<string>& searchInputs) {
+    vector<string>miniVec;
+    int count1 = 0;
+    int count2 = 0;
+    int i = 0;
+    string string1;
+    Storage* obj1 = &csvData1;//uber data
+    Storage* obj2 = &csvData2;//lyft data
+
+    Use* row1 = new Use;
+
+    for (i = 0;i < obj1->getSize();i++) {
+        *row1 = obj1->getRow(i);
+        if (row1->getDate() == searchInputs.at(0)) {
+            count1++;
+        }
+    }
+    for (i = 0;i < obj2->getSize();i++) {
+        *row1 = obj2->getRow(i);
+        if (row1->getDate() == searchInputs.at(0)) {
+            count2++;
+        }
+    }
+    string1 = std::to_string(count1);
+    string1 = "UBER: " + string1 + "    ";
+    miniVec.push_back(string1);
+    string1 = std::to_string(count2);
+    string1 = "LYFT: " + string1 + "    ";
+    miniVec.push_back(string1);
+
+    results.push_back(miniVec);
+    miniVec.clear();
+    return;
+
+};//given a day compares rides that day
+
+void compLoc(Storage& csvData1, Storage& csvData2, vector<vector<string>>& results, vector<string>& searchInputs) {
+    vector<string>miniVec;
+    int count1 = 0;
+    int count2 = 0;
+    int i = 0;
+    string string1;
+    Storage* obj1 = &csvData1;//uber data
+    Storage* obj2 = &csvData2;//lyft data
+
+    Use* row1 = new Use;
+
+    for (i = 0;i < obj1->getSize();i++) {
+        *row1 = obj1->getRow(i);
+        if (row1->getLat() == searchInputs.at(0) && row1->getLong() == searchInputs.at(1)) {
+            count1++;
+        }
+    }
+    for (i = 0;i < obj2->getSize();i++) {
+        *row1 = obj2->getRow(i);
+        if (row1->getLat() == searchInputs.at(0) && row1->getLong() == searchInputs.at(1)) {
+            count2++;
+        }
+    }
+    string1 = std::to_string(count1);
+    string1 = "UBER: " + string1 + "    ";
+    miniVec.push_back(string1);
+    string1 = std::to_string(count2);
+    string1 = "LYFT: " + string1 + "    ";
+    miniVec.push_back(string1);
+
+    results.push_back(miniVec);
+    miniVec.clear();
+    return;
+
+
+};//given a location compares locations for that day
+
+void compareMostUseTime(vector<vector<string>>& results, Storage& csvData1, Storage& csvData2, vector<string>& searchInputs) {
+    vector<vector<string>> results1;
+    vector<vector<string>> results2;
+    vector<string> miniVec;
+    string temp1;
+    string temp2;
+    searchMostUseTime(results1, csvData1, searchInputs);//Uber top 10 
+    searchMostUseTime(results2, csvData1, searchInputs);//Lyft top 10 
+
+    for (int i = 0;i < results1.size();i++) {// pushes back Uber "Time      count" and Lyft "Time     count"
+       /* miniVec = results1.at(i);
+        results.push_back(miniVec);
+        miniVec = results2.at(i);
+        results.push_back(miniVec);*/
+        temp1 = results1.at(i).at(0);
+        temp2 = results2.at(i).at(0);
+        temp2 = (i + 1) + ". Uber:" + temp1 + "  Lyft:" + temp2;
+        miniVec.push_back(temp2);
+        results.push_back(miniVec);
+        miniVec.clear();
+    }
+    return;
+};
+
+void compareLeastUseTime(vector<vector<string>>& results, Storage& csvData1, Storage& csvData2, vector<string>& searchInputs) {
+    vector<vector<string>> results1;
+    vector<vector<string>> results2;
+    vector<string> miniVec;
+    string temp1;
+    string temp2;
+    searchLeastUseTime(results1, csvData1, searchInputs);//Uber top 10 
+    searchLeastUseTime(results2, csvData1, searchInputs);//Lyft top 10 
+
+    for (int i = 0;i < results1.size();i++) {// pushes back Uber "Time      count" and Lyft "Time     count"
+       /* miniVec = results1.at(i);
+        results.push_back(miniVec);
+        miniVec = results2.at(i);
+        results.push_back(miniVec);*/
+        temp1 = results1.at(i).at(0);
+        temp2 = results2.at(i).at(0);
+        temp2 = (i + 1) + ". Uber:" + temp1 + "  Lyft:" + temp2;
+        miniVec.push_back(temp2);
+        results.push_back(miniVec);
+        miniVec.clear();
+    }
+    return;
+
+};
+
+void compareMostLoc(vector<vector<string>>& results, Storage& csvData1, Storage& csvData2, vector<string>& searchInputs) {
+    vector<vector<string>> results1;
+    vector<vector<string>> results2;
+    vector<string> miniVec;
+    string temp1;
+    string temp2;
+    searchMostLoc(results1, csvData1, searchInputs);//Uber top 10 
+    searchMostLoc(results2, csvData1, searchInputs);//Lyft top 10 
+
+    for (int i = 0;i < results1.size();i++) {// pushes back Uber "Location count" and Lyft "Location count"
+        temp1 = results1.at(i).at(0);
+        temp2 = results2.at(i).at(0);
+        temp2 = (i + 1) + ". Uber:" + temp1 + "  Lyft:" + temp2;
+        miniVec.push_back(temp2);
+        //miniVec = results1.at(i);
+        results.push_back(miniVec);
+        //miniVec = results2.at(i);
+        //results.push_back(miniVec);
+        miniVec.clear();
+    }
+    return;
+
+};
+
+void compareLeastLoc(vector<vector<string>>& results, Storage& csvData1, Storage& csvData2, vector<string>& searchInputs) {
+    vector<vector<string>> results1;
+    vector<vector<string>> results2;
+    vector<string> miniVec;
+    string temp1;
+    string temp2;
+    searchLeastLoc(results1, csvData1, searchInputs);//Uber top 10 
+    searchLeastLoc(results2, csvData1, searchInputs);//Lyft top 10 
+
+    for (int i = 0;i < results1.size();i++) {// pushes back Uber "Location count" and Lyft "Location count"
+        temp1 = results1.at(i).at(0);
+        temp2 = results2.at(i).at(0);
+        temp2 = (i + 1) + ". Uber:" + temp1 + "  Lyft:" + temp2;
+        miniVec.push_back(temp2);
+        //miniVec = results1.at(i);
+        results.push_back(miniVec);
+        //miniVec = results2.at(i);
+        //results.push_back(miniVec);
+        miniVec.clear();
+    }
+    return;
+};
+
+
+void parseClient(string buf, Storage& csvData, Storage& csvData1, Storage& csvData2, vector<vector<string>> foilStore, vector<vector<string>>& results) {
     int timeFlag = 0;
     int dateFlag = 0;
     int locationFlag1 = 0;
@@ -3246,6 +3589,12 @@ void parseClient(string buf, Storage& csvData, vector<vector<string>> foilStore,
     int searchShortestIntervalFlag = 0; //expects "Shortest Time Interval"
     int searchLongestIntervalFlag = 0; //expects "Longest Time Interval"
     int searchAverageIntervalFlag = 0;
+    // app comparison
+    int compMostTime = 0; // compares top 10 most used times "MostTCompare"
+    int compMostLoc = 0; // compares top 10 most used locations expects a location lat/long
+    int compLeastTime = 0; // compares top 10 least times  "LeastTCompare"
+    int compLeastLoc = 0; // compares top 10 least used locations  expects location lat/long
+    int compareApp = 0; // just finding count for specific day or location expects "Comparison"
 
 
     vector<string> clientDat;
@@ -3266,6 +3615,10 @@ void parseClient(string buf, Storage& csvData, vector<vector<string>> foilStore,
         if (columns.find("Search") != string::npos) {
             searchFlag = 1;
         }
+        if (columns.find("Comparison") != string::npos) {
+            compareApp = 1;
+        }
+
         clientDat.push_back(columns);
     }
     for (unsigned i = 0; i < clientDat.size(); i++) { //sets appropriate flags for populated fields in client's message
@@ -3440,6 +3793,46 @@ void parseClient(string buf, Storage& csvData, vector<vector<string>> foilStore,
                 searchAverageIntervalFlag = 1;
             }
         }
+        compare = "MostTCompare: ";//for comparison
+        if (clientDat.at(i).find(compare) != string::npos) {
+            if (compare != clientDat.at(i)) {
+                cout << "Found Compare By Most Time: " << clientDat.at(i) << endl;
+                string::size_type f = clientDat.at(i).find(compare);
+                clientDat.at(i).erase(f, compare.length());
+                searchInputs.push_back(clientDat.at(i));
+                compMostTime = 1;
+            }
+        }
+        compare = "LeastTCompare: ";
+        if (clientDat.at(i).find(compare) != string::npos) {
+            if (compare != clientDat.at(i)) {
+                cout << "Found Compare By Least Time: " << clientDat.at(i) << endl;
+                string::size_type f = clientDat.at(i).find(compare);
+                clientDat.at(i).erase(f, compare.length());
+                searchInputs.push_back(clientDat.at(i));
+                compLeastTime = 1;
+            }
+        }
+        compare = "MostLCompare: ";
+        if (clientDat.at(i).find(compare) != string::npos) {
+            if (compare != clientDat.at(i)) {
+                cout << "Found Compare By Most Location: " << clientDat.at(i) << endl;
+                string::size_type f = clientDat.at(i).find(compare);
+                clientDat.at(i).erase(f, compare.length());
+                searchInputs.push_back(clientDat.at(i));
+                compMostLoc = 1;
+            }
+        }
+        compare = "LeastLCompare: ";
+        if (clientDat.at(i).find(compare) != string::npos) {
+            if (compare != clientDat.at(i)) {
+                cout << "Found Compare By Least Location: " << clientDat.at(i) << endl;
+                string::size_type f = clientDat.at(i).find(compare);
+                clientDat.at(i).erase(f, compare.length());
+                searchInputs.push_back(clientDat.at(i));
+                compLeastLoc = 1;
+            }
+        }
     }
 
     if (searchFlag) { //if searchFlag was set: Different search methods
@@ -3529,6 +3922,32 @@ void parseClient(string buf, Storage& csvData, vector<vector<string>> foilStore,
     }
     else if (insertFlag) { // if insertFlag was set: insert new data with all fields
         insertData(results, csvData, searchInputs);
+    }
+    else if (compareApp) {
+        if (dateFlag) {
+            //count uses for specific date
+            compDay(csvData1, csvData2, results, searchInputs); // returns count of uses for day of both apps
+        }
+        else if (locationFlag1 && locationFlag2) {
+            //count uses for a specific location
+            compLoc(csvData1, csvData2, results, searchInputs); //returns count of uses for specific location for both apps
+        }
+        else if (compMostTime) {
+            //gets top 10 times
+            compareMostUseTime(results, csvData1, csvData2, searchInputs);
+        }
+        else if (compLeastTime) {
+            //gets lowest 10 times
+            compareLeastUseTime(results, csvData1, csvData2, searchInputs);
+        }
+        else if (compMostLoc) {
+            //gets top 10 locations
+            compareMostLoc(results, csvData1, csvData2, searchInputs);
+        }
+        else if (compLeastLoc) {
+            //gets lowest 10 locations
+            compareLeastLoc(results, csvData1, csvData2, searchInputs);
+        }
     }
 
     return;
