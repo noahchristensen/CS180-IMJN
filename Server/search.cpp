@@ -41,16 +41,16 @@ void read(Storage& data1, string filename)
     // Open an existing file
     fin.open(filename);
     int index = 0;
-    
+
     Parsed* obj;
     Use* row1;
-    
+
     while (!fin.eof()) {
-        
+
         fin >> line1;   //These two are to format the first column of the csv file
         fin >> line2;
         line1 = line1 + " " + line2; // combines the date column string with the rest of its corresponding row "4/1/2014 + 0:11:00",40.769,-73.9549,"B02512"
-        
+
         obj = new Parsed;
         obj->parseData(line1); // this will parse all the fields
         obj->parseHours(obj->retTime());
@@ -67,11 +67,11 @@ void read(Storage& data1, string filename)
         row1->setHour(obj->retHour());
         row1->setMin(obj->retMin());
         row1->setExists(true);
-     
+
         data1.insertRow(*row1);    //Use row1 object is created, and added to the Storage data1 object
-       
+
         if (index % 10000 == 0) {
-          
+
             cout << index << endl;
         }
 
@@ -90,10 +90,10 @@ void readFOIL(Storage& data1, string filename, vector<vector <string>>& foilStor
     // Open an existing file
     fin.open(filename);
     int index = 0;
-    
+
     cout << "we are about to open file to parse" << endl;
     Parsed* obj;
-    
+
     while (!fin.eof()) {
         fin >> line1;   //These two are to format the first column of the csv file
 
@@ -102,7 +102,7 @@ void readFOIL(Storage& data1, string filename, vector<vector <string>>& foilStor
 
 
         if (index % 10000 == 0) {
-            
+
             cout << index << endl;
         }
 
@@ -122,7 +122,7 @@ void readCsvFiles(Storage& data1, Storage& data2, string filename1, string filen
     // Open an existing file
     fin.open(filename2);
     int index = 0;
-    
+
     Parsed* obj;
     Use* row1;
     cout << "we are about to open file0 to parse" << endl;
@@ -131,7 +131,7 @@ void readCsvFiles(Storage& data1, Storage& data2, string filename1, string filen
         fin >> line1;   //These two are to format the first column of the csv file
         fin >> line2;
         line1 = line1 + " " + line2; // combines the date column string with the rest of its corresponding row "4/1/2014 + 0:11:00",40.769,-73.9549,"B02512"
-        
+
         obj = new Parsed;
         obj->parseData(line1); // this will parse all the fields
         obj->parseHours(obj->retTime());
@@ -148,26 +148,26 @@ void readCsvFiles(Storage& data1, Storage& data2, string filename1, string filen
         row1->setHour(obj->retHour());
         row1->setMin(obj->retMin());
         row1->setExists(true);
-        
+
         data1.insertRow(*row1);    //Use row1 object is created, and added to the Storage data1 object
-        
+
         if (index % 10000 == 0) {
-          
+
             cout << index << endl;
         }
 
         index++;
     }
-    
+
     fin.close();
     cout << "we are about to open file1 to parse" << endl;
     fin.open(filename1);
     while (!fin.eof()) {
-       
+
         fin >> line1;   //These two are to format the first column of the csv file
         fin >> line2;
         line1 = line1 + " " + line2; // combines the date column string with the rest of its corresponding row "4/1/2014 + 0:11:00",40.769,-73.9549,"B02512"
-        
+
         obj = new Parsed;
         obj->parseData(line1); // this will parse all the fields
         obj->parseHours(obj->retTime());
@@ -184,11 +184,11 @@ void readCsvFiles(Storage& data1, Storage& data2, string filename1, string filen
         row1->setHour(obj->retHour());
         row1->setMin(obj->retMin());
         row1->setExists(true);
-       
+
         data1.insertRow(*row1);    //Use row1 object is created, and added to the Storage data1 object
-        
+
         if (index % 10000 == 0) {
-           
+
             cout << index << endl;
         }
 
@@ -196,48 +196,48 @@ void readCsvFiles(Storage& data1, Storage& data2, string filename1, string filen
     }
 
     fin.close();
-   
-  
 
-     // Open an existing file
+
+
+    // Open an existing file
     cout << "we are about to open file3 to parse" << endl;
-     fin.open(filename3);
-     int index2 = 0;
-     
-     while (!fin.eof()) {
-         fin >> line1;   //These two are to format the first column of the csv file
-         fin >> line2;
-         line1 = line1 + " " + line2; // combines the date column string with the rest of its corresponding row "4/1/2014 + 0:11:00",40.769,-73.9549,
-         
-         obj = new Parsed;
-         obj->parseData2(line1); // this will parse all the fields
-         obj->parseHours(obj->retTime());
-         obj->parseMonth(obj->retDate());
-         obj->convertToDay();
-         row1 = new Use;
+    fin.open(filename3);
+    int index2 = 0;
 
-         row1->setTime(obj->retTime());
-         row1->setDate(obj->retDate());
-         row1->setLong(obj->retLongt());
-         row1->setLat(obj->retLat());
-         row1->setBase("B02510");
-         row1->setDay(obj->retDay());
-         row1->setHour(obj->retHour());
-         row1->setMin(obj->retMin());
-         row1->setExists(true);
+    while (!fin.eof()) {
+        fin >> line1;   //These two are to format the first column of the csv file
+        fin >> line2;
+        line1 = line1 + " " + line2; // combines the date column string with the rest of its corresponding row "4/1/2014 + 0:11:00",40.769,-73.9549,
 
-         data2.insertRow(*row1);
-         
-         if (index2 % 10000 == 0) {
-            
-             cout << index2 << endl;
-         }
+        obj = new Parsed;
+        obj->parseData2(line1); // this will parse all the fields
+        obj->parseHours(obj->retTime());
+        obj->parseMonth(obj->retDate());
+        obj->convertToDay();
+        row1 = new Use;
 
-         index2++;
-     }
-     fin.close();
+        row1->setTime(obj->retTime());
+        row1->setDate(obj->retDate());
+        row1->setLong(obj->retLongt());
+        row1->setLat(obj->retLat());
+        row1->setBase("B02510");
+        row1->setDay(obj->retDay());
+        row1->setHour(obj->retHour());
+        row1->setMin(obj->retMin());
+        row1->setExists(true);
 
-     return;
+        data2.insertRow(*row1);
+
+        if (index2 % 10000 == 0) {
+
+            cout << index2 << endl;
+        }
+
+        index2++;
+    }
+    fin.close();
+
+    return;
 }
 
 //class Use
@@ -352,9 +352,9 @@ void Storage::deleteRow(int index) {
     inputs.push_back(getRow(index).getLat());
     inputs.push_back(getRow(index).getLong());
     inputs.push_back(getRow(index).getBase());
-    cout << "About to call flagChecks2" << endl;
-    flagChecks2(*this,inputs); // handles incremental analytics after a delete
-    cout << "Back from flagChecks2" << endl;
+    //cout << "About to call flagChecks2" << endl;
+    flagChecks2(*this, inputs); // handles incremental analytics after a delete
+    //cout << "Back from flagChecks2" << endl;
     data[index].clearUse();
     size--;
     incCount();
@@ -394,7 +394,7 @@ int Storage::getOrigSize() {
 void Storage::updateDelData() {
     for (unsigned i = 0; i < size2; i++) {
         if (!getRow(i).checkExists()) {
-            cout << "We found a deleted data entry" << endl;
+            //cout << "We found a deleted data entry" << endl;
             if (i == size2 - 1) {
                 //size2--;
                 return;
@@ -409,6 +409,7 @@ void Storage::adjustData(int index) {
     data[index] = data[size2 - 1];
     getRow(size2 - 1).clearUse();
     size2--;
+    size = size2;
     return;
 }; // moves element from end to index passed in: for updateDelData
 
@@ -448,7 +449,7 @@ void Parsed::parseData2(string arg) { //parses data for Lyft csv file
     string temp1;
 
     parseLine(arg, results); //parses arg int vector with elements: Date Time, Lat, Lon,
-  
+
     lat = results.at(1); //sets object variables
     longt = results.at(2);
     //base = results.at(3);
@@ -457,9 +458,9 @@ void Parsed::parseData2(string arg) { //parses data for Lyft csv file
     results.clear();
     parseLine1(temp, results); //parses date and time by space => "Date and Time" >>still has quotes
     temp = results.at(0); //Date
-   
+
     temp1 = results.at(1); // Time
-   
+
 
     date = temp;
     time = temp1;
@@ -531,7 +532,7 @@ int Parsed::retMin() {
 
 void Parsed::convertToDay() {
     vector <int> monthDays = { 31,28,31,30,31,30,31,31,30,31,30,31, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
- //365 total days first day starts Wednesday last day Wednesday
+    //365 total days first day starts Wednesday last day Wednesday
     int month = std::stoi(mth1); // 1-12
     int day1 = std::stoi(d1); //1-28,30,31
     int year1 = std::stoi(yr1); //2014 or 2015
@@ -646,7 +647,7 @@ void searchDateTime(vector<vector<string>>& results1, Storage& csvData, vector<s
     vector<string> miniVec;
     Storage* obj = &csvData;
     string in1;
-    
+
     for (unsigned int k = 0; k < obj->getOrigSize(); k++) { // searches for time and day "XX/XX/XXXX 00:00:00" 
         Use* row1 = new Use;
         *row1 = obj->getRow(k);
@@ -931,7 +932,7 @@ void Storage::flagChecks1(Storage& csvData, vector<string>& insertInputs) { //in
                 num = num + 1;
                 results1.at(1) = std::to_string(num); //converts int to string and stores value
                 csvData.getLTime().at(i) = results1; //update element
-                if (csvData.getLTime().at(csvData.getLTime().size() -1) == results1) {
+                if (csvData.getLTime().at(csvData.getLTime().size() - 1) == results1) {
                     //do nothing: we incremented the last value
                 }
                 else if (std::stoi(csvData.getLTime().at(i + 1).at(1)) < num) {//lower element is smaller: Swap
@@ -947,7 +948,7 @@ void Storage::flagChecks1(Storage& csvData, vector<string>& insertInputs) { //in
     results1.clear();
     if (csvData.checkFlag("mostLoc")) {
         stringstream Z(insertInputs.at(2)); //lat
-        
+
         while (getline(Z, column, '.')) { //splits line into columns 
             if (column.size() == 1 && index == 1) {//we are in decimal number
                 column = column + "0";
@@ -1004,7 +1005,7 @@ void Storage::flagChecks1(Storage& csvData, vector<string>& insertInputs) { //in
                 }
                 j = csvData.getMLoc().size(); // break from this for loop
             }
-            
+
         }
 
     }
@@ -1069,7 +1070,7 @@ void Storage::flagChecks1(Storage& csvData, vector<string>& insertInputs) { //in
                 }
                 j = csvData.getLLoc().size(); // break from this for loop // moved this
             }
-            
+
         }
     }
     results1.clear();
@@ -1086,7 +1087,7 @@ void Storage::flagChecks1(Storage& csvData, vector<string>& insertInputs) { //in
             results1.push_back(column);
         }
         vector <int> monthDays = { 31,28,31,30,31,30,31,31,30,31,30,31, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
-     //365 total days first day starts Wednesday last day Wednesday
+        //365 total days first day starts Wednesday last day Wednesday
         int month = std::stoi(results1.at(0)); // 1-12
         int day1 = std::stoi(results1.at(1)); //1-28,30,31
         int year1 = std::stoi(results1.at(2)); //2014 or 2015
@@ -1152,10 +1153,10 @@ void Storage::flagChecks1(Storage& csvData, vector<string>& insertInputs) { //in
                     i = csvData.getBDay().size(); // break from this for loop
                 }
             }
-            
+
         } //cout << "We are out of the for loop" << endl;
     }
-    cout << "Reached end of flagCheck1" << endl;
+    //cout << "Reached end of flagCheck1" << endl;
     return;
 };
 
@@ -1285,7 +1286,7 @@ void Storage::flagChecks2(Storage& csvData, vector<string>& insertInputs) { //in
                 }
                 j = csvData.getMLoc().size(); // break from this for loop // moved this
             }
-            
+
         }
 
     }
@@ -1350,7 +1351,7 @@ void Storage::flagChecks2(Storage& csvData, vector<string>& insertInputs) { //in
                 }
                 j = csvData.getLLoc().size(); // break from this for loop
             }
-            
+
         }
     }
     results1.clear();
@@ -1362,13 +1363,13 @@ void Storage::flagChecks2(Storage& csvData, vector<string>& insertInputs) { //in
             results1.push_back(column);
         }
         vector <int> monthDays = { 31,28,31,30,31,30,31,31,30,31,30,31, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
-    //}; //365 total days first day starts Wednesday last day Wednesday
+        //}; //365 total days first day starts Wednesday last day Wednesday
         int month = std::stoi(results1.at(0)); // 1-12
         int day1 = std::stoi(results1.at(1)); //1-28,30,31
         int year1 = std::stoi(results1.at(2)); //2014 or 2015
         int totDays = 0;
         string dayOfWeek = "";
-
+        results1.clear();
         if (year1 == 2015) {
             month = month + 12;
         }
@@ -1426,17 +1427,17 @@ void Storage::flagChecks2(Storage& csvData, vector<string>& insertInputs) { //in
                 }
                 i = csvData.getBDay().size(); // break from this for loop
             }
-           
+
         }
     }
-    cout << "Reached end of flagCheck2" << endl;
+    //cout << "Reached end of flagCheck2" << endl;
     return;
 };
 
 void insertData(vector<vector<string>>& results, Storage& csvData, vector<string>& insertInputs) { // pushes new data to end of csvData vector
-    cout << "About to enter flagcheck" << endl;
-    csvData.flagChecks1(csvData,insertInputs); // this will handle checking flags and updating any results already calculated.
-    cout << "Back from flagcheck" << endl;
+    //cout << "About to enter flagcheck" << endl;
+    csvData.flagChecks1(csvData, insertInputs); // this will handle checking flags and updating any results already calculated.
+    //cout << "Back from flagcheck" << endl;
     csvData.incCount();
     if (csvData.checkCount()) {//more than 1000 inputs/deletes. recalculate data
         csvData.resetCount();
@@ -1445,12 +1446,12 @@ void insertData(vector<vector<string>>& results, Storage& csvData, vector<string
     string temp;
 
     temp = "\"" + insertInputs.at(1) + " " + insertInputs.at(0) + ":00" + "\"" + "," + insertInputs.at(2) + "," + insertInputs.at(3) + "," + "\"" + insertInputs.at(4) + "\"";
-    Parsed * obj = new Parsed;
+    Parsed* obj = new Parsed;
     obj->parseData(temp); // this will parse all the fields
     obj->parseHours(obj->retTime());
     obj->parseMonth(obj->retDate());
     obj->convertToDay();
-    Use *row1 = new Use;
+    Use* row1 = new Use;
 
     row1->setTime(obj->retTime());
     row1->setDate(obj->retDate());
@@ -1581,7 +1582,7 @@ void searchMostUseTime(vector<vector<string>>& results1, Storage& csvData, vecto
             if (k < 10) {
                 results1.push_back(miniVec);
             }
-            
+
             obj->getMTime().push_back(miniVec); // pushes to mostTime Vector to save calculation results for faster future calculations
             miniVec.clear();
         }
@@ -1684,7 +1685,7 @@ void searchMostLoc(vector<vector<string>>& results1, Storage& csvData, vector<st
             if (k % 1000 == 0) {
                 cout << k << endl;
             }
-            
+
             //FIXME make this compatible with longitudes that dont have "-"
             in2 = in2.substr(1, in2.length()); //now YY.YY
             //cout << in2 << endl;
@@ -1826,7 +1827,7 @@ void searchMostLoc(vector<vector<string>>& results1, Storage& csvData, vector<st
             if (k < 10) {
                 results1.push_back(miniVec);
             }
-            
+
             obj->getMLoc().push_back(miniVec);
             miniVec.clear();
             min = arr1[index];
@@ -2026,9 +2027,9 @@ void calculateBusiestDay(vector<vector<string>>& results1, Storage& csvData, vec
     int arr[7] = { 0 }; //for each day 
     string arr1[7] = { "Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday" }; // each day of week for comparison check
     int count = 0;
-    cout << "Right before check " << endl;
+    //cout << "Right before check " << endl;
     if (obj->checkFlag("busiestDay")) {
-        cout << "flag check was true" << endl;
+        //cout << "flag check was true" << endl;
         for (int var = 0; var < 7; var++) {
             miniVec = obj->getBDay().at(var);
             results1.push_back(miniVec);
@@ -2036,7 +2037,7 @@ void calculateBusiestDay(vector<vector<string>>& results1, Storage& csvData, vec
         }
     }
     else {
-        cout << "flag check was false" << endl;
+        //cout << "flag check was false" << endl;
         for (unsigned int k = 0; k < obj->getOrigSize(); k++) {//counts 
             Use* row1 = new Use;
             *row1 = obj->getRow(k);
@@ -3269,27 +3270,27 @@ bool Storage::checkCount() {
 
 void Storage::setFlag(string arg) { //sets flags for incrementality functionality 
     if (arg == "mostTime") {
-        cout << "Most Time flag set" << endl;
+        //cout << "Most Time flag set" << endl;
         mTimeFlag = 1;
         return;
     }
     else if (arg == "leastTime") {
-        cout << "Least Time flag set" << endl;
+        //cout << "Least Time flag set" << endl;
         lTimeFlag = 1;
         return;
     }
     else if (arg == "busiestDay") {
-        cout << "Busiest day flag set" << endl;
+        //cout << "Busiest day flag set" << endl;
         bDayFlag = 1;
         return;
     }
     else if (arg == "mostLoc") {
-        cout << "Most Loc flag set" << endl;
+        //cout << "Most Loc flag set" << endl;
         mLocFlag = 1;
         return;
     }
     else if (arg == "leastLoc") {
-        cout << "Least Loc flag set" << endl;
+        //cout << "Least Loc flag set" << endl;
         lLocFlag = 1;
         return;
     }
@@ -3305,57 +3306,57 @@ bool Storage::checkFlag(string arg) { // checks whether passed in flag is raised
 
     if (arg.find(mt) != string::npos) {
         if (mTimeFlag == 1) {
-            cout << "Most Time flag true" << endl;
+            //cout << "Most Time flag true" << endl;
             return true;
         }
         else {
-            cout << "Most Time flag was false" << endl;
+            //cout << "Most Time flag was false" << endl;
             return false;
         }
     }
     else if (arg.find(lt) != string::npos) {
         if (lTimeFlag == 1) {
-            cout << "Least Time flag true" << endl;
+            //cout << "Least Time flag true" << endl;
             return true;
         }
         else {
-            cout << "Least Time flag was false" << endl;
+            //cout << "Least Time flag was false" << endl;
             return false;
         }
     }
     else if (arg.find(bd) != string::npos) {
         //cout << "Compare: " << bDayFlag << " == " << "1" << endl;
         if (bDayFlag == 1) {
-            cout << "Busiest Day flag true" << endl;
+            //cout << "Busiest Day flag true" << endl;
             return true;
         }
         else {
-            cout << "Busiest day flag was false" << endl;
+            //cout << "Busiest day flag was false" << endl;
             return false;
         }
     }
     else if (arg.find(ml) != string::npos) {
         if (mLocFlag == 1) {
-            cout << "Most Loc flag true" << endl;
+            //cout << "Most Loc flag true" << endl;
             return true;
         }
         else {
-            cout << "Most Loc flag was false" << endl;
+            //cout << "Most Loc flag was false" << endl;
             return false;
         }
     }
     else if (arg.find(ll) != string::npos) {
         if (lLocFlag == 1) {
-            cout << "Least Time flag true" << endl;
+            //cout << "Least Time flag true" << endl;
             return true;
         }
         else {
-            cout << "Least Loc flag was false" << endl;
+            //cout << "Least Loc flag was false" << endl;
             return false;
         }
     }
     else {
-        cout << "Every flag was false" << endl;
+        //cout << "Every flag was false" << endl;
         return false;
     }
 
@@ -3602,7 +3603,7 @@ void parseClient(string buf, Storage& csvData, Storage& csvData1, Storage& csvDa
     string columns;
     string column;
     vector<string> searchInputs;
-    cout <<  buf << endl;
+    cout << buf << endl;
     while (getline(X, columns, ',')) {
         cout << "This is pushed: " << columns << endl;
 
