@@ -1571,11 +1571,11 @@ void searchMostUseTime(vector<vector<string>>& results1, Storage& csvData, vecto
             str2 = to_string(index);
             if (str2.size() == 1)
             {
-                miniVec.push_back(str2 + "                                               ");
+                miniVec.push_back(str2 + "                                         ");//minus 8
             }
             else if (str2.size() == 2)
             {
-                miniVec.push_back(str2 + "                                             ");
+                miniVec.push_back(str2 + "                                           ");//minus 8
             }
             //miniVec.push_back(str2 + "                                             ");//push back the hour
             miniVec.push_back(str1 + " "); //push back the number of occurences for corresponding time - Format of miniVec: 00,15 => hour 00 has 15 occurences
@@ -1631,14 +1631,14 @@ void searchLeastUseTime(vector<vector<string>>& results1, Storage& csvData, vect
             str2 = to_string(index);
             if (str2.size() == 1)
             {
-                miniVec.push_back(str2 + "                                                 ");
+                miniVec.push_back(str2 + "                                           ");//minus 8
             }
             else if (str2.size() == 2)
             {
-                miniVec.push_back(str2 + "                                               ");
+                miniVec.push_back(str2 + "                                         ");//minus 8
             }
             //miniVec.push_back(str2 + "                                                 ");//push back the hour
-            miniVec.push_back(str1 + " "); //push back the number of occurences for corresponding time - Format of miniVec: 00,15 => hour 00 has 15 occurences
+            miniVec.push_back(str1 + "      "); //push back the number of occurences for corresponding time - Format of miniVec: 00,15 => hour 00 has 15 occurences
             if (k < 10) {
                 results1.push_back(miniVec);
             }
@@ -1818,11 +1818,11 @@ void searchMostLoc(vector<vector<string>>& results1, Storage& csvData, vector<st
             }
             str2.insert(0, "-"); //-YY.YY
             str1.append("  ");
-            str2.append("  ");
+            str2.append("                      ");//added 8
             arr1[index] = 0; //set smallest to 1000000 and loop again up to 10 times
             miniVec.push_back(str1);//push back the lat
             miniVec.push_back(str2);//push back the lat
-            miniVec.push_back(str3);//push back the number of occurences for corresponding location
+            miniVec.push_back(str3.append("   "));//push back the number of occurences for corresponding location
             //cout << "We push: " << str1 << " " << str2 << " " << str3 << endl;
             if (k < 10) {
                 results1.push_back(miniVec);
@@ -2001,11 +2001,11 @@ void searchLeastLoc(vector<vector<string>>& results1, Storage& csvData, vector<s
             }
             str2.insert(0, "-"); //-YY.YY
             str1.append("  ");
-            str2.append("  ");
+            str2.append("                      ");//added 5
             arr1[index] = 1000000; //set smallest to 1000000 and loop again up to 10 times
             miniVec.push_back(str1);//push back the lat
             miniVec.push_back(str2);//push back the lat
-            miniVec.push_back(str3);//push back the number of occurences for corresponding location
+            miniVec.push_back(str3.append("        "));//push back the number of occurences for corresponding location
             cout << "We push: " << str1 << " " << str2 << " " << str3 << endl;
             if (k < 10) {
                 results1.push_back(miniVec);
@@ -2068,35 +2068,35 @@ void calculateBusiestDay(vector<vector<string>>& results1, Storage& csvData, vec
             //str2 = to_string(index);
             if (arr1[index].compare("Sunday") == 0)
             {
-                miniVec.push_back(arr1[index] + "                                    ");
+                miniVec.push_back(arr1[index] + "                            ");//minus 8 spaces
             }
             else if (arr1[index].compare("Monday") == 0)
             {
-                miniVec.push_back(arr1[index] + "                                   ");
+                miniVec.push_back(arr1[index] + "                           ");
             }
             else if (arr1[index].compare("Tuesday") == 0)
             {
-                miniVec.push_back(arr1[index] + "                                  ");
+                miniVec.push_back(arr1[index] + "                          ");
             }
             else if (arr1[index].compare("Wednesday") == 0)
             {
-                miniVec.push_back(arr1[index] + "                            ");
+                miniVec.push_back(arr1[index] + "                    ");
             }
             else if (arr1[index].compare("Thursday") == 0)
             {
-                miniVec.push_back(arr1[index] + "                                 ");
+                miniVec.push_back(arr1[index] + "                         ");
             }
             else if (arr1[index].compare("Friday") == 0)
             {
-                miniVec.push_back(arr1[index] + "                                      ");
+                miniVec.push_back(arr1[index] + "                              ");
             }
             else if (arr1[index].compare("Saturday") == 0)
             {
-                miniVec.push_back(arr1[index] + "                                  ");
+                miniVec.push_back(arr1[index] + "                          ");
             }
             else
             {
-                miniVec.push_back(arr1[index] + "                                ");
+                miniVec.push_back(arr1[index] + "                        ");
             }
             //miniVec.push_back(arr1[index] + "                         ");//push back the day
             miniVec.push_back(str1); //push back the number of occurences for corresponding day - Format of miniVec: "Monday","234" => Monday has 234 occurences

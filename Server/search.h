@@ -41,7 +41,7 @@ public:
 };
 
 class Storage {
-	Use data[700000]; // largest file will be 560k entries -set size array size 700k
+	Use data[544000]; // largest file will be 560k entries -set size array size 700k
 	int size = 0; //initial size will be 0
 	int size2 = 0; // keeps track of original size
 	vector <vector<string>> results;
