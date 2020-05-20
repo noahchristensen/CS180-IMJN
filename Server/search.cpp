@@ -202,10 +202,22 @@ void Storage::insertRow(Use& row) { //not sure if passby referrence FIX?
     data[size] = row;
     size++;
     size2++;
-    incCount();
 }; //inserts row into end of data[] increases size by 1 
 
 void Storage::deleteRow(int index) {
+    //Get index values for comparison and update stored results accordingly 
+    vector<string> inputs;
+    string time1;
+    string loc1;
+    time1 = std::to_string(getRow(index).getHour()) + ":" + std::to_string(getRow(index).getMin()); // time now in XX:XX format
+    inputs.push_back(time1);
+    inputs.push_back(getRow(index).getDate());
+    inputs.push_back(getRow(index).getLat());
+    inputs.push_back(getRow(index).getLong());
+    inputs.push_back(getRow(index).getBase());
+    cout << "About to call flagChecks2" << endl;
+    flagChecks2(*this,inputs); // handles incremental analytics after a delete
+    cout << "Back from flagChecks2" << endl;
     data[index].clearUse();
     size--;
     incCount();
@@ -347,17 +359,17 @@ int Parsed::retMin() {
 };
 
 void Parsed::convertToDay() {
-    vector <int> monthDays = { 31,28,31,30,31,30,31,31,30,31,30,31 }; //, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
+    vector <int> monthDays = { 31,28,31,30,31,30,31,31,30,31,30,31, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
  //365 total days first day starts Wednesday last day Wednesday
     int month = std::stoi(mth1); // 1-12
     int day1 = std::stoi(d1); //1-28,30,31
-    //int year1 = std::stoi(yr1); //2014 or 2015
+    int year1 = std::stoi(yr1); //2014 or 2015
     int totDays = 0;
     string dayOfWeek = "";
 
-    /*if (year1 == 2015) {
+    if (year1 == 2015) {
         month = month + 12;
-    }*/
+    }
     for (int i = 0; i < month; i++) {//calculates range of days out of 365
         if (i == month - 1)
         {
@@ -660,11 +672,11 @@ void deleteBase(vector<vector<string>>& results, Storage& csvData, vector<string
 };
 
 void deleteSpecific(vector<vector<string>>& results, Storage& csvData, vector<string>& searchInputs) {
-    csvData.flagChecks2(csvData, searchInputs); // this will handle checking flags and updating any results already calculated.
-    csvData.incCount();
-    if (csvData.checkCount()) {//more than 1000 inputs/deletes. recalculate data
-        csvData.resetCount();
-    }
+    //csvData.flagChecks2(csvData, searchInputs); // this will handle checking flags and updating any results already calculated.
+    //csvData.incCount();
+    //if (csvData.checkCount()) {//more than 1000 inputs/deletes. recalculate data
+    //    csvData.resetCount();
+    //}
     vector<string> miniVec;
     string temp;
     searchInputs.at(4) = "\"" + searchInputs.at(4) + "\"";
@@ -881,22 +893,27 @@ void Storage::flagChecks1(Storage& csvData, vector<string>& insertInputs) { //in
     results1.clear();
     index = 0;
     if (csvData.checkFlag("busiestDay")) {
+        cout << "We are inside the busiest day incremental analysis" << endl;
         string day;
-        stringstream B(insertInputs.at(0));
-        while (getline(B, column, '/')) { //splits hour/min into columns 
+        for (int k = 0; k < insertInputs.size(); k++) {
+            cout << insertInputs.at(k) << endl;
+        }
+        cout << endl;
+        stringstream B(insertInputs.at(1));
+        while (getline(B, column, '/')) { //splits date into month,day and year
             results1.push_back(column);
         }
-        vector <int> monthDays = { 31,28,31,30,31,30,31,31,30,31,30,31 }; //, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
+        vector <int> monthDays = { 31,28,31,30,31,30,31,31,30,31,30,31, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
      //365 total days first day starts Wednesday last day Wednesday
         int month = std::stoi(results1.at(0)); // 1-12
         int day1 = std::stoi(results1.at(1)); //1-28,30,31
-        //int year1 = std::stoi(results1.at(2)); //2014 or 2015
+        int year1 = std::stoi(results1.at(2)); //2014 or 2015
         int totDays = 0;
         string dayOfWeek = "";
 
-        /*if (year1 == 2015) {
+        if (year1 == 2015) {
             month = month + 12;
-        }*/
+        }
         for (int i = 0; i < month; i++) {//calculates range of days out of 365
             if (i == month - 1)
             {
@@ -930,24 +947,29 @@ void Storage::flagChecks1(Storage& csvData, vector<string>& insertInputs) { //in
             day = "Tuesday";
         }
         for (i = 0;i < csvData.getBDay().size();i++) {
+            cout << "Looking at: " << csvData.getBDay().at(i).at(0) << endl;
             if (csvData.getBDay().at(i).at(0).find(day) != string::npos) { // we found the day
+                cout << "We found day in stored results" << endl;
                 num = std::stoi(csvData.getBDay().at(i).at(1));
                 num = num + 1;
+                cout << "New count: " << num << endl;
                 csvData.getBDay().at(i).at(1) = std::to_string(num);
-                if (csvData.getBDay().at(0).at(0).find(day) != string::npos) { //we incremented the largest, do nothing
+                if (csvData.getBDay().at(i).at(0).find(day) != string::npos) { //we incremented the largest, do nothing
                     //nothing
+                    cout << "incremented largest: DO NOTHING" << endl;
                 }
                 else if (std::stoi(csvData.getBDay().at(i + 1).at(1)) > num) { //lower count is bigger: swap
+                    cout << "Lower count is bigger: perform swap" << endl;
                     results1.push_back(csvData.getBDay().at(i).at(0));
                     results1.push_back(csvData.getBDay().at(i).at(1));
-                    
+
                     temp = csvData.getBDay().at(i + 1);
                     csvData.getBDay().at(i + 1) = results1;
                     csvData.getBDay().at(i) = temp;
                 }
             }
             i = csvData.getBDay().size(); // break from this for loop
-        }
+        } cout << "We are out of the for loop" << endl;
     }
 
 
@@ -1149,21 +1171,21 @@ void Storage::flagChecks2(Storage& csvData, vector<string>& insertInputs) { //in
     index = 0;
     if (csvData.checkFlag("busiestDay")) {
         string day;
-        stringstream B(insertInputs.at(0));
+        stringstream B(insertInputs.at(1));
         while (getline(B, column, '/')) { //splits hour/min into columns 
             results1.push_back(column);
         }
-        vector <int> monthDays = { 31,28,31,30,31,30,31,31,30,31,30,31 }; //, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
+        vector <int> monthDays = { 31,28,31,30,31,30,31,31,30,31,30,31, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
     //}; //365 total days first day starts Wednesday last day Wednesday
         int month = std::stoi(results1.at(0)); // 1-12
         int day1 = std::stoi(results1.at(1)); //1-28,30,31
-        //int year1 = std::stoi(results1.at(2)); //2014 or 2015
+        int year1 = std::stoi(results1.at(2)); //2014 or 2015
         int totDays = 0;
         string dayOfWeek = "";
 
-        /*if (year1 == 2015) {
+        if (year1 == 2015) {
             month = month + 12;
-        }*/
+        }
         for (int i = 0; i < month; i++) {//calculates range of days out of 365
             if (i == month - 1)
             {
@@ -1198,13 +1220,17 @@ void Storage::flagChecks2(Storage& csvData, vector<string>& insertInputs) { //in
         }
         for (i = 0;i < csvData.getBDay().size();i++) {
             if (csvData.getBDay().at(i).at(0).find(day) != string::npos) { // we found the day
+                cout << "We found the day: " << csvData.getBDay().at(i).at(0) << endl;
                 num = std::stoi(csvData.getBDay().at(i).at(1));
                 num = num - 1;
+                cout << "New count: " << num << endl;
                 csvData.getBDay().at(i).at(1) = std::to_string(num);
                 if (csvData.getBDay().at(6).at(0).find(day) != string::npos) { //we decremented the smallest, do nothing
+                    cout << "Decremented smallest count: DO NOTHING" << endl;
                     //nothing
                 }
-                else if (std::stoi(csvData.getBDay().at(i + 1).at(1)) > num) { //lower count is bigger: swap
+                else if (std::stoi(csvData.getBDay().at(i + 1).at(1)) > num) { //: swap
+                    cout << "Lower index count is bigger: swap" << endl;
                     results1.push_back(csvData.getBDay().at(i).at(0));
                     results1.push_back(csvData.getBDay().at(i).at(1));
 
@@ -1221,7 +1247,9 @@ void Storage::flagChecks2(Storage& csvData, vector<string>& insertInputs) { //in
 };
 
 void insertData(vector<vector<string>>& results, Storage& csvData, vector<string>& insertInputs) { // pushes new data to end of csvData vector
+    cout << "About to enter flagcheck" << endl;
     csvData.flagChecks1(csvData,insertInputs); // this will handle checking flags and updating any results already calculated.
+    cout << "Back from flagcheck" << endl;
     csvData.incCount();
     if (csvData.checkCount()) {//more than 1000 inputs/deletes. recalculate data
         csvData.resetCount();
@@ -3033,25 +3061,31 @@ bool Storage::checkCount() {
 
 void Storage::setFlag(string arg) { //sets flags for incrementality functionality 
     if (arg == "mostTime") {
+        cout << "Most Time flag set" << endl;
         mTimeFlag = 1;
         return;
     }
     else if (arg == "leastTime") {
+        cout << "Least Time flag set" << endl;
         lTimeFlag = 1;
         return;
     }
     else if (arg == "busiestDay") {
+        cout << "Busiest day flag set" << endl;
         bDayFlag = 1;
         return;
     }
     else if (arg == "mostLoc") {
+        cout << "Most Loc flag set" << endl;
         mLocFlag = 1;
-
+        return;
     }
     else if (arg == "leastLoc") {
+        cout << "Least Loc flag set" << endl;
         lLocFlag = 1;
+        return;
     }
-
+    return;
 };
 
 bool Storage::checkFlag(string arg) { // checks whether passed in flag is raised
@@ -3063,47 +3097,57 @@ bool Storage::checkFlag(string arg) { // checks whether passed in flag is raised
 
     if (arg.find(mt) != string::npos) {
         if (mTimeFlag == 1) {
+            cout << "Most Time flag true" << endl;
             return true;
         }
         else {
+            cout << "Most Time flag was false" << endl;
             return false;
         }
     }
     else if (arg.find(lt) != string::npos) {
         if (lTimeFlag == 1) {
+            cout << "Least Time flag true" << endl;
             return true;
         }
         else {
+            cout << "Least Time flag was false" << endl;
             return false;
         }
     }
     else if (arg.find(bd) != string::npos) {
-        cout << "Compare: " << bDayFlag << " == " << "1" << endl;
+        //cout << "Compare: " << bDayFlag << " == " << "1" << endl;
         if (bDayFlag == 1) {
-            cout << "Check was true" << endl;
+            cout << "Busiest Day flag true" << endl;
             return true;
         }
         else {
+            cout << "Busiest day flag was false" << endl;
             return false;
         }
     }
     else if (arg.find(ml) != string::npos) {
         if (mLocFlag == 1) {
+            cout << "Most Loc flag true" << endl;
             return true;
         }
         else {
+            cout << "Most Loc flag was false" << endl;
             return false;
         }
     }
     else if (arg.find(ll) != string::npos) {
         if (lLocFlag == 1) {
+            cout << "Least Time flag true" << endl;
             return true;
         }
         else {
+            cout << "Least Loc flag was false" << endl;
             return false;
         }
     }
     else {
+        cout << "Every flag was false" << endl;
         return false;
     }
 
