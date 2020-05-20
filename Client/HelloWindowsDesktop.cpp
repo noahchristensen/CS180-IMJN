@@ -102,8 +102,10 @@ HMENU hMenu;
 #define ID_AVERAGE_DATA 51
 
 //Uber Vs Lyft
-#define ID_UVL_SWITCH 80
-#define ID_UVL_CALCULATE 81
+#define ID_UVL_SWITCH_POP 80
+#define ID_UVL_SWITCH_FUNC 81
+#define ID_UVL_CALCULATE 82
+
 
 // Active Vehicles
 #define ID_ACT_NUM_SWITCH 103
@@ -3183,6 +3185,7 @@ HWND hwndCompLatField;
 HWND hwndCompLongField;
 HWND hwndCDataField;
 bool compareMost = true;
+bool compareTime = true;
 
 LRESULT CALLBACK UberVsLyftProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lp)
 {
@@ -3197,7 +3200,7 @@ LRESULT CALLBACK UberVsLyftProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARAM 
     case WM_COMMAND: // when an action happens
         switch (LOWORD(wParam))
         {
-        case ID_UVL_SWITCH:
+        case ID_UVL_SWITCH_POP:
         {
             ::MessageBeep(MB_ICONERROR);
             compareMost = !compareMost;
@@ -3209,6 +3212,26 @@ LRESULT CALLBACK UberVsLyftProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARAM 
             else
             {
                 switchStr = "calculating least";
+            }
+
+            wstring wideSSM = wstring(switchStr.begin(), switchStr.end());
+            const wchar_t* wideCSSM = wideSSM.c_str();
+            SetWindowText(hwndCDataField, wideCSSM);
+
+            break;
+        }
+        case ID_UVL_SWITCH_FUNC:
+        {
+            ::MessageBeep(MB_ICONERROR);
+            compareTime = !compareTime;
+            string switchStr;
+            if (compareTime)
+            {
+                switchStr = "calculating time";
+            }
+            else
+            {
+                switchStr = "calculating location";
             }
 
             wstring wideSSM = wstring(switchStr.begin(), switchStr.end());
@@ -3239,31 +3262,40 @@ LRESULT CALLBACK UberVsLyftProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARAM 
             {
                 if (compareMost)
                 {
-                    strButton = "Press OK to load results by Largest Ratio of Pickups to Active Vehicles";
-                    message = "MostTCompare: ," + strDate + " ,Comparison: ";
+                    strButton = "Press OK to load Date results by Most";
+                    message = "Time: " + strDate + ",Comparison: ,MostTCompare:";
                 }
                 else
                 {
-                    strButton = "Press OK to load results by Smallest Ratio of Pickups to Active Vehicles";
-                    message = "LeastTCompare: ," + strDate + ",Comparison: ";
+                    strButton = "Press OK to load Date results by Least";
+                    message = "Time: " + strDate + ",Comparison: ,LeastTCompare:";
                 }
             }
             else if(!strLat.empty() && !strLong.empty())
             {
                 if (compareMost)
                 {
-                    strButton = "Press OK to load results by Largest Ratio of Pickups to Active Vehicles";
-                    message = "MostLCompare: ," + strLat + " ," + strLong + ",Comparison: ";
+                    strButton = "Press OK to load Location results by Most";
+                    message = "Latitude: " + strLat + ", Longitude: " + strLong + ", Comparison: , LeastLCompare:";
                 }
                 else
                 {
-                    strButton = "Press OK to load results by Smallest Ratio of Pickups to Active Vehicles";
-                    message = "LeastLCompare: ," + strLat + " ," + strLong + ",Comparison: ";
+                    strButton = "Press OK to load Location results by Least";
+                    message = "Latitude: " + strLat + ", Longitude: " + strLong + ", Comparison: , MostLCompare:";
                 }
             }
             else
             {
-                message = "";
+                if (compareTime)
+                {
+                    strButton = "Press OK to load number of entries by Time";
+                    message = "Time: , Comparison: ";
+                }
+                else
+                {
+                    strButton = "Press OK to load number of entries by Location";
+                    message = "Latitude: , Longitude: ,Comparison: ";
+                }
             }
 
             wstring wideSBM = wstring(strButton.begin(), strButton.end());
@@ -3359,9 +3391,9 @@ void DisplayUberVsLyft(HWND hWnd)
         L"Static",  // Predefined class; Unicode assumed //STATIC, Edit
         L"OR",      // Button text 
         WS_VISIBLE | WS_CHILD | SS_CENTER | BS_CENTER,  // Styles 
-        450,         // x position 
+        425,         // x position 
         180,         // y position 
-        200,        // Button width
+        70,        // Button width
         60,        // Button heighth
         hWndCompare,     // Parent window
         NULL,       // No menu.
@@ -3373,7 +3405,7 @@ void DisplayUberVsLyft(HWND hWnd)
         L"Static",  // Predefined class; Unicode assumed //STATIC, Edit
         L"Latitude",      // Button text 
         WS_VISIBLE | WS_CHILD | SS_CENTER | BS_CENTER,  // Styles 
-        700,         // x position 
+        500,         // x position 
         150,         // y position 
         200,        // Button width
         60,        // Button heighth
@@ -3387,7 +3419,7 @@ void DisplayUberVsLyft(HWND hWnd)
         L"Edit",  // Predefined class; Unicode assumed //STATIC, Edit
         L"",      // Button text 
         WS_VISIBLE | WS_CHILD | BS_CENTER | WS_BORDER,  // Styles 
-        700,         // x position 
+        500,         // x position 
         190,         // y position 
         200,        // Button width
         50,        // Button heighth
@@ -3401,7 +3433,7 @@ void DisplayUberVsLyft(HWND hWnd)
         L"Static",  // Predefined class; Unicode assumed //STATIC, Edit
         L"Longitude",      // Button text 
         WS_VISIBLE | WS_CHILD | SS_CENTER | BS_CENTER,  // Styles 
-        1000,         // x position 
+        800,         // x position 
         150,         // y position 
         200,        // Button width
         60,        // Button heighth
@@ -3415,7 +3447,7 @@ void DisplayUberVsLyft(HWND hWnd)
         L"Edit",  // Predefined class; Unicode assumed //STATIC, Edit
         L"",      // Button text 
         WS_VISIBLE | WS_CHILD | BS_CENTER | WS_BORDER,  // Styles 
-        1000,         // x position 
+        800,         // x position 
         190,         // y position 
         200,        // Button width
         50,        // Button heighth
@@ -3425,16 +3457,30 @@ void DisplayUberVsLyft(HWND hWnd)
         NULL
     );      // Pointer not needed.
 
+    HWND hwndSwitchLButton = CreateWindow(
+        L"BUTTON",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"Switch Loc/Time",      // Button text 
+        WS_VISIBLE | WS_CHILD | SS_CENTER | BS_CENTER | ES_MULTILINE | ES_WANTRETURN,  // Styles 
+        1140,         // x position 
+        190,         // y position 
+        200,        // Button width
+        60,        // Button heighth
+        hWndCompare,     // Parent window
+        (HMENU)ID_UVL_SWITCH_FUNC,       // No menu.
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );      // Pointer not needed.
+
     HWND hwndSwitchButton = CreateWindow(
         L"BUTTON",  // Predefined class; Unicode assumed //STATIC, Edit
-        L"Switch",      // Button text 
-        WS_VISIBLE | WS_CHILD | SS_CENTER | BS_CENTER,  // Styles 
+        L"Switch Most/Least",      // Button text 
+        WS_VISIBLE | WS_CHILD | SS_CENTER | BS_CENTER | ES_MULTILINE | ES_WANTRETURN,  // Styles 
         1370,         // x position 
         190,         // y position 
         200,        // Button width
         60,        // Button heighth
         hWndCompare,     // Parent window
-        (HMENU)ID_UVL_SWITCH,       // No menu.
+        (HMENU)ID_UVL_SWITCH_POP,       // No menu.
         (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
         NULL
     );      // Pointer not needed.
