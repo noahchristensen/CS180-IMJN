@@ -19,7 +19,7 @@ void main()
 	//parse the CSV file and put in ParseData
 	//vector<vector<string>> parseData;
 
-	
+
 	vector<string> clientDat; //data from client?
 	vector<vector<string>> searchRes; // search results returned for any request
 	searchRes.clear();
@@ -28,7 +28,7 @@ void main()
 
 	vector<vector<string>> foilStore;
 	foilStore.clear();
-	readFOIL(*ptr, "Uber-Jan-Feb-FOIL.csv", foilStore);
+	/*readFOIL(*ptr, "Uber-Jan-Feb-FOIL.csv", foilStore);*/
 
 	read(*ptr, "uber-raw-data-apr14.csv");
 	cout << "Done Parsing... Server starting..." << endl;

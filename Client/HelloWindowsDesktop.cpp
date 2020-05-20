@@ -101,6 +101,10 @@ HMENU hMenu;
 #define ID_LONGEST_DATA 50
 #define ID_AVERAGE_DATA 51
 
+//Uber Vs Lyft
+#define ID_UVL_SWITCH 80
+#define ID_UVL_CALCULATE 81
+
 // Active Vehicles
 #define ID_ACT_NUM_SWITCH 103
 #define ID_ACT_NUM_CALCULATE 104
@@ -113,46 +117,50 @@ HMENU hMenu;
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
 // declarations
-    void RegisterTimeSearch(HINSTANCE);
-    LRESULT CALLBACK TimeSearchProcedure(HWND, UINT, WPARAM, LPARAM);
-    void DisplayTimeSearch(HWND);
+void RegisterTimeSearch(HINSTANCE);
+LRESULT CALLBACK TimeSearchProcedure(HWND, UINT, WPARAM, LPARAM);
+void DisplayTimeSearch(HWND);
 
-    void RegisterLocationSearch(HINSTANCE);
-    LRESULT CALLBACK LocationSearchProcedure(HWND, UINT, WPARAM, LPARAM);
-    void DisplayLocationSearch(HWND);
+void RegisterLocationSearch(HINSTANCE);
+LRESULT CALLBACK LocationSearchProcedure(HWND, UINT, WPARAM, LPARAM);
+void DisplayLocationSearch(HWND);
 
-    void RegisterModifyData(HINSTANCE);
-    LRESULT CALLBACK ModifyDataProcedure(HWND, UINT, WPARAM, LPARAM);
-    void DisplayModifyData(HWND);
+void RegisterModifyData(HINSTANCE);
+LRESULT CALLBACK ModifyDataProcedure(HWND, UINT, WPARAM, LPARAM);
+void DisplayModifyData(HWND);
 
-    void RegisterDayPopularity(HINSTANCE);
-    LRESULT CALLBACK DayPopularityProcedure(HWND, UINT, WPARAM, LPARAM);
-    void DisplayDayPopularity(HWND);
+void RegisterDayPopularity(HINSTANCE);
+LRESULT CALLBACK DayPopularityProcedure(HWND, UINT, WPARAM, LPARAM);
+void DisplayDayPopularity(HWND);
 
-    void RegisterTimePopularity(HINSTANCE);
-    LRESULT CALLBACK TimePopularityProcedure(HWND, UINT, WPARAM, LPARAM);
-    void DisplayTimePopularity(HWND);
+void RegisterTimePopularity(HINSTANCE);
+LRESULT CALLBACK TimePopularityProcedure(HWND, UINT, WPARAM, LPARAM);
+void DisplayTimePopularity(HWND);
 
-    void RegisterLocationPopularity(HINSTANCE);
-    LRESULT CALLBACK LocationPopularityProcedure(HWND, UINT, WPARAM, LPARAM);
-    void DisplayLocationPopularity(HWND);
+void RegisterLocationPopularity(HINSTANCE);
+LRESULT CALLBACK LocationPopularityProcedure(HWND, UINT, WPARAM, LPARAM);
+void DisplayLocationPopularity(HWND);
 
-    void RegisterActiveVehicles(HINSTANCE);
-    LRESULT CALLBACK ActiveVehiclesProcedure(HWND, UINT, WPARAM, LPARAM);
-    void DisplayActiveVehicles(HWND);
+void RegisterActiveVehicles(HINSTANCE);
+LRESULT CALLBACK ActiveVehiclesProcedure(HWND, UINT, WPARAM, LPARAM);
+void DisplayActiveVehicles(HWND);
 
-    void RegisterTimeInterval(HINSTANCE);
-    LRESULT CALLBACK TimeIntervalProcedure(HWND, UINT, WPARAM, LPARAM);
-    void DisplayTimeInterval(HWND);
+void RegisterTimeInterval(HINSTANCE);
+LRESULT CALLBACK TimeIntervalProcedure(HWND, UINT, WPARAM, LPARAM);
+void DisplayTimeInterval(HWND);
 
-    void RegisterActiveRatio(HINSTANCE);
-    LRESULT CALLBACK ActiveRatioProcedure(HWND, UINT, WPARAM, LPARAM);
-    void DisplayActiveRatio(HWND);
+void RegisterActiveRatio(HINSTANCE);
+LRESULT CALLBACK ActiveRatioProcedure(HWND, UINT, WPARAM, LPARAM);
+void DisplayActiveRatio(HWND);
 
-    // Server Communication
-    string SendRequest(string);
-    string ImportToServer(char* path);
-    string ExportToClient();
+void RegisterUberVsLyft(HINSTANCE);
+LRESULT CALLBACK UberVsLyftProcedure(HWND, UINT, WPARAM, LPARAM);
+void DisplayUberVsLyft(HWND);
+
+// Server Communication
+string SendRequest(string);
+string ImportToServer(char* path);
+string ExportToClient();
 
 
 int CALLBACK WinMain(
@@ -199,6 +207,7 @@ int CALLBACK WinMain(
     RegisterActiveVehicles(hInstance);
     RegisterTimeInterval(hInstance);
     RegisterActiveRatio(hInstance);
+    RegisterUberVsLyft(hInstance);
 
     // Store instance handle in our global variable
     hInst = hInstance;
@@ -228,7 +237,7 @@ int CALLBACK WinMain(
     HWND hwndTitle = CreateWindow(
         L"STATIC",  // Predefined class; Unicode assumed //STATIC, Edit
         L"Uber Data",      // Button text 
-        WS_CHILD | WS_VISIBLE | WS_BORDER |SS_CENTER,  // Styles 
+        WS_CHILD | WS_VISIBLE | WS_BORDER | SS_CENTER,  // Styles 
         850,         // x position(center)
         10,         // y position 
         300,        // Button width
@@ -248,7 +257,7 @@ int CALLBACK WinMain(
         180,        // Button width
         150,        // Button heighth
         hWnd,     // Parent window
-        (HMENU) ID_BUTTON_1,       
+        (HMENU)ID_BUTTON_1,
         (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
         NULL
     );      // Pointer not needed.
@@ -262,7 +271,7 @@ int CALLBACK WinMain(
         180,        // Button width
         150,        // Button heighth
         hWnd,     // Parent window
-        (HMENU)ID_BUTTON_2,       
+        (HMENU)ID_BUTTON_2,
         (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
         NULL
     );      // Pointer not needed.
@@ -276,7 +285,7 @@ int CALLBACK WinMain(
         180,        // Button width
         150,        // Button heighth
         hWnd,     // Parent window
-        (HMENU)ID_BUTTON_3,       
+        (HMENU)ID_BUTTON_3,
         (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
         NULL
     );      // Pointer not needed.
@@ -290,7 +299,7 @@ int CALLBACK WinMain(
         180,        // Button width
         150,        // Button heighth
         hWnd,     // Parent window
-        (HMENU)ID_BUTTON_4,       
+        (HMENU)ID_BUTTON_4,
         (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
         NULL
     );      // Pointer not needed.
@@ -304,7 +313,7 @@ int CALLBACK WinMain(
         180,        // Button width
         150,        // Button heighth
         hWnd,     // Parent window
-        (HMENU)ID_BUTTON_5,      
+        (HMENU)ID_BUTTON_5,
         (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
         NULL
     );      // Pointer not needed.
@@ -318,7 +327,7 @@ int CALLBACK WinMain(
         180,        // Button width
         150,        // Button heighth
         hWnd,     // Parent window
-        (HMENU)ID_BUTTON_6,       
+        (HMENU)ID_BUTTON_6,
         (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
         NULL
     );      // Pointer not needed.
@@ -332,7 +341,7 @@ int CALLBACK WinMain(
         180,        // Button width
         150,        // Button heighth
         hWnd,     // Parent window
-        (HMENU)ID_BUTTON_7,      
+        (HMENU)ID_BUTTON_7,
         (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
         NULL
     );      // Pointer not needed.
@@ -346,7 +355,7 @@ int CALLBACK WinMain(
         180,        // Button width
         150,        // Button heighth
         hWnd,     // Parent window
-        (HMENU)ID_BUTTON_8,       
+        (HMENU)ID_BUTTON_8,
         (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
         NULL
     );      // Pointer not needed.
@@ -421,169 +430,170 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
     switch (message)
     {
-        case WM_PAINT:
-            hdc = BeginPaint(hWnd, &ps);
+    case WM_PAINT:
+        hdc = BeginPaint(hWnd, &ps);
 
-            // Here application is laid out.
-            TextOut(hdc,
-                5, 5,
-                greeting, _tcslen(greeting));
-            // End application-specific layout section.
+        // Here application is laid out.
+        TextOut(hdc,
+            5, 5,
+            greeting, _tcslen(greeting));
+        // End application-specific layout section.
 
-            EndPaint(hWnd, &ps);
+        EndPaint(hWnd, &ps);
+
+        break;
+    case WM_CREATE:
+    {
+        hMenu = CreateMenu();
+        HMENU hFileMenu = CreateMenu();
+
+        string importS = "Import";
+        wstring wideSIM = wstring(importS.begin(), importS.end());
+        const wchar_t* wideCIM = wideSIM.c_str();
+        string exportS = "Export";
+        wstring wideSEM = wstring(exportS.begin(), exportS.end());
+        const wchar_t* wideCEM = wideSEM.c_str();
+
+        AppendMenu(hMenu, MF_STRING, ID_DATA_IMPORT, wideCIM);
+        AppendMenu(hMenu, MF_STRING, ID_DATA_EXPORT, wideCEM);
+
+        SetMenu(hWnd, hMenu);
+
+        break;
+    }
+    case WM_COMMAND: // when an action happens
+        switch (LOWORD(wParam))
+        {
+        case ID_BUTTON_1:
+            //::MessageBeep(MB_ICONERROR);
+            //::MessageBox(hWnd, TEXT("Modify the Data not yet implemented"), TEXT("CS180 Project"), MB_OK);
+            DisplayModifyData(hWnd);
+
+            //SendRequest();
 
             break;
-        case WM_CREATE:
+        case ID_BUTTON_2:
+            //::MessageBox(hWnd, TEXT("Search by Time was clicked"), TEXT("CS180 Project"), MB_OK);
+
+            DisplayTimeSearch(hWnd);
+            //SendRequest();
+
+            break;
+        case ID_BUTTON_3:
+            //::MessageBeep(MB_ICONERROR);
+            //::MessageBox(hWnd, TEXT("Search by Location not yet implemented"), TEXT("CS180 Project"), MB_OK);
+            DisplayLocationSearch(hWnd);
+
+            //SendRequest();
+
+            break;
+        case ID_BUTTON_4:
+            //::MessageBeep(MB_ICONERROR);
+            //::MessageBox(hWnd, TEXT("Time Between Pickups not yet implemented"), TEXT("CS180 Project"), MB_OK);
+
+            DisplayDayPopularity(hWnd);
+            //SendRequest();
+
+            break;
+        case ID_BUTTON_5:
+            //::MessageBeep(MB_ICONERROR);
+            //::MessageBox(hWnd, TEXT("Search Active Vehicles not yet implemented"), TEXT("CS180 Project"), MB_OK);
+
+            DisplayTimePopularity(hWnd);
+            //SendRequest();
+
+            break;
+        case ID_BUTTON_6:
+            //::MessageBeep(MB_ICONERROR);
+            //::MessageBox(hWnd, TEXT("Ratio for Pickups not yet implemented"), TEXT("CS180 Project"), MB_OK);
+
+            DisplayLocationPopularity(hWnd);
+            //SendRequest();
+
+            break;
+        case ID_BUTTON_7:
+            //::MessageBeep(MB_ICONERROR);
+            //::MessageBox(hWnd, TEXT("Two App Comparison not yet implemented"), TEXT("CS180 Project"), MB_OK);
+            DisplayActiveVehicles(hWnd);
+
+            //SendRequest();
+
+            break;
+        case ID_BUTTON_8:
+            //::MessageBeep(MB_ICONERROR);
+            //::MessageBox(hWnd, TEXT("Busiest Location not yet implemented"), TEXT("CS180 Project"), MB_OK);
+            DisplayActiveRatio(hWnd);
+
+            //SendRequest();
+
+            break;
+        case ID_BUTTON_9:
+            //::MessageBeep(MB_ICONERROR);
+            //::MessageBox(hWnd, TEXT("Busiest Location not yet implemented"), TEXT("CS180 Project"), MB_OK);
+
+            DisplayTimeInterval(hWnd);
+
+            //SendRequest();
+
+            break;
+        case ID_BUTTON_10:
+            //::MessageBeep(MB_ICONERROR);
+            //::MessageBox(hWnd, TEXT("Busiest Location not yet implemented"), TEXT("CS180 Project"), MB_OK);
+            
+            DisplayUberVsLyft(hWnd);
+
+            //SendRequest();
+
+            break;
+
+        case ID_DATA_IMPORT:
         {
-            hMenu = CreateMenu();
-            HMENU hFileMenu = CreateMenu();
 
-            string importS = "Import";
-            wstring wideSIM = wstring(importS.begin(), importS.end());
-            const wchar_t* wideCIM = wideSIM.c_str();
-            string exportS = "Export";
-            wstring wideSEM = wstring(exportS.begin(), exportS.end());
-            const wchar_t* wideCEM = wideSEM.c_str();
+            OPENFILENAME ofn;
 
-            AppendMenu(hMenu, MF_STRING, ID_DATA_IMPORT, wideCIM);
-            AppendMenu(hMenu, MF_STRING, ID_DATA_EXPORT, wideCEM);
+            char fileNameC[100];
+            size_t size = strlen(fileNameC) + 1;
+            wchar_t* fileName = new wchar_t[100];
 
-            SetMenu(hWnd, hMenu);
+            ZeroMemory(&ofn, sizeof(OPENFILENAME));
+
+            ofn.lStructSize = sizeof(OPENFILENAME);
+            ofn.hwndOwner = hWnd;
+            ofn.lpstrFile = fileName;
+            ofn.lpstrFile[0] = '\0';
+            ofn.nMaxFile = 100;
+            //ofn.lpstrFilter = filter;
+            ofn.nFilterIndex = 1;
+
+            GetOpenFileName(&ofn);
+
+            MessageBox(NULL, ofn.lpstrFile, TEXT("CS180 Project - File Path"), MB_OK);
+
+            wcstombs(fileNameC, ofn.lpstrFile, 100);
+
+            string serverMessage = ImportToServer(fileNameC);
+            wstring wideSM = wstring(serverMessage.begin(), serverMessage.end());
+            const wchar_t* wideCSM = wideSM.c_str();
+            ::MessageBox(hWnd, wideCSM, TEXT("CS180 Project - Server Response"), MB_OK);
 
             break;
         }
-        case WM_COMMAND: // when an action happens
-                switch(LOWORD(wParam))
-                {
-                    case ID_BUTTON_1:
-                        //::MessageBeep(MB_ICONERROR);
-                        //::MessageBox(hWnd, TEXT("Modify the Data not yet implemented"), TEXT("CS180 Project"), MB_OK);
-                        DisplayModifyData(hWnd);
+        case ID_DATA_EXPORT:
+            string serverMessage = ExportToClient();
+            wstring wideSM = wstring(serverMessage.begin(), serverMessage.end());
+            const wchar_t* wideCSM = wideSM.c_str();
+            ::MessageBox(hWnd, wideCSM, TEXT("CS180 Project - Server Response"), MB_OK);
 
-                        //SendRequest();
-
-                        break;
-                    case ID_BUTTON_2:
-                        //::MessageBox(hWnd, TEXT("Search by Time was clicked"), TEXT("CS180 Project"), MB_OK);
-
-                        DisplayTimeSearch(hWnd);
-                        //SendRequest();
-
-                        break;
-                    case ID_BUTTON_3:
-                        //::MessageBeep(MB_ICONERROR);
-                        //::MessageBox(hWnd, TEXT("Search by Location not yet implemented"), TEXT("CS180 Project"), MB_OK);
-                        DisplayLocationSearch(hWnd);
-
-                        //SendRequest();
-
-                        break;
-                    case ID_BUTTON_4:
-                        //::MessageBeep(MB_ICONERROR);
-                        //::MessageBox(hWnd, TEXT("Time Between Pickups not yet implemented"), TEXT("CS180 Project"), MB_OK);
-
-                        DisplayDayPopularity(hWnd);
-                        //SendRequest();
-
-                        break;
-                    case ID_BUTTON_5:
-                        //::MessageBeep(MB_ICONERROR);
-                        //::MessageBox(hWnd, TEXT("Search Active Vehicles not yet implemented"), TEXT("CS180 Project"), MB_OK);
-
-                        DisplayTimePopularity(hWnd);
-                        //SendRequest();
-
-                        break;
-                    case ID_BUTTON_6:
-                        //::MessageBeep(MB_ICONERROR);
-                        //::MessageBox(hWnd, TEXT("Ratio for Pickups not yet implemented"), TEXT("CS180 Project"), MB_OK);
-
-                        DisplayLocationPopularity(hWnd);
-                        //SendRequest();
-
-                        break;
-                    case ID_BUTTON_7:
-                        //::MessageBeep(MB_ICONERROR);
-                        //::MessageBox(hWnd, TEXT("Two App Comparison not yet implemented"), TEXT("CS180 Project"), MB_OK);
-                        DisplayActiveVehicles(hWnd);
-
-                        //SendRequest();
-
-                        break;
-                    case ID_BUTTON_8:
-                        //::MessageBeep(MB_ICONERROR);
-                        //::MessageBox(hWnd, TEXT("Busiest Location not yet implemented"), TEXT("CS180 Project"), MB_OK);
-                        DisplayActiveRatio(hWnd);
-
-                        //SendRequest();
-
-                        break;
-                    case ID_BUTTON_9:
-                        //::MessageBeep(MB_ICONERROR);
-                        //::MessageBox(hWnd, TEXT("Busiest Location not yet implemented"), TEXT("CS180 Project"), MB_OK);
-
-                        DisplayTimeInterval(hWnd);
-
-                        //SendRequest();
-
-                        break;
-                    case ID_BUTTON_10:
-                        //::MessageBeep(MB_ICONERROR);
-                        //::MessageBox(hWnd, TEXT("Busiest Location not yet implemented"), TEXT("CS180 Project"), MB_OK);
-                        //DisplayActiveRatio(hWnd);
-
-                        //SendRequest();
-
-                        break;
-
-                    case ID_DATA_IMPORT:
-                    {
-
-                        OPENFILENAME ofn;
-
-                        char fileNameC[100];
-                        size_t size = strlen(fileNameC) + 1;
-                        wchar_t* fileName = new wchar_t[100];
-
-                        ZeroMemory(&ofn, sizeof(OPENFILENAME));
-
-                        ofn.lStructSize = sizeof(OPENFILENAME);
-                        ofn.hwndOwner = hWnd;
-                        ofn.lpstrFile = fileName;
-                        ofn.lpstrFile[0] = '\0';
-                        ofn.nMaxFile = 100;
-                        //ofn.lpstrFilter = filter;
-                        ofn.nFilterIndex = 1;
-
-                        GetOpenFileName(&ofn);
-
-                        MessageBox(NULL, ofn.lpstrFile, TEXT("CS180 Project - File Path"), MB_OK);
-
-                        wcstombs(fileNameC, ofn.lpstrFile, 100);
-
-                        string serverMessage = ImportToServer(fileNameC);
-                        wstring wideSM = wstring(serverMessage.begin(), serverMessage.end());
-                        const wchar_t* wideCSM = wideSM.c_str();
-                        ::MessageBox(hWnd, wideCSM, TEXT("CS180 Project - Server Response"), MB_OK);
-
-                        break;
-                    }
-                    case ID_DATA_EXPORT:
-                        string serverMessage = ExportToClient();
-                        wstring wideSM = wstring(serverMessage.begin(), serverMessage.end());
-                        const wchar_t* wideCSM = wideSM.c_str();
-                        ::MessageBox(hWnd, wideCSM, TEXT("CS180 Project - Server Response"), MB_OK);
-
-                        break;
-                }
-                break;
             break;
-        case WM_DESTROY:
-            PostQuitMessage(0);
-            break;
-        default:
-            return DefWindowProc(hWnd, message, wParam, lParam);
-            break;
+        }
+        break;
+        break;
+    case WM_DESTROY:
+        PostQuitMessage(0);
+        break;
+    default:
+        return DefWindowProc(hWnd, message, wParam, lParam);
+        break;
     }
 
     return 0;
@@ -614,81 +624,81 @@ LRESULT CALLBACK TimeSearchProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARAM 
 {
     switch (msg)
     {
-        case WM_CLOSE:
-            DestroyWindow(hWnd);
-            break;
-        case WM_COMMAND: // when an action happens
-            switch (LOWORD(wParam))
+    case WM_CLOSE:
+        DestroyWindow(hWnd);
+        break;
+    case WM_COMMAND: // when an action happens
+        switch (LOWORD(wParam))
+        {
+        case ID_TIMESEARCH_BUTTON:
+            wchar_t hourText[20];
+            GetWindowText(hwndTimeField, hourText, 10);
+            wchar_t dayText[20];
+            GetWindowText(hwndDayField, dayText, 10);
+            wchar_t sortText[20];
+            GetWindowText(hwndSortField, sortText, 10);
+
+            string strButton = "Now Loading";
+            wstring wideSBM = wstring(strButton.begin(), strButton.end());
+            const wchar_t* wideCSBM = wideSBM.c_str();
+            ::MessageBox(hWnd, wideCSBM, TEXT("CS180 Project - Loading Data"), MB_OK);
+
+            wstring wsHour(hourText);
+            string strHour(wsHour.begin(), wsHour.end());
+            wstring wsDay(dayText);
+            string strDay(wsDay.begin(), wsDay.end());
+            string strTime = "Time: ";
+            strTime = strTime.append(strHour);
+            strTime = strTime.append(",Date: ");
+            strTime = strTime.append(strDay);
+            strTime = strTime.append(",Latitude: ,Longitude: ,Base: ,Sort: ,Search");
+            //"Time: 0:11,Date: 4/1/2014,Latitude: ,Longitude: ,Base: ,Sort: ,Search ";
+            //SendRequest(strTime);
+            //wstring wsSort(sortText);
+            //string strSort(wsSort.begin(), wsSort.end());
+
+            vector<string> miniVec;
+
+            //Server Response
+            string serverMessage = SendRequest(strTime);
+            string searchComplete;
+            if (serverMessage.compare("unable to connect to server") != 0)
             {
-            case ID_TIMESEARCH_BUTTON:
-                wchar_t hourText[20];
-                GetWindowText(hwndTimeField, hourText, 10);
-                wchar_t dayText[20];
-                GetWindowText(hwndDayField, dayText, 10);
-                wchar_t sortText[20];
-                GetWindowText(hwndSortField, sortText, 10);
-
-                string strButton = "Now Loading";
-                wstring wideSBM = wstring(strButton.begin(), strButton.end());
-                const wchar_t* wideCSBM = wideSBM.c_str();
-                ::MessageBox(hWnd, wideCSBM, TEXT("CS180 Project - Loading Data"), MB_OK);
-
-                wstring wsHour(hourText);
-                string strHour(wsHour.begin(), wsHour.end());
-                wstring wsDay(dayText);
-                string strDay(wsDay.begin(), wsDay.end());
-                string strTime = "Time: ";
-                strTime = strTime.append(strHour);
-                strTime = strTime.append(",Date: ");
-                strTime = strTime.append(strDay);
-                strTime = strTime.append(",Latitude: ,Longitude: ,Base: ,Sort: ,Search");
-                //"Time: 0:11,Date: 4/1/2014,Latitude: ,Longitude: ,Base: ,Sort: ,Search ";
-                //SendRequest(strTime);
-                //wstring wsSort(sortText);
-                //string strSort(wsSort.begin(), wsSort.end());
-
-                vector<string> miniVec;
-
-                //Server Response
-                string serverMessage = SendRequest(strTime);
-                string searchComplete;
-                if (serverMessage.compare("unable to connect to server") != 0)
-                {
-                    searchComplete = "Search Completed";
-                }
-                else
-                {
-                    searchComplete = "unable to connect to server";
-                }
-
-                wstring wideSSM = wstring(searchComplete.begin(), searchComplete.end());
-                const wchar_t* wideCSSM = wideSSM.c_str();
-                ::MessageBox(hWnd, wideCSSM, TEXT("CS180 Project - Server Response"), MB_OK);
-
-                wstring wideSM = wstring(serverMessage.begin(), serverMessage.end());
-                const wchar_t* wideCSM = wideSM.c_str();
-
-                HWND hwndSearchData = CreateWindow(
-                    L"EDIT",  // Predefined class; Unicode assumed //STATIC, Edit
-                    L"",      // Button text 
-                    WS_VISIBLE | WS_CHILD | WS_BORDER | ES_MULTILINE | ES_WANTRETURN | WS_VSCROLL,  // Styles 
-                    50,         // x position 
-                    200,         // y position 
-                    350,        // Button width
-                    800,        // Button heighth
-                    hWnd,     // Parent window
-                    (HMENU)ID_TIMESEARCH_DATA,
-                    (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
-                    NULL
-                );
-
-                SetWindowText(hwndSearchData, wideCSM);
-
-                break;
+                searchComplete = "Search Completed";
             }
+            else
+            {
+                searchComplete = "unable to connect to server";
+            }
+
+            wstring wideSSM = wstring(searchComplete.begin(), searchComplete.end());
+            const wchar_t* wideCSSM = wideSSM.c_str();
+            ::MessageBox(hWnd, wideCSSM, TEXT("CS180 Project - Server Response"), MB_OK);
+
+            wstring wideSM = wstring(serverMessage.begin(), serverMessage.end());
+            const wchar_t* wideCSM = wideSM.c_str();
+
+            HWND hwndSearchData = CreateWindow(
+                L"EDIT",  // Predefined class; Unicode assumed //STATIC, Edit
+                L"",      // Button text 
+                WS_VISIBLE | WS_CHILD | WS_BORDER | ES_MULTILINE | ES_WANTRETURN | WS_VSCROLL,  // Styles 
+                50,         // x position 
+                200,         // y position 
+                350,        // Button width
+                800,        // Button heighth
+                hWnd,     // Parent window
+                (HMENU)ID_TIMESEARCH_DATA,
+                (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+                NULL
+            );
+
+            SetWindowText(hwndSearchData, wideCSM);
+
             break;
-        default:
-            return DefWindowProcW(hWnd, msg, wParam, lp);
+        }
+        break;
+    default:
+        return DefWindowProcW(hWnd, msg, wParam, lp);
     }
 }
 
@@ -728,7 +738,7 @@ void DisplayTimeSearch(HWND hWnd)
         400,        // Button width
         50,        // Button heighth
         hWndSearch,     // Parent window
-        (HMENU)ID_TIMESEARCH_TIME,       
+        (HMENU)ID_TIMESEARCH_TIME,
         (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
         NULL
     );      // Pointer not needed.
@@ -756,7 +766,7 @@ void DisplayTimeSearch(HWND hWnd)
         400,        // Button width
         50,        // Button heighth
         hWndSearch,     // Parent window
-        (HMENU)ID_TIMESEARCH_DAY,       
+        (HMENU)ID_TIMESEARCH_DAY,
         (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
         NULL
     );      // Pointer not needed.
@@ -770,7 +780,7 @@ void DisplayTimeSearch(HWND hWnd)
         400,        // Button width
         50,        // Button heighth
         hWndSearch,     // Parent window
-        NULL,       
+        NULL,
         (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
         NULL
     );      // Pointer not needed.
@@ -784,7 +794,7 @@ void DisplayTimeSearch(HWND hWnd)
         400,        // Button width
         50,        // Button heighth
         hWndSearch,     // Parent window
-        (HMENU)ID_TIMESEARCH_SORT,       
+        (HMENU)ID_TIMESEARCH_SORT,
         (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
         NULL
     );      // Pointer not needed.
@@ -798,21 +808,21 @@ void DisplayTimeSearch(HWND hWnd)
         100,        // Button width
         100,        // Button heighth
         hWndSearch,     // Parent window
-        (HMENU)ID_TIMESEARCH_BUTTON,       
+        (HMENU)ID_TIMESEARCH_BUTTON,
         (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
         NULL
     );      // Pointer not needed.
 
     /*HWND hwndSearchData = CreateWindow(
         L"EDIT",  // Predefined class; Unicode assumed //STATIC, Edit
-        L"",      // Button text 
-        WS_VISIBLE | WS_CHILD | WS_BORDER,  // Styles 
-        50,         // x position 
-        200,         // y position 
+        L"",      // Button text
+        WS_VISIBLE | WS_CHILD | WS_BORDER,  // Styles
+        50,         // x position
+        200,         // y position
         1500,        // Button width
         800,        // Button heighth
         hWndSearch,     // Parent window
-        (HMENU)ID_SEARCH_DATA,       
+        (HMENU)ID_SEARCH_DATA,
         (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
         NULL
     );      // Pointer not needed.*/
@@ -1096,161 +1106,161 @@ LRESULT CALLBACK ModifyDataProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARAM 
     case WM_COMMAND: // when an action happens
         switch (LOWORD(wParam))
         {
-            case ID_ADD_BUTTON:
+        case ID_ADD_BUTTON:
+        {
+            wchar_t dateText[20];
+            wchar_t timeText[20];
+            wchar_t latText[20];
+            wchar_t longText[20];
+            wchar_t baseText[20];
+
+            GetWindowText(hwndAddDateField, dateText, 10);
+            GetWindowText(hwndAddTimeField, timeText, 10);
+            GetWindowText(hwndAddLatField, latText, 10);
+            GetWindowText(hwndAddLongField, longText, 10);
+            GetWindowText(hwndAddBaseField, baseText, 10);
+
+            wstring wsHour(timeText);
+            string strHour(wsHour.begin(), wsHour.end());
+            wstring wsDay(dateText);
+            string strDay(wsDay.begin(), wsDay.end());
+            wstring wsLat(latText);
+            string strLat(wsLat.begin(), wsLat.end());
+            wstring wsLong(longText);
+            string strLong(wsLong.begin(), wsLong.end());
+            wstring wsBase(baseText);
+            string strBase(wsBase.begin(), wsBase.end());
+            string strMod = "Time: ";
+            strMod = strMod.append(strHour);
+            strMod = strMod.append(",Date: ");
+            strMod = strMod.append(strDay);
+            strMod = strMod.append(",Latitude: ");
+            strMod = strMod.append(strLat);
+            strMod = strMod.append(",Longitude: ");
+            strMod = strMod.append(strLong);
+            strMod = strMod.append(",Base: ");
+            strMod = strMod.append(strBase);
+            strMod = strMod.append(" ,Insert");
+            //"Time: 0:11,Date: 4/1/2014,Latitude: ,Longitude: ,Base: ,Sort: ,Search ";
+
+            string serverMessage = SendRequest(strMod);
+            if (serverMessage.compare("unable to connect to server") != 0)
             {
-                wchar_t dateText[20];
-                wchar_t timeText[20];
-                wchar_t latText[20];
-                wchar_t longText[20];
-                wchar_t baseText[20];
-
-                GetWindowText(hwndAddDateField, dateText, 10);
-                GetWindowText(hwndAddTimeField, timeText, 10);
-                GetWindowText(hwndAddLatField, latText, 10);
-                GetWindowText(hwndAddLongField, longText, 10);
-                GetWindowText(hwndAddBaseField, baseText, 10);
-
-                wstring wsHour(timeText);
-                string strHour(wsHour.begin(), wsHour.end());
-                wstring wsDay(dateText);
-                string strDay(wsDay.begin(), wsDay.end());
-                wstring wsLat(latText);
-                string strLat(wsLat.begin(), wsLat.end());
-                wstring wsLong(longText);
-                string strLong(wsLong.begin(), wsLong.end());
-                wstring wsBase(baseText);
-                string strBase(wsBase.begin(), wsBase.end());
-                string strMod = "Time: ";
-                strMod = strMod.append(strHour);
-                strMod = strMod.append(",Date: ");
-                strMod = strMod.append(strDay);
-                strMod = strMod.append(",Latitude: ");
-                strMod = strMod.append(strLat);
-                strMod = strMod.append(",Longitude: ");
-                strMod = strMod.append(strLong);
-                strMod = strMod.append(",Base: ");
-                strMod = strMod.append(strBase);
-                strMod = strMod.append(" ,Insert");
-                //"Time: 0:11,Date: 4/1/2014,Latitude: ,Longitude: ,Base: ,Sort: ,Search ";
-
-                string serverMessage = SendRequest(strMod);
-                if (serverMessage.compare("unable to connect to server") != 0)
-                {
-                    serverMessage = "Success! Data Added";
-                }
-
-                wstring wideSM = wstring(serverMessage.begin(), serverMessage.end());
-                const wchar_t* wideCSM = wideSM.c_str();
-                ::MessageBox(hWnd, wideCSM, TEXT("CS180 Project - Server Response"), MB_OK);
-                break;
+                serverMessage = "Success! Data Added";
             }
-            case ID_DEL_BUTTON:
+
+            wstring wideSM = wstring(serverMessage.begin(), serverMessage.end());
+            const wchar_t* wideCSM = wideSM.c_str();
+            ::MessageBox(hWnd, wideCSM, TEXT("CS180 Project - Server Response"), MB_OK);
+            break;
+        }
+        case ID_DEL_BUTTON:
+        {
+            wchar_t dateText[20];
+            wchar_t timeText[20];
+            wchar_t latText[20];
+            wchar_t longText[20];
+            wchar_t baseText[20];
+            GetWindowText(hwndDelDateField, dateText, 10);
+            GetWindowText(hwndDelTimeField, timeText, 10);
+            GetWindowText(hwndDelLatField, latText, 10);
+            GetWindowText(hwndDelLongField, longText, 10);
+            GetWindowText(hwndDelBaseField, baseText, 10);
+            wstring wsHour(timeText);
+            string strHour(wsHour.begin(), wsHour.end());
+            wstring wsDay(dateText);
+            string strDay(wsDay.begin(), wsDay.end());
+            wstring wsLat(latText);
+            string strLat(wsLat.begin(), wsLat.end());
+            wstring wsLong(longText);
+            string strLong(wsLong.begin(), wsLong.end());
+            wstring wsBase(baseText);
+            string strBase(wsBase.begin(), wsBase.end());
+            string strMod = "Time: ";
+            strMod = strMod.append(strHour);
+            strMod = strMod.append(",Date: ");
+            strMod = strMod.append(strDay);
+            strMod = strMod.append(",Latitude: ");
+            strMod = strMod.append(strLat);
+            strMod = strMod.append(",Longitude: ");
+            strMod = strMod.append(strLong);
+            strMod = strMod.append(",Base: ");
+            strMod = strMod.append(strBase);
+            //"Time: 0:11,Date: 4/1/2014,Latitude: ,Longitude: ,Base: ,Sort: ,Search ";
+            strMod = strMod.append(" ,Delete");
+
+            string serverMessage = SendRequest(strMod);
+            if (serverMessage.compare("unable to connect to server") != 0)
             {
-                wchar_t dateText[20];
-                wchar_t timeText[20];
-                wchar_t latText[20];
-                wchar_t longText[20];
-                wchar_t baseText[20];
-                GetWindowText(hwndDelDateField, dateText, 10);
-                GetWindowText(hwndDelTimeField, timeText, 10);
-                GetWindowText(hwndDelLatField, latText, 10);
-                GetWindowText(hwndDelLongField, longText, 10);
-                GetWindowText(hwndDelBaseField, baseText, 10);
-                wstring wsHour(timeText);
-                string strHour(wsHour.begin(), wsHour.end());
-                wstring wsDay(dateText);
-                string strDay(wsDay.begin(), wsDay.end());
-                wstring wsLat(latText);
-                string strLat(wsLat.begin(), wsLat.end());
-                wstring wsLong(longText);
-                string strLong(wsLong.begin(), wsLong.end());
-                wstring wsBase(baseText);
-                string strBase(wsBase.begin(), wsBase.end());
-                string strMod = "Time: ";
-                strMod = strMod.append(strHour);
-                strMod = strMod.append(",Date: ");
-                strMod = strMod.append(strDay);
-                strMod = strMod.append(",Latitude: ");
-                strMod = strMod.append(strLat);
-                strMod = strMod.append(",Longitude: ");
-                strMod = strMod.append(strLong);
-                strMod = strMod.append(",Base: ");
-                strMod = strMod.append(strBase);
-                //"Time: 0:11,Date: 4/1/2014,Latitude: ,Longitude: ,Base: ,Sort: ,Search ";
-                strMod = strMod.append(" ,Delete");
-
-                string serverMessage = SendRequest(strMod);
-                if (serverMessage.compare("unable to connect to server") != 0)
-                {
-                    serverMessage = "Success! Data Deleted";
-                }
-
-                wstring wideSM = wstring(serverMessage.begin(), serverMessage.end());
-                const wchar_t* wideCSM = wideSM.c_str();
-                ::MessageBox(hWnd, wideCSM, TEXT("CS180 Project - Server Response"), MB_OK);
-                break;
+                serverMessage = "Success! Data Deleted";
             }
-            case ID_DEL_TIME_BUTTON:
+
+            wstring wideSM = wstring(serverMessage.begin(), serverMessage.end());
+            const wchar_t* wideCSM = wideSM.c_str();
+            ::MessageBox(hWnd, wideCSM, TEXT("CS180 Project - Server Response"), MB_OK);
+            break;
+        }
+        case ID_DEL_TIME_BUTTON:
+        {
+            wchar_t dateText[20];
+            wchar_t timeText[20];
+            GetWindowText(hwndDelTimeDateField, dateText, 10);
+            GetWindowText(hwndDelTimeTimeField, timeText, 10);
+
+            wstring wsHour(timeText);
+            string strHour(wsHour.begin(), wsHour.end());
+            wstring wsDay(dateText);
+            string strDay(wsDay.begin(), wsDay.end());
+            string strMod = "Time: ";
+            strMod = strMod.append(strHour);
+            strMod = strMod.append(",Date: ");
+            strMod = strMod.append(strDay);
+            strMod = strMod.append(",Latitude: ,Longitude: ,Base: ,Sort: ,Delete");
+            //"Time: 0:11,Date: 4/1/2014,Latitude: ,Longitude: ,Base: ,Sort: ,Search ";
+
+            string serverMessage = SendRequest(strMod);
+            if (serverMessage.compare("unable to connect to server") != 0)
             {
-                wchar_t dateText[20];
-                wchar_t timeText[20];
-                GetWindowText(hwndDelTimeDateField, dateText, 10);
-                GetWindowText(hwndDelTimeTimeField, timeText, 10);
-
-                wstring wsHour(timeText);
-                string strHour(wsHour.begin(), wsHour.end());
-                wstring wsDay(dateText);
-                string strDay(wsDay.begin(), wsDay.end());
-                string strMod = "Time: ";
-                strMod = strMod.append(strHour);
-                strMod = strMod.append(",Date: ");
-                strMod = strMod.append(strDay);
-                strMod = strMod.append(",Latitude: ,Longitude: ,Base: ,Sort: ,Delete");
-                //"Time: 0:11,Date: 4/1/2014,Latitude: ,Longitude: ,Base: ,Sort: ,Search ";
-
-                string serverMessage = SendRequest(strMod);
-                if (serverMessage.compare("unable to connect to server") != 0)
-                {
-                    serverMessage = "Success! Data Deleted";
-                }
-
-                wstring wideSM = wstring(serverMessage.begin(), serverMessage.end());
-                const wchar_t* wideCSM = wideSM.c_str();
-                ::MessageBox(hWnd, wideCSM, TEXT("CS180 Project - Server Response"), MB_OK);
-                break;
+                serverMessage = "Success! Data Deleted";
             }
-            case ID_DEL_LOC_BUTTON:
+
+            wstring wideSM = wstring(serverMessage.begin(), serverMessage.end());
+            const wchar_t* wideCSM = wideSM.c_str();
+            ::MessageBox(hWnd, wideCSM, TEXT("CS180 Project - Server Response"), MB_OK);
+            break;
+        }
+        case ID_DEL_LOC_BUTTON:
+        {
+            wchar_t latText[20];
+            wchar_t longText[20];
+            GetWindowText(hwndDelLocLatField, latText, 10);
+            GetWindowText(hwndDelLocLongField, longText, 10);
+
+            wstring wsLat(latText);
+            string strLat(wsLat.begin(), wsLat.end());
+            wstring wsLong(longText);
+            string strLong(wsLong.begin(), wsLong.end());
+
+            string strMod = "Time: ,Date: ";
+            strMod = strMod.append(",Latitude: ");
+            strMod = strMod.append(strLat);
+            strMod = strMod.append(",Longitude: ");
+            strMod = strMod.append(strLong);
+            strMod = strMod.append(",Base: ,Sort: ,Delete");
+            //"Time: 0:11,Date: 4/1/2014,Latitude: ,Longitude: ,Base: ,Sort: ,Search ";
+
+            string serverMessage = SendRequest(strMod);
+            if (serverMessage.compare("unable to connect to server") != 0)
             {
-                wchar_t latText[20];
-                wchar_t longText[20];
-                GetWindowText(hwndDelLocLatField, latText, 10);
-                GetWindowText(hwndDelLocLongField, longText, 10);
-
-                wstring wsLat(latText);
-                string strLat(wsLat.begin(), wsLat.end());
-                wstring wsLong(longText);
-                string strLong(wsLong.begin(), wsLong.end());
-
-                string strMod = "Time: ,Date: ";
-                strMod = strMod.append(",Latitude: ");
-                strMod = strMod.append(strLat);
-                strMod = strMod.append(",Longitude: ");
-                strMod = strMod.append(strLong);
-                strMod = strMod.append(",Base: ,Sort: ,Delete");
-                //"Time: 0:11,Date: 4/1/2014,Latitude: ,Longitude: ,Base: ,Sort: ,Search ";
-
-                string serverMessage = SendRequest(strMod);
-                if (serverMessage.compare("unable to connect to server") != 0)
-                {
-                    serverMessage = "Success! Data Deleted";
-                }
-
-                wstring wideSM = wstring(serverMessage.begin(), serverMessage.end());
-                const wchar_t* wideCSM = wideSM.c_str();
-                
-                ::MessageBox(hWnd, wideCSM, TEXT("CS180 Project - Server Response"), MB_OK);
-                break;
+                serverMessage = "Success! Data Deleted";
             }
+
+            wstring wideSM = wstring(serverMessage.begin(), serverMessage.end());
+            const wchar_t* wideCSM = wideSM.c_str();
+
+            ::MessageBox(hWnd, wideCSM, TEXT("CS180 Project - Server Response"), MB_OK);
+            break;
+        }
         }
         break;
     default:
@@ -1812,35 +1822,35 @@ LRESULT CALLBACK DayPopularityProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPAR
     case WM_COMMAND: // when an action happens
         switch (LOWORD(wParam))
         {
-            case ID_POP_DAY_BUTTON:
+        case ID_POP_DAY_BUTTON:
 
-                string strButton = "Press OK to load results";
-                wstring wideSBM = wstring(strButton.begin(), strButton.end());
-                const wchar_t* wideCSBM = wideSBM.c_str();
-                ::MessageBox(hWnd, wideCSBM, TEXT("CS180 Project - Loading Data"), MB_OK);
+            string strButton = "Press OK to load results";
+            wstring wideSBM = wstring(strButton.begin(), strButton.end());
+            const wchar_t* wideCSBM = wideSBM.c_str();
+            ::MessageBox(hWnd, wideCSBM, TEXT("CS180 Project - Loading Data"), MB_OK);
 
-                string serverMessage = SendRequest("Search: MostDay: ");
+            string serverMessage = SendRequest("Search: MostDay: ");
 
-                string searchComplete;
-                if (serverMessage.compare("unable to connect to server") != 0)
-                {
-                    searchComplete = "Search Completed";
-                }
-                else
-                {
-                    searchComplete = "unable to connect to server";
-                }
+            string searchComplete;
+            if (serverMessage.compare("unable to connect to server") != 0)
+            {
+                searchComplete = "Search Completed";
+            }
+            else
+            {
+                searchComplete = "unable to connect to server";
+            }
 
-                wstring wideSSM = wstring(searchComplete.begin(), searchComplete.end());
-                const wchar_t* wideCSSM = wideSSM.c_str();
-                ::MessageBox(hWnd, wideCSSM, TEXT("CS180 Project - Server Response"), MB_OK);
+            wstring wideSSM = wstring(searchComplete.begin(), searchComplete.end());
+            const wchar_t* wideCSSM = wideSSM.c_str();
+            ::MessageBox(hWnd, wideCSSM, TEXT("CS180 Project - Server Response"), MB_OK);
 
-                wstring wideSM = wstring(serverMessage.begin(), serverMessage.end());
-                const wchar_t* wideCSM = wideSM.c_str();
+            wstring wideSM = wstring(serverMessage.begin(), serverMessage.end());
+            const wchar_t* wideCSM = wideSM.c_str();
 
-                SetWindowText(hwndDayPopField, wideCSM);
-                SetWindowText(hwndDayUseField, wideCSM);
-                break;
+            SetWindowText(hwndDayPopField, wideCSM);
+            SetWindowText(hwndDayUseField, wideCSM);
+            break;
         }
         break;
     default:
@@ -1956,7 +1966,7 @@ LRESULT CALLBACK TimePopularityProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPA
     switch (msg)
     {
     case WM_ACTIVATE:
-        // timeCalcMost = true;
+        //timeCalcMost = true;
         break;
     case WM_CLOSE:
         DestroyWindow(hWnd);
@@ -1964,63 +1974,63 @@ LRESULT CALLBACK TimePopularityProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPA
     case WM_COMMAND: // when an action happens
         switch (LOWORD(wParam))
         {
-            case ID_POP_TIME_SWITCH:
+        case ID_POP_TIME_SWITCH:
+        {
+            timeCalcMost = !timeCalcMost;
+            string switchStr;
+            if (timeCalcMost)
             {
-                timeCalcMost = !timeCalcMost;
-                string switchStr;
-                if (timeCalcMost)
-                {
-                    switchStr = "Most Popular";
-                }
-                else
-                {
-                    switchStr = "Least Popular";
-                }
-
-                wstring wideSM = wstring(switchStr.begin(), switchStr.end());
-                const wchar_t* wideCSM = wideSM.c_str();
-
-                SetWindowText(hwndTimeSortLabel, wideCSM);
-
-                break;
+                switchStr = "Most Popular";
             }
-            case ID_POP_TIME_BUTTON:
-                string strButton = "Press OK to load results";
-                wstring wideSBM = wstring(strButton.begin(), strButton.end());
-                const wchar_t* wideCSBM = wideSBM.c_str();
-                ::MessageBox(hWnd, wideCSBM, TEXT("CS180 Project - Loading Data"), MB_OK);
+            else
+            {
+                switchStr = "Least Popular";
+            }
 
-                string serverMessage;
-                if (timeCalcMost)
-                {
-                    serverMessage = SendRequest("Search: Mosttime: ");
-                }
-                else
-                {
-                    serverMessage = SendRequest("Search: Leasttime: ");
-                }
+            wstring wideSM = wstring(switchStr.begin(), switchStr.end());
+            const wchar_t* wideCSM = wideSM.c_str();
+
+            SetWindowText(hwndTimeSortLabel, wideCSM);
+
+            break;
+        }
+        case ID_POP_TIME_BUTTON:
+            string strButton = "Press OK to load results";
+            wstring wideSBM = wstring(strButton.begin(), strButton.end());
+            const wchar_t* wideCSBM = wideSBM.c_str();
+            ::MessageBox(hWnd, wideCSBM, TEXT("CS180 Project - Loading Data"), MB_OK);
+
+            string serverMessage;
+            if (timeCalcMost)
+            {
+                serverMessage = SendRequest("Search: Mosttime: ");
+            }
+            else
+            {
+                serverMessage = SendRequest("Search: Leasttime: ");
+            }
 
 
-                string searchComplete;
-                if (serverMessage.compare("unable to connect to server") != 0)
-                {
-                    searchComplete = "Search Completed";
-                }
-                else
-                {
-                    searchComplete = "unable to connect to server";
-                }
+            string searchComplete;
+            if (serverMessage.compare("unable to connect to server") != 0)
+            {
+                searchComplete = "Search Completed";
+            }
+            else
+            {
+                searchComplete = "unable to connect to server";
+            }
 
-                wstring wideSSM = wstring(searchComplete.begin(), searchComplete.end());
-                const wchar_t* wideCSSM = wideSSM.c_str();
-                ::MessageBox(hWnd, wideCSSM, TEXT("CS180 Project - Server Response"), MB_OK);
+            wstring wideSSM = wstring(searchComplete.begin(), searchComplete.end());
+            const wchar_t* wideCSSM = wideSSM.c_str();
+            ::MessageBox(hWnd, wideCSSM, TEXT("CS180 Project - Server Response"), MB_OK);
 
-                wstring wideSM = wstring(serverMessage.begin(), serverMessage.end());
-                const wchar_t* wideCSM = wideSM.c_str();
+            wstring wideSM = wstring(serverMessage.begin(), serverMessage.end());
+            const wchar_t* wideCSM = wideSM.c_str();
 
-                SetWindowText(hwndTimePopField, wideCSM);
-                SetWindowText(hwndTimeUseField, wideCSM);
-                break;
+            SetWindowText(hwndTimePopField, wideCSM);
+            SetWindowText(hwndTimeUseField, wideCSM);
+            break;
         }
         break;
     default:
@@ -2064,7 +2074,7 @@ void DisplayTimePopularity(HWND hWnd)
         100,        // Button width
         40,        // Button heighth
         hWndPopularity,     // Parent window
-        (HMENU) ID_POP_TIME_SWITCH,       // No menu.
+        (HMENU)ID_POP_TIME_SWITCH,       // No menu.
         (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
         NULL
     );      // Pointer not needed.
@@ -2158,63 +2168,63 @@ LRESULT CALLBACK LocationPopularityProcedure(HWND hWnd, UINT msg, WPARAM wParam,
     case WM_COMMAND: // when an action happens
         switch (LOWORD(wParam))
         {
-            case ID_POP_LOC_SWITCH:
+        case ID_POP_LOC_SWITCH:
+        {
+            locCalcMost = !locCalcMost;
+            string switchStr;
+            if (locCalcMost)
             {
-                locCalcMost = !locCalcMost;
-                string switchStr;
-                if (locCalcMost)
-                {
-                    switchStr = "Most Popular";
-                }
-                else
-                {
-                    switchStr = "Least Popular";
-                }
-
-                wstring wideSM = wstring(switchStr.begin(), switchStr.end());
-                const wchar_t* wideCSM = wideSM.c_str();
-
-                SetWindowText(hwndLocSortLabel, wideCSM);
-
-                break;
+                switchStr = "Most Popular";
             }
-            case ID_POP_LOC_BUTTON:
+            else
+            {
+                switchStr = "Least Popular";
+            }
 
-                string strButton = "Press OK to load results";
-                wstring wideSBM = wstring(strButton.begin(), strButton.end());
-                const wchar_t* wideCSBM = wideSBM.c_str();
-                ::MessageBox(hWnd, wideCSBM, TEXT("CS180 Project - Loading Data"), MB_OK);
+            wstring wideSM = wstring(switchStr.begin(), switchStr.end());
+            const wchar_t* wideCSM = wideSM.c_str();
 
-                string serverMessage;
-                if (locCalcMost)
-                {
-                    serverMessage = SendRequest("Search: MostLoc: ");
-                }
-                else
-                {
-                    serverMessage = SendRequest("Search: LeastLoc: ");
-                }
+            SetWindowText(hwndLocSortLabel, wideCSM);
 
-                string searchComplete;
-                if (serverMessage.compare("unable to connect to server") != 0)
-                {
-                    searchComplete = "Search Completed";
-                }
-                else
-                {
-                    searchComplete = "unable to connect to server";
-                }
+            break;
+        }
+        case ID_POP_LOC_BUTTON:
 
-                wstring wideSSM = wstring(searchComplete.begin(), searchComplete.end());
-                const wchar_t* wideCSSM = wideSSM.c_str();
-                ::MessageBox(hWnd, wideCSSM, TEXT("CS180 Project - Server Response"), MB_OK);
+            string strButton = "Press OK to load results";
+            wstring wideSBM = wstring(strButton.begin(), strButton.end());
+            const wchar_t* wideCSBM = wideSBM.c_str();
+            ::MessageBox(hWnd, wideCSBM, TEXT("CS180 Project - Loading Data"), MB_OK);
 
-                wstring wideSM = wstring(serverMessage.begin(), serverMessage.end());
-                const wchar_t* wideCSM = wideSM.c_str();
+            string serverMessage;
+            if (locCalcMost)
+            {
+                serverMessage = SendRequest("Search: MostLoc: ");
+            }
+            else
+            {
+                serverMessage = SendRequest("Search: LeastLoc: ");
+            }
 
-                SetWindowText(hwndLocField, wideCSM);
-                SetWindowText(hwndLocUseField, wideCSM);
-                break;
+            string searchComplete;
+            if (serverMessage.compare("unable to connect to server") != 0)
+            {
+                searchComplete = "Search Completed";
+            }
+            else
+            {
+                searchComplete = "unable to connect to server";
+            }
+
+            wstring wideSSM = wstring(searchComplete.begin(), searchComplete.end());
+            const wchar_t* wideCSSM = wideSSM.c_str();
+            ::MessageBox(hWnd, wideCSSM, TEXT("CS180 Project - Server Response"), MB_OK);
+
+            wstring wideSM = wstring(serverMessage.begin(), serverMessage.end());
+            const wchar_t* wideCSM = wideSM.c_str();
+
+            SetWindowText(hwndLocField, wideCSM);
+            SetWindowText(hwndLocUseField, wideCSM);
+            break;
         }
         break;
     default:
@@ -2258,7 +2268,7 @@ void DisplayLocationPopularity(HWND hWnd)
         100,        // Button width
         40,        // Button heighth
         hWndPopularity,     // Parent window
-        (HMENU) ID_POP_LOC_SWITCH,    
+        (HMENU)ID_POP_LOC_SWITCH,
         (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
         NULL
     );      // Pointer not needed.
@@ -2351,71 +2361,71 @@ LRESULT CALLBACK ActiveVehiclesProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPA
     case WM_COMMAND: // when an action happens
         switch (LOWORD(wParam))
         {
-            case ID_ACT_NUM_SWITCH:
+        case ID_ACT_NUM_SWITCH:
+        {
+            ::MessageBeep(MB_ICONERROR);
+            actVehMost = !actVehMost;
+            string switchStr;
+            if (actVehMost)
             {
-                ::MessageBeep(MB_ICONERROR);
-                actVehMost = !actVehMost;
-                string switchStr;
-                if (actVehMost)
-                {
-                    switchStr = "Switched to order by Most Active Vehicles, press Calculate to see the results";
-                }
-                else
-                {
-                    switchStr = "Switched to order by Least Active Vehicles, press Calculate to see the results";
-                }
-
-                wstring wideSSM = wstring(switchStr.begin(), switchStr.end());
-                const wchar_t* wideCSSM = wideSSM.c_str();
-                SetWindowText(hwndDataField, wideCSSM);
-
-                break;
+                switchStr = "Switched to order by Most Active Vehicles, press Calculate to see the results";
             }
-            case ID_ACT_NUM_CALCULATE:
-                wchar_t dateText[20];
-                GetWindowText(hwndDateField, dateText, 10);
-                wstring wsDate(dateText);
-                string strDate(wsDate.begin(), wsDate.end());
-                string message;
+            else
+            {
+                switchStr = "Switched to order by Least Active Vehicles, press Calculate to see the results";
+            }
+
+            wstring wideSSM = wstring(switchStr.begin(), switchStr.end());
+            const wchar_t* wideCSSM = wideSSM.c_str();
+            SetWindowText(hwndDataField, wideCSSM);
+
+            break;
+        }
+        case ID_ACT_NUM_CALCULATE:
+            wchar_t dateText[20];
+            GetWindowText(hwndDateField, dateText, 10);
+            wstring wsDate(dateText);
+            string strDate(wsDate.begin(), wsDate.end());
+            string message;
 
 
-                string strButton;
-                if (actVehMost)
-                {
-                    strButton = "Press OK to load results by Most Active Vehicles";
-                    message = "MostVehicles: " + strDate + ",Search";
-                }
-                else
-                {
-                    strButton = "Press OK to load results by Least Active Vehicles";
-                    message = "LeastVehicles: " + strDate + ",Search";
-                }
-                wstring wideSBM = wstring(strButton.begin(), strButton.end());
-                const wchar_t* wideCSBM = wideSBM.c_str();
-                ::MessageBox(hWnd, wideCSBM, TEXT("CS180 Project - Loading Data"), MB_OK);
+            string strButton;
+            if (actVehMost)
+            {
+                strButton = "Press OK to load results by Most Active Vehicles";
+                message = "MostVehicles: " + strDate + ",Search";
+            }
+            else
+            {
+                strButton = "Press OK to load results by Least Active Vehicles";
+                message = "LeastVehicles: " + strDate + ",Search";
+            }
+            wstring wideSBM = wstring(strButton.begin(), strButton.end());
+            const wchar_t* wideCSBM = wideSBM.c_str();
+            ::MessageBox(hWnd, wideCSBM, TEXT("CS180 Project - Loading Data"), MB_OK);
 
-                string serverMessage;
-                serverMessage = SendRequest(message);
+            string serverMessage;
+            serverMessage = SendRequest(message);
 
-                string searchComplete;
-                if (serverMessage.compare("unable to connect to server") != 0)
-                {
-                    searchComplete = "Search Completed";
-                }
-                else
-                {
-                    searchComplete = "unable to connect to server";
-                }
+            string searchComplete;
+            if (serverMessage.compare("unable to connect to server") != 0)
+            {
+                searchComplete = "Search Completed";
+            }
+            else
+            {
+                searchComplete = "unable to connect to server";
+            }
 
-                wstring wideSSM = wstring(searchComplete.begin(), searchComplete.end());
-                const wchar_t* wideCSSM = wideSSM.c_str();
-                ::MessageBox(hWnd, wideCSSM, TEXT("CS180 Project - Server Response"), MB_OK);
+            wstring wideSSM = wstring(searchComplete.begin(), searchComplete.end());
+            const wchar_t* wideCSSM = wideSSM.c_str();
+            ::MessageBox(hWnd, wideCSSM, TEXT("CS180 Project - Server Response"), MB_OK);
 
-                wstring wideSM = wstring(serverMessage.begin(), serverMessage.end());
-                const wchar_t* wideCSM = wideSM.c_str();
-                SetWindowText(hwndDataField, wideCSM);
+            wstring wideSM = wstring(serverMessage.begin(), serverMessage.end());
+            const wchar_t* wideCSM = wideSM.c_str();
+            SetWindowText(hwndDataField, wideCSM);
 
-                break;
+            break;
         }
         break;
     default:
@@ -2487,7 +2497,7 @@ void DisplayActiveVehicles(HWND hWnd)
         200,        // Button width
         60,        // Button heighth
         hWndActive,     // Parent window
-        (HMENU) ID_ACT_NUM_CALCULATE,       // No menu.
+        (HMENU)ID_ACT_NUM_CALCULATE,       // No menu.
         (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
         NULL
     );      // Pointer not needed.
@@ -3154,6 +3164,338 @@ void DisplayTimeInterval(HWND hWnd)
     );      // Pointer not needed.
 }
 
+void RegisterUberVsLyft(HINSTANCE hInstance)
+{
+    WNDCLASSW uvl = { 0 };
+
+    uvl.hbrBackground = (HBRUSH)(COLOR_WINDOW);
+    uvl.hCursor = LoadCursor(NULL, IDC_ARROW);
+    uvl.style = CS_HREDRAW | CS_VREDRAW;
+    uvl.hInstance = hInstance;
+    uvl.lpszClassName = L"uberVsLyftClass";
+    uvl.lpfnWndProc = UberVsLyftProcedure;
+
+    RegisterClassW(&uvl);
+}
+
+HWND hwndCompDateField;
+HWND hwndCompLatField;
+HWND hwndCompLongField;
+HWND hwndCDataField;
+bool compareMost = true;
+
+LRESULT CALLBACK UberVsLyftProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lp)
+{
+    switch (msg)
+    {
+    case WM_ACTIVATE:
+        //actVehLargest = true;
+        break;
+    case WM_CLOSE:
+        DestroyWindow(hWnd);
+        break;
+    case WM_COMMAND: // when an action happens
+        switch (LOWORD(wParam))
+        {
+        case ID_UVL_SWITCH:
+        {
+            ::MessageBeep(MB_ICONERROR);
+            compareMost = !compareMost;
+            string switchStr;
+            if (compareMost)
+            {
+                switchStr = "calculating most";
+            }
+            else
+            {
+                switchStr = "calculating least";
+            }
+
+            wstring wideSSM = wstring(switchStr.begin(), switchStr.end());
+            const wchar_t* wideCSSM = wideSSM.c_str();
+            SetWindowText(hwndCDataField, wideCSSM);
+
+            break;
+        }
+        case ID_UVL_CALCULATE:
+            wchar_t dateText[20];
+            GetWindowText(hwndCompDateField, dateText, 10);
+            wstring wsDate(dateText);
+            string strDate(wsDate.begin(), wsDate.end());
+
+            wchar_t latText[20];
+            GetWindowText(hwndCompLatField, latText, 10);
+            wstring wsLat(latText);
+            string strLat(wsLat.begin(), wsLat.end());
+
+            wchar_t longText[20];
+            GetWindowText(hwndCompLongField, longText, 10);
+            wstring wsLong(longText);
+            string strLong(wsLong.begin(), wsLong.end());
+
+            string message;
+            string strButton;
+            if (!strDate.empty())
+            {
+                if (compareMost)
+                {
+                    strButton = "Press OK to load results by Largest Ratio of Pickups to Active Vehicles";
+                    message = "MostTCompare: ," + strDate + " ,Comparison: ";
+                }
+                else
+                {
+                    strButton = "Press OK to load results by Smallest Ratio of Pickups to Active Vehicles";
+                    message = "LeastTCompare: ," + strDate + ",Comparison: ";
+                }
+            }
+            else if(!strLat.empty() && !strLong.empty())
+            {
+                if (compareMost)
+                {
+                    strButton = "Press OK to load results by Largest Ratio of Pickups to Active Vehicles";
+                    message = "MostLCompare: ," + strLat + " ," + strLong + ",Comparison: ";
+                }
+                else
+                {
+                    strButton = "Press OK to load results by Smallest Ratio of Pickups to Active Vehicles";
+                    message = "LeastLCompare: ," + strLat + " ," + strLong + ",Comparison: ";
+                }
+            }
+            else
+            {
+                message = "";
+            }
+
+            wstring wideSBM = wstring(strButton.begin(), strButton.end());
+            const wchar_t* wideCSBM = wideSBM.c_str();
+            ::MessageBox(hWnd, wideCSBM, TEXT("CS180 Project - Loading Data"), MB_OK);
+
+            string serverMessage;
+            serverMessage = SendRequest(message);
+
+            string searchComplete;
+            if (serverMessage.compare("unable to connect to server") != 0)
+            {
+                searchComplete = "Search Completed";
+            }
+            else
+            {
+                searchComplete = "unable to connect to server";
+            }
+
+            wstring wideSSM = wstring(searchComplete.begin(), searchComplete.end());
+            const wchar_t* wideCSSM = wideSSM.c_str();
+            ::MessageBox(hWnd, wideCSSM, TEXT("CS180 Project - Server Response"), MB_OK);
+
+
+            wstring wideSM = wstring(serverMessage.begin(), serverMessage.end());
+            const wchar_t* wideCSM = wideSM.c_str();
+            SetWindowText(hwndCDataField, wideCSM);
+
+            break;
+        }
+        break;
+    default:
+        return DefWindowProcW(hWnd, msg, wParam, lp);
+    }
+}
+
+void DisplayUberVsLyft(HWND hWnd)
+{
+    HWND hWndCompare = CreateWindowW(
+        L"uberVsLyftClass",
+        L"CS180 Project - Active Vehicles vs Pickups",
+        WS_VISIBLE | WS_OVERLAPPEDWINDOW,
+        400, 400, 200, 200,
+        hWnd,
+        NULL,
+        NULL,
+        NULL
+    );
+
+    HWND hwndTitleLabel = CreateWindow(
+        L"Static",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"Active Vehicles vs Pick Ups for a Base ID",      // Button text 
+        WS_VISIBLE | WS_CHILD | SS_CENTER | BS_CENTER | WS_BORDER,  // Styles 
+        800,         // x position 
+        50,         // y position 
+        300,        // Button width
+        60,        // Button heighth
+        hWndCompare,     // Parent window
+        NULL,       // No menu.
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );      // Pointer not needed.
+
+    HWND hwndDateLabel = CreateWindow(
+        L"Static",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"Date",      // Button text 
+        WS_VISIBLE | WS_CHILD | SS_CENTER | BS_CENTER,  // Styles 
+        200,         // x position 
+        150,         // y position 
+        200,        // Button width
+        60,        // Button heighth
+        hWndCompare,     // Parent window
+        NULL,       // No menu.
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );      // Pointer not needed.
+
+    hwndCompDateField = CreateWindow(
+        L"Edit",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"",      // Button text 
+        WS_VISIBLE | WS_CHILD | BS_CENTER | WS_BORDER,  // Styles 
+        200,         // x position 
+        190,         // y position 
+        200,        // Button width
+        50,        // Button heighth
+        hWndCompare,     // Parent window
+        NULL,       // No menu.
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );      // Pointer not needed.
+
+    HWND hwndORLabel = CreateWindow(
+        L"Static",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"OR",      // Button text 
+        WS_VISIBLE | WS_CHILD | SS_CENTER | BS_CENTER,  // Styles 
+        450,         // x position 
+        180,         // y position 
+        200,        // Button width
+        60,        // Button heighth
+        hWndCompare,     // Parent window
+        NULL,       // No menu.
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );      // Pointer not needed.
+
+    HWND hwndLatLabel = CreateWindow(
+        L"Static",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"Latitude",      // Button text 
+        WS_VISIBLE | WS_CHILD | SS_CENTER | BS_CENTER,  // Styles 
+        700,         // x position 
+        150,         // y position 
+        200,        // Button width
+        60,        // Button heighth
+        hWndCompare,     // Parent window
+        NULL,       // No menu.
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );      // Pointer not needed.
+
+    hwndCompLatField = CreateWindow(
+        L"Edit",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"",      // Button text 
+        WS_VISIBLE | WS_CHILD | BS_CENTER | WS_BORDER,  // Styles 
+        700,         // x position 
+        190,         // y position 
+        200,        // Button width
+        50,        // Button heighth
+        hWndCompare,     // Parent window
+        NULL,       // No menu.
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );      // Pointer not needed.
+
+    HWND hwndLongitudeLabel = CreateWindow(
+        L"Static",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"Longitude",      // Button text 
+        WS_VISIBLE | WS_CHILD | SS_CENTER | BS_CENTER,  // Styles 
+        1000,         // x position 
+        150,         // y position 
+        200,        // Button width
+        60,        // Button heighth
+        hWndCompare,     // Parent window
+        NULL,       // No menu.
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );      // Pointer not needed.
+
+    hwndCompLongField = CreateWindow(
+        L"Edit",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"",      // Button text 
+        WS_VISIBLE | WS_CHILD | BS_CENTER | WS_BORDER,  // Styles 
+        1000,         // x position 
+        190,         // y position 
+        200,        // Button width
+        50,        // Button heighth
+        hWndCompare,     // Parent window
+        NULL,       // No menu.
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );      // Pointer not needed.
+
+    HWND hwndSwitchButton = CreateWindow(
+        L"BUTTON",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"Switch",      // Button text 
+        WS_VISIBLE | WS_CHILD | SS_CENTER | BS_CENTER,  // Styles 
+        1370,         // x position 
+        190,         // y position 
+        200,        // Button width
+        60,        // Button heighth
+        hWndCompare,     // Parent window
+        (HMENU)ID_UVL_SWITCH,       // No menu.
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );      // Pointer not needed.
+
+    HWND hwndCalculateButton = CreateWindow(
+        L"BUTTON",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"Calculate",      // Button text 
+        WS_VISIBLE | WS_CHILD | SS_CENTER | BS_CENTER,  // Styles 
+        1600,         // x position 
+        190,         // y position 
+        200,        // Button width
+        60,        // Button heighth
+        hWndCompare,     // Parent window
+        (HMENU)ID_UVL_CALCULATE,       // No menu.
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );      // Pointer not needed.
+
+    HWND hwndUberLabel = CreateWindow(
+        L"Static",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"Uber Data",      // Button text 
+        WS_VISIBLE | WS_CHILD | BS_CENTER,  // Styles 
+        300,         // x position 
+        300,         // y position 
+        200,        // Button width
+        50,        // Button heighth
+        hWndCompare,     // Parent window
+        NULL,       // No menu.
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );      // Pointer not needed.
+
+    HWND hwndLyftLabel = CreateWindow(
+        L"Static",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"Lyft Data",      // Button text 
+        WS_VISIBLE | WS_CHILD | BS_CENTER,  // Styles 
+        800,         // x position 
+        300,         // y position 
+        200,        // Button width
+        50,        // Button heighth
+        hWndCompare,     // Parent window
+        NULL,       // No menu.
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );      // Pointer not needed.
+
+    hwndCDataField = CreateWindow(
+        L"EDIT",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"Enter a Date or Latitude and Longitude and click Calculate to see top results",      // Button text 
+        WS_VISIBLE | WS_CHILD | BS_CENTER | WS_BORDER | ES_MULTILINE | ES_WANTRETURN,  // Styles 
+        200,         // x position 
+        350,         // y position 
+        1100,        // Button width
+        600,        // Button heighth
+        hWndCompare,     // Parent window
+        NULL,       // No menu.
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );      // Pointer not needed.
+}
+
 string SendRequest(string message) // send request to server
 {
     string serverMessage;
@@ -3208,15 +3550,15 @@ string SendRequest(string message) // send request to server
     {
         int serverLength = sizeof(server);
         ZeroMemory(&server, serverLength); // Clear the client structure
-		ZeroMemory(buf, 10000); // Clear the receive buffer
+        ZeroMemory(buf, 10000); // Clear the receive buffer
 
-		// Wait for message from server
-		int bytesIn = recvfrom(out, buf, 10000, 0, (sockaddr*)&server, &serverLength);
-		if (bytesIn == SOCKET_ERROR)
-		{
-			cout << "Error receiving from client " << WSAGetLastError() << endl;
+        // Wait for message from server
+        int bytesIn = recvfrom(out, buf, 10000, 0, (sockaddr*)&server, &serverLength);
+        if (bytesIn == SOCKET_ERROR)
+        {
+            cout << "Error receiving from client " << WSAGetLastError() << endl;
             return "unable to connect to server";
-		}
+        }
     }
 
     // Close the socket
@@ -3228,7 +3570,7 @@ string SendRequest(string message) // send request to server
     return buf;
 }
 
-string ImportToServer(char * path)
+string ImportToServer(char* path)
 {
     string serverMessage;
     // INITIALIZE WINSOCK
@@ -3312,7 +3654,7 @@ string ImportToServer(char * path)
         fin >> line1;   //These two are to format the first column of the csv file
         fin >> line2;
         line1 = line1 + " " + line2; // combines the date column string with the rest of its corresponding row "4/1/2014 + 0:11:00",40.769,-73.9549,"B02512"
-            
+
         string message = line1;
         send(out, message.c_str(), message.size() + 1, 0);
         //ZeroMemory(&message, message.size());
@@ -3474,4 +3816,3 @@ string ExportToClient()
 
     return buf;
 }
-

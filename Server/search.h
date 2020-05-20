@@ -45,6 +45,17 @@ class Storage {
 	int size = 0; //initial size will be 0
 	int size2 = 0; // keeps track of original size
 	vector <vector<string>> results;
+	vector <vector<string>> mostTime; // stores 20 results for incrementality 
+	vector <vector<string>> leastTime;
+	vector <vector<string>> mostLoc;
+	vector <vector<string>> leastLoc;
+	vector <vector<string>> busiestDay;
+	int mTimeFlag = 0; //flags for incrementality 
+	int lTimeFlag = 0;
+	int mLocFlag = 0;
+	int lLocFlag = 0;
+	int bDayFlag = 0;
+	int count = 0; //for inserts and deletes, when 1000 is reached recalculate 
 public:
 	void insertRow(Use& row); //inserts row into end of data[] increases size by 1 
 	void deleteRow(int index); // clears fields of an index object & sets its exists = false
@@ -55,6 +66,18 @@ public:
 	void updateDelData(); //copies data and removes any Use objects that have exist = false
 	void adjustData(int index);
 	vector <vector<string>>& getResults(); // gets vector with results
+	void setFlag(string arg);// pass in string "mostTime", "leastTime","busiestDay","mostLoc","leastLoc"
+	void incCount(); //increments count
+	void resetCount(); // resets count and vectors
+	bool checkCount();//returns true if count== 1000
+	bool checkFlag(string arg); //check if passed in flag is raised
+	void flagChecks1(Storage& csvData, vector<string>& insertInputs);//for inserts
+	void flagChecks2(Storage& csvData, vector<string>& insertInputs);//for deletes
+	vector <vector<string>>& getMTime();
+	vector <vector<string>>& getLTime();
+	vector <vector<string>>& getMLoc();
+	vector <vector<string>>& getLLoc();
+	vector <vector<string>>& getBDay();
 };
 
 class Parsed {
