@@ -194,6 +194,7 @@ void Use::clearUse() {
     longitude = "";
     latitude = "";
     exists = false;
+    return;
 }; // will clear the fields for a Use object - technically deletes
 
 //class Storage
@@ -202,6 +203,7 @@ void Storage::insertRow(Use& row) { //not sure if passby referrence FIX?
     data[size] = row;
     size++;
     size2++;
+    return;
 }; //inserts row into end of data[] increases size by 1 
 
 void Storage::deleteRow(int index) {
@@ -254,18 +256,20 @@ int Storage::getOrigSize() {
 
 void Storage::updateDelData() {
     for (unsigned i = 0; i < size2; i++) {
-        while (!getRow(i).checkExists()) {
-            adjustData(i); //switch element from the back to deleted index
+        if (!getRow(i).checkExists()) {
+            cout << "We found a deleted data entry" << endl;
             if (i == size2 - 1) {
+                //size2--;
                 return;
             }
+            adjustData(i); //switch element from the back to deleted index
         }
     }
 };
 
 void Storage::adjustData(int index) {
     data[index] = data[size2 - 1];
-    getRow(index).clearUse();
+    getRow(size2 - 1).clearUse();
     size2--;
 }; // moves element from end to index passed in: for updateDelData
 
@@ -311,6 +315,7 @@ void Parsed::parseMonth(string arg) {
     mth1 = results1.at(0);
     d1 = results1.at(1);
     yr1 = results1.at(2);
+    return;
 };
 
 void Parsed::parseHours(string arg) {
@@ -325,6 +330,7 @@ void Parsed::parseHours(string arg) {
     hour1 = results1.at(0);
     min1 = results1.at(1);
     //sec1 = results1.at(2);
+    return;
 };
 
 string Parsed::retDate() {
@@ -402,7 +408,7 @@ void Parsed::convertToDay() {
     else if (totDays % 7 == 0) {
         day = "Tuesday";
     }
-
+    return;
 }; //maps the date XX/XX/XXXXX to appropriate day: figure out algorithm with days of each month for 2014,2015
 
 
@@ -468,6 +474,7 @@ void searchTime(vector<vector<string>>& results1, Storage& csvData, vector<strin
         }
         delete row1;
     }
+    return;
 };
 
 void searchDateTime(vector<vector<string>>& results1, Storage& csvData, vector<string>& searchInputs) {
@@ -497,6 +504,7 @@ void searchDateTime(vector<vector<string>>& results1, Storage& csvData, vector<s
         }
         delete row1;
     }
+    return;
 };
 
 void searchLocation(vector<vector<string>>& results1, Storage& csvData, vector<string>& searchInputs) {
@@ -525,6 +533,7 @@ void searchLocation(vector<vector<string>>& results1, Storage& csvData, vector<s
         }
         delete row1;
     }
+    return;
 };
 
 void searchBase(vector<vector<string>>& results1, Storage& csvData, vector<string>& searchInputs) {
@@ -554,6 +563,7 @@ void searchBase(vector<vector<string>>& results1, Storage& csvData, vector<strin
         }
         delete row1;
     }
+    return;
 };
 
 void searchSpecific(vector<vector<string>>& results1, Storage& csvData, vector<string>& searchInputs) {
@@ -587,6 +597,7 @@ void searchSpecific(vector<vector<string>>& results1, Storage& csvData, vector<s
         }
         delete row1;
     }
+    return;
 };
 
 void deleteTime(vector<vector<string>>& results, Storage& csvData, vector<string>& searchInputs) {
@@ -604,7 +615,7 @@ void deleteTime(vector<vector<string>>& results, Storage& csvData, vector<string
         delete row1;
     }
     obj->updateDelData();
-
+    return;
 };
 
 void deleteDate(vector<vector<string>>& results, Storage& csvData, vector<string>& searchInputs) {
@@ -620,6 +631,7 @@ void deleteDate(vector<vector<string>>& results, Storage& csvData, vector<string
         delete row1;
     }
     obj->updateDelData();
+    return;
 };
 
 void deleteTimeAndDate(vector<vector<string>>& results, Storage& csvData, vector<string>& searchInputs) {
@@ -638,6 +650,7 @@ void deleteTimeAndDate(vector<vector<string>>& results, Storage& csvData, vector
         delete row1;
     }
     obj->updateDelData();
+    return;
 };
 
 void deleteLocation(vector<vector<string>>& results, Storage& csvData, vector<string>& searchInputs) {
@@ -653,6 +666,7 @@ void deleteLocation(vector<vector<string>>& results, Storage& csvData, vector<st
         delete row1;
     }
     obj->updateDelData();
+    return;
 };
 
 void deleteBase(vector<vector<string>>& results, Storage& csvData, vector<string>& searchInputs) {
@@ -669,6 +683,7 @@ void deleteBase(vector<vector<string>>& results, Storage& csvData, vector<string
         delete row1;
     }
     obj->updateDelData();
+    return;
 };
 
 void deleteSpecific(vector<vector<string>>& results, Storage& csvData, vector<string>& searchInputs) {
@@ -689,13 +704,18 @@ void deleteSpecific(vector<vector<string>>& results, Storage& csvData, vector<st
         temp = "\"" + row1->getDate() + " " + row1->getTime() + "\"";
         if ((dateAndTime.compare(temp) == 0 && searchInputs.at(2).compare(row1->getLat()) == 0 && searchInputs.at(3).compare(row1->getLong()) == 0 && searchInputs.at(4).compare(row1->getBase()) == 0)) {
             obj->deleteRow(k);
+            cout << "we returned from delete row" << endl;
+            k = obj->getOrigSize();
         }
         delete row1;
     }
+    cout << "We exited the for loop" << endl;
     obj->updateDelData();
+    cout << "we returned from updateDelData" << endl;
     if (obj->checkCount()) {
         obj->resetCount();
     }
+    return;
 };
 
 void Storage::flagChecks1(Storage& csvData, vector<string>& insertInputs) { //insertInputs format: time,date,lat,long,base#
@@ -971,11 +991,11 @@ void Storage::flagChecks1(Storage& csvData, vector<string>& insertInputs) { //in
             i = csvData.getBDay().size(); // break from this for loop
         } cout << "We are out of the for loop" << endl;
     }
-
-
+    cout << "Reached end of flagCheck1" << endl;
+    return;
 };
 
-void Storage::flagChecks2(Storage& csvData, vector<string>& insertInputs) { //insertInputs format: time,date,lat,long,base#
+void Storage::flagChecks2(Storage& csvData, vector<string>& insertInputs) { //insertDeletes format: time,date,lat,long,base#
     //vector<vector<string>> newResults;
     int num;
     vector<string> temp;
@@ -1242,8 +1262,8 @@ void Storage::flagChecks2(Storage& csvData, vector<string>& insertInputs) { //in
             i = csvData.getBDay().size(); // break from this for loop
         }
     }
-
-
+    cout << "Reached end of flagCheck2" << endl;
+    return;
 };
 
 void insertData(vector<vector<string>>& results, Storage& csvData, vector<string>& insertInputs) { // pushes new data to end of csvData vector
@@ -1254,19 +1274,30 @@ void insertData(vector<vector<string>>& results, Storage& csvData, vector<string
     if (csvData.checkCount()) {//more than 1000 inputs/deletes. recalculate data
         csvData.resetCount();
     }
-    insertInputs.at(4) = "\"" + insertInputs.at(4) + "\"";
-    string temp;
-    temp = insertInputs.at(0) + ":00";
-    Use* obj1 = new Use;; //implement set Day Monday -Sunday
-    obj1->setTime(temp);
-    obj1->setDate(insertInputs.at(1));
-    obj1->setLat(insertInputs.at(2));
-    obj1->setLong(insertInputs.at(3));
-    obj1->setExists(true);
-    obj1->setBase(insertInputs.at(4));
 
-    csvData.insertRow(*obj1);
-    delete obj1;
+    string temp;
+
+    temp = "\"" + insertInputs.at(1) + " " + insertInputs.at(0) + ":00" + "\"" + "," + insertInputs.at(2) + "," + insertInputs.at(3) + "," + "\"" + insertInputs.at(4) + "\"";
+    Parsed * obj = new Parsed;
+    obj->parseData(temp); // this will parse all the fields
+    obj->parseHours(obj->retTime());
+    obj->parseMonth(obj->retDate());
+    obj->convertToDay();
+    Use *row1 = new Use;
+
+    row1->setTime(obj->retTime());
+    row1->setDate(obj->retDate());
+    row1->setLong(obj->retLongt());
+    row1->setLat(obj->retLat());
+    row1->setBase(obj->retBase());
+    row1->setDay(obj->retDay());
+    row1->setHour(obj->retHour());
+    row1->setMin(obj->retMin());
+    row1->setExists(true);
+
+
+    csvData.insertRow(*row1);
+    delete obj;
     if (csvData.checkCount()) {
         csvData.resetCount();
     }
@@ -1343,6 +1374,7 @@ void searchMostUseTime(vector<vector<string>>& results1, Storage& csvData, vecto
         } // will push back the 10 results in mostTime vector from previous calculation
     }
     else {
+        cout << "MostTime for loop" << endl;
         for (unsigned int k = 0; k < obj->getOrigSize(); k++) {//counts 
             Use* row1 = new Use;
             *row1 = obj->getRow(k);
@@ -1351,6 +1383,7 @@ void searchMostUseTime(vector<vector<string>>& results1, Storage& csvData, vecto
             arr[row1->getHour()] = count;
             delete row1;
         }
+        cout << "Past for loop" << endl;
         string str1;
         string str2;
         int max;
@@ -1470,11 +1503,14 @@ void searchMostLoc(vector<vector<string>>& results1, Storage& csvData, vector<st
         }
     }
     else {
-        for (unsigned int k = 0; k < obj->getOrigSize(); k++) {//counts 
+        cout << "We are entering mostloc first calculation SIZE: " << obj->getOrigSize() << endl;
+        for (unsigned int k = 0; k < obj->getSize(); k++) {//counts 
             pair<int, vector<int>>pairs;
             Use* row1 = new Use;
             *row1 = obj->getRow(k);
+            cout << "Part 1" << endl;
             in1 = row1->getLat(); //XX.XXX
+            cout << "Part 2" << endl;
             in2 = row1->getLong();//-YY.YY
             if (k % 1000 == 0) {
                 cout << k << endl;
@@ -1628,7 +1664,7 @@ void searchMostLoc(vector<vector<string>>& results1, Storage& csvData, vector<st
         }
         obj->setFlag("mostLoc");
     }
-    
+    return;
 };
 
 void searchLeastLoc(vector<vector<string>>& results1, Storage& csvData, vector<string>& searchInputs) { //FIXME
@@ -1654,7 +1690,7 @@ void searchLeastLoc(vector<vector<string>>& results1, Storage& csvData, vector<s
         }
     }
     else {
-        for (unsigned int k = 0; k < obj->getOrigSize(); k++) {//counts 
+        for (unsigned int k = 0; k < obj->getSize(); k++) {//counts 
             pair<int, vector<int>>pairs;
             Use* row1 = new Use;
             *row1 = obj->getRow(k);
@@ -3473,6 +3509,7 @@ void parseClient(string buf, Storage& csvData, vector<vector<string>> foilStore,
     else if (deleteFlag) { // if deleteFlag was set: delete with different methods
         if (timeFlag && dateFlag && locationFlag1 && locationFlag2 && baseFlag) {
             deleteSpecific(results, csvData, searchInputs);
+            cout << "We retruned from delete specific" << endl;
         }
         else if (timeFlag && dateFlag) {
             deleteTimeAndDate(results, csvData, searchInputs);
