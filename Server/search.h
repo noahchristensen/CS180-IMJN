@@ -161,3 +161,7 @@ void compareLeastUseTime(vector<vector<string>>& results, Storage& csvData1, Sto
 void compareMostLoc(vector<vector<string>>& results, Storage& csvData1, Storage& csvData2, vector<string>& searchInputs);
 void compareLeastLoc(vector<vector<string>>& results, Storage& csvData1, Storage& csvData2, vector<string>& searchInputs);
 
+//add defines
+void calculateShortestInterval(vector<vector<string>>& results1, Storage& csvData, vector<string>& searchInputs);
+void calculateLongestInterval(vector<vector<string>>& results1, Storage& csvData, vector<string>& searchInputs);
+void calculateAverageInterval(vector<vector<string>>& results1, Storage& csvData, vector<string>& searchInputs);
