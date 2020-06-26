@@ -175,7 +175,7 @@ int CALLBACK WinMain(
     HWND hwndTitle = CreateWindow(
         L"STATIC",  // Predefined class; Unicode assumed //STATIC, Edit
         L"Uber Data",      // Button text 
-        WS_CHILD | WS_VISIBLE | WS_BORDER |SS_CENTER,  // Styles 
+        WS_CHILD | WS_VISIBLE | WS_BORDER | SS_CENTER,  // Styles 
         850,         // x position(center)
         10,         // y position 
         300,        // Button width
@@ -195,7 +195,7 @@ int CALLBACK WinMain(
         180,        // Button width
         150,        // Button heighth
         hWnd,     // Parent window
-        (HMENU) ID_BUTTON_1,       
+        (HMENU)ID_BUTTON_1,
         (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
         NULL
     );      // Pointer not needed.
@@ -209,7 +209,7 @@ int CALLBACK WinMain(
         180,        // Button width
         150,        // Button heighth
         hWnd,     // Parent window
-        (HMENU)ID_BUTTON_2,       
+        (HMENU)ID_BUTTON_2,
         (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
         NULL
     );      // Pointer not needed.
@@ -223,7 +223,7 @@ int CALLBACK WinMain(
         180,        // Button width
         150,        // Button heighth
         hWnd,     // Parent window
-        (HMENU)ID_BUTTON_3,       
+        (HMENU)ID_BUTTON_3,
         (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
         NULL
     );      // Pointer not needed.
@@ -237,7 +237,7 @@ int CALLBACK WinMain(
         180,        // Button width
         150,        // Button heighth
         hWnd,     // Parent window
-        (HMENU)ID_BUTTON_4,       
+        (HMENU)ID_BUTTON_4,
         (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
         NULL
     );      // Pointer not needed.
@@ -251,7 +251,7 @@ int CALLBACK WinMain(
         180,        // Button width
         150,        // Button heighth
         hWnd,     // Parent window
-        (HMENU)ID_BUTTON_5,      
+        (HMENU)ID_BUTTON_5,
         (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
         NULL
     );      // Pointer not needed.
@@ -265,7 +265,7 @@ int CALLBACK WinMain(
         180,        // Button width
         150,        // Button heighth
         hWnd,     // Parent window
-        (HMENU)ID_BUTTON_6,       
+        (HMENU)ID_BUTTON_6,
         (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
         NULL
     );      // Pointer not needed.
@@ -279,7 +279,7 @@ int CALLBACK WinMain(
         180,        // Button width
         150,        // Button heighth
         hWnd,     // Parent window
-        (HMENU)ID_BUTTON_7,      
+        (HMENU)ID_BUTTON_7,
         (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
         NULL
     );      // Pointer not needed.
@@ -293,7 +293,7 @@ int CALLBACK WinMain(
         180,        // Button width
         150,        // Button heighth
         hWnd,     // Parent window
-        (HMENU)ID_BUTTON_8,       
+        (HMENU)ID_BUTTON_8,
         (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
         NULL
     );      // Pointer not needed.
@@ -340,89 +340,89 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
     switch (message)
     {
-        case WM_PAINT:
-            hdc = BeginPaint(hWnd, &ps);
+    case WM_PAINT:
+        hdc = BeginPaint(hWnd, &ps);
 
-            // Here application is laid out.
-            TextOut(hdc,
-                5, 5,
-                greeting, _tcslen(greeting));
-            // End application-specific layout section.
+        // Here application is laid out.
+        TextOut(hdc,
+            5, 5,
+            greeting, _tcslen(greeting));
+        // End application-specific layout section.
 
-            EndPaint(hWnd, &ps);
+        EndPaint(hWnd, &ps);
+        break;
+    case WM_CREATE:
+        break;
+    case WM_COMMAND: // when an action happens
+        switch (LOWORD(wParam))
+        {
+        case ID_BUTTON_1:
+            //::MessageBeep(MB_ICONERROR);
+            //::MessageBox(hWnd, TEXT("Modify the Data not yet implemented"), TEXT("CS180 Project"), MB_OK);
+            DisplayModifyData(hWnd);
+
+            //SendRequest();
+
             break;
-        case WM_CREATE:
+        case ID_BUTTON_2:
+            //::MessageBox(hWnd, TEXT("Search by Time was clicked"), TEXT("CS180 Project"), MB_OK);
+
+            DisplayTimeSearch(hWnd);
+            //SendRequest();
+
             break;
-        case WM_COMMAND: // when an action happens
-                switch(LOWORD(wParam))
-                {
-                    case ID_BUTTON_1:
-                        //::MessageBeep(MB_ICONERROR);
-                        //::MessageBox(hWnd, TEXT("Modify the Data not yet implemented"), TEXT("CS180 Project"), MB_OK);
-                        DisplayModifyData(hWnd);
+        case ID_BUTTON_3:
+            //::MessageBeep(MB_ICONERROR);
+            //::MessageBox(hWnd, TEXT("Search by Location not yet implemented"), TEXT("CS180 Project"), MB_OK);
+            DisplayLocationSearch(hWnd);
 
-                        //SendRequest();
+            //SendRequest();
 
-                        break;
-                    case ID_BUTTON_2:
-                        //::MessageBox(hWnd, TEXT("Search by Time was clicked"), TEXT("CS180 Project"), MB_OK);
-
-                        DisplayTimeSearch(hWnd);
-                        //SendRequest();
-
-                        break;
-                    case ID_BUTTON_3:
-                        //::MessageBeep(MB_ICONERROR);
-                        //::MessageBox(hWnd, TEXT("Search by Location not yet implemented"), TEXT("CS180 Project"), MB_OK);
-                        DisplayLocationSearch(hWnd);
-
-                        //SendRequest();
-
-                        break;
-                    case ID_BUTTON_4:
-                        //::MessageBeep(MB_ICONERROR);
-                        //::MessageBox(hWnd, TEXT("Time Between Pickups not yet implemented"), TEXT("CS180 Project"), MB_OK);
-
-                        //SendRequest();
-
-                        break;
-                    case ID_BUTTON_5:
-                        ::MessageBeep(MB_ICONERROR);
-                        ::MessageBox(hWnd, TEXT("Search Active Vehicles not yet implemented"), TEXT("CS180 Project"), MB_OK);
-
-                        //SendRequest();
-
-                        break;
-                    case ID_BUTTON_6:
-                        ::MessageBeep(MB_ICONERROR);
-                        ::MessageBox(hWnd, TEXT("Ratio for Pickups not yet implemented"), TEXT("CS180 Project"), MB_OK);
-
-                        //SendRequest();
-
-                        break;
-                    case ID_BUTTON_7:
-                        ::MessageBeep(MB_ICONERROR);
-                        ::MessageBox(hWnd, TEXT("Two App Comparison not yet implemented"), TEXT("CS180 Project"), MB_OK);
-
-                        //SendRequest();
-
-                        break;
-                    case ID_BUTTON_8:
-                        ::MessageBeep(MB_ICONERROR);
-                        ::MessageBox(hWnd, TEXT("Busiest Location not yet implemented"), TEXT("CS180 Project"), MB_OK);
-
-                        //SendRequest();
-
-                        break;
-                }
-                break;
             break;
-        case WM_DESTROY:
-            PostQuitMessage(0);
+        case ID_BUTTON_4:
+            //::MessageBeep(MB_ICONERROR);
+            //::MessageBox(hWnd, TEXT("Time Between Pickups not yet implemented"), TEXT("CS180 Project"), MB_OK);
+
+            //SendRequest();
+
             break;
-        default:
-            return DefWindowProc(hWnd, message, wParam, lParam);
+        case ID_BUTTON_5:
+            ::MessageBeep(MB_ICONERROR);
+            ::MessageBox(hWnd, TEXT("Search Active Vehicles not yet implemented"), TEXT("CS180 Project"), MB_OK);
+
+            //SendRequest();
+
             break;
+        case ID_BUTTON_6:
+            ::MessageBeep(MB_ICONERROR);
+            ::MessageBox(hWnd, TEXT("Ratio for Pickups not yet implemented"), TEXT("CS180 Project"), MB_OK);
+
+            //SendRequest();
+
+            break;
+        case ID_BUTTON_7:
+            ::MessageBeep(MB_ICONERROR);
+            ::MessageBox(hWnd, TEXT("Two App Comparison not yet implemented"), TEXT("CS180 Project"), MB_OK);
+
+            //SendRequest();
+
+            break;
+        case ID_BUTTON_8:
+            ::MessageBeep(MB_ICONERROR);
+            ::MessageBox(hWnd, TEXT("Busiest Location not yet implemented"), TEXT("CS180 Project"), MB_OK);
+
+            //SendRequest();
+
+            break;
+        }
+        break;
+        break;
+    case WM_DESTROY:
+        PostQuitMessage(0);
+        break;
+    default:
+        return DefWindowProc(hWnd, message, wParam, lParam);
+        break;
     }
 
     return 0;
@@ -456,18 +456,18 @@ LRESULT CALLBACK UberVsLyftProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARAM 
         switch (LOWORD(wParam))
         {
         case ID_UVL_BUTTON:
-            wchar_t dayText[20]; 
+            wchar_t dayText[20];
             wchar_t latText[20];
             wchar_t longText[20];
             GetWindowText(hWndDayField, dayText, 10);
             GetWindowText(hWndLatField, latText, 10);
             GetWindowText(hWndLongField, longText, 10);
-            ::MessageBox(hWnd, dayText, TEXT("CS180 Project - Day"), MB_OK); 
+            ::MessageBox(hWnd, dayText, TEXT("CS180 Project - Day"), MB_OK);
             ::MessageBox(hWnd, latText, TEXT("CS180 Project - Latitude"), MB_OK);
             ::MessageBox(hWnd, longText, TEXT("CS180 Project - Longitude"), MB_OK);
 
             wstring wsDay(dayText);
-            string strDay(wsDay.begin(), wsDay.end()); 
+            string strDay(wsDay.begin(), wsDay.end());
             wstring wsLat(latText);
             string strLat(wsLat.begin(), wsLat.end());
             wstring wsLong(longText);
@@ -485,7 +485,7 @@ LRESULT CALLBACK UberVsLyftProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARAM 
             //wstring wsSort(sortText);
             //string strSort(wsSort.begin(), wsSort.end());
 
-          
+
 
             vector<string> miniVec;
 
@@ -571,67 +571,67 @@ LRESULT CALLBACK TimeSearchProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARAM 
 {
     switch (msg)
     {
-        case WM_CLOSE:
-            DestroyWindow(hWnd);
+    case WM_CLOSE:
+        DestroyWindow(hWnd);
+        break;
+    case WM_COMMAND: // when an action happens
+        switch (LOWORD(wParam))
+        {
+        case ID_TIMESEARCH_BUTTON:
+            wchar_t hourText[20];
+            GetWindowText(hwndTimeField, hourText, 10);
+            wchar_t dayText[20];
+            GetWindowText(hwndDayField, dayText, 10);
+            wchar_t sortText[20];
+            GetWindowText(hwndSortField, sortText, 10);
+            ::MessageBox(hWnd, hourText, TEXT("CS180 Project - Time"), MB_OK);
+            ::MessageBox(hWnd, dayText, TEXT("CS180 Project - Day"), MB_OK);
+            ::MessageBox(hWnd, sortText, TEXT("CS180 Project - Sort"), MB_OK);
+
+            wstring wsHour(hourText);
+            string strHour(wsHour.begin(), wsHour.end());
+            wstring wsDay(dayText);
+            string strDay(wsDay.begin(), wsDay.end());
+            string strTime = "Time: ";
+            strTime = strTime.append(strHour);
+            strTime = strTime.append(",Date: ");
+            strTime = strTime.append(strDay);
+            strTime = strTime.append(",Latitude: ,Longitude: ,Base: ,Sort: ,Search");
+            //"Time: 0:11,Date: 4/1/2014,Latitude: ,Longitude: ,Base: ,Sort: ,Search ";
+            strTime = strTime.append(" ,Search");
+            //SendRequest(strTime);
+            //wstring wsSort(sortText);
+            //string strSort(wsSort.begin(), wsSort.end());
+
+            vector<string> miniVec;
+
+            //Server Response
+            string serverMessage = SendRequest(strTime);
+            wstring wideSM = wstring(serverMessage.begin(), serverMessage.end());
+            const wchar_t* wideCSM = wideSM.c_str();
+            ::MessageBox(hWnd, wideCSM, TEXT("CS180 Project - Server Response"), MB_OK);
+
+            HWND hwndSearchData = CreateWindow(
+                L"EDIT",  // Predefined class; Unicode assumed //STATIC, Edit
+                L"",      // Button text 
+                WS_VISIBLE | WS_CHILD | WS_BORDER | ES_MULTILINE | ES_WANTRETURN,  // Styles 
+                50,         // x position 
+                200,         // y position 
+                330,        // Button width
+                800,        // Button heighth
+                hWnd,     // Parent window
+                (HMENU)ID_TIMESEARCH_DATA,
+                (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+                NULL
+            );
+
+            SetWindowText(hwndSearchData, wideCSM);
+
             break;
-        case WM_COMMAND: // when an action happens
-            switch (LOWORD(wParam))
-            {
-            case ID_TIMESEARCH_BUTTON:
-                wchar_t hourText[20];
-                GetWindowText(hwndTimeField, hourText, 10);
-                wchar_t dayText[20];
-                GetWindowText(hwndDayField, dayText, 10);
-                wchar_t sortText[20];
-                GetWindowText(hwndSortField, sortText, 10);
-                ::MessageBox(hWnd, hourText, TEXT("CS180 Project - Time"), MB_OK);
-                ::MessageBox(hWnd, dayText, TEXT("CS180 Project - Day"), MB_OK);
-                ::MessageBox(hWnd, sortText, TEXT("CS180 Project - Sort"), MB_OK);
-
-                wstring wsHour(hourText);
-                string strHour(wsHour.begin(), wsHour.end());
-                wstring wsDay(dayText);
-                string strDay(wsDay.begin(), wsDay.end());
-                string strTime = "Time: ";
-                strTime = strTime.append(strHour);
-                strTime = strTime.append(",Date: ");
-                strTime = strTime.append(strDay);
-                strTime = strTime.append(",Latitude: ,Longitude: ,Base: ,Sort: ,Search");
-                //"Time: 0:11,Date: 4/1/2014,Latitude: ,Longitude: ,Base: ,Sort: ,Search ";
-                strTime = strTime.append(" ,Search");
-                //SendRequest(strTime);
-                //wstring wsSort(sortText);
-                //string strSort(wsSort.begin(), wsSort.end());
-
-                vector<string> miniVec;
-
-                //Server Response
-                string serverMessage = SendRequest(strTime);
-                wstring wideSM = wstring(serverMessage.begin(), serverMessage.end());
-                const wchar_t* wideCSM = wideSM.c_str();
-                ::MessageBox(hWnd, wideCSM, TEXT("CS180 Project - Server Response"), MB_OK);
-
-                HWND hwndSearchData = CreateWindow(
-                    L"EDIT",  // Predefined class; Unicode assumed //STATIC, Edit
-                    L"",      // Button text 
-                    WS_VISIBLE | WS_CHILD | WS_BORDER | ES_MULTILINE | ES_WANTRETURN,  // Styles 
-                    50,         // x position 
-                    200,         // y position 
-                    330,        // Button width
-                    800,        // Button heighth
-                    hWnd,     // Parent window
-                    (HMENU)ID_TIMESEARCH_DATA,
-                    (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
-                    NULL
-                );
-
-                SetWindowText(hwndSearchData, wideCSM);
-
-                break;
-            }
-            break;
-        default:
-            return DefWindowProcW(hWnd, msg, wParam, lp);
+        }
+        break;
+    default:
+        return DefWindowProcW(hWnd, msg, wParam, lp);
     }
 }
 
@@ -671,7 +671,7 @@ void DisplayTimeSearch(HWND hWnd)
         400,        // Button width
         50,        // Button heighth
         hWndSearch,     // Parent window
-        (HMENU)ID_TIMESEARCH_TIME,       
+        (HMENU)ID_TIMESEARCH_TIME,
         (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
         NULL
     );      // Pointer not needed.
@@ -699,7 +699,7 @@ void DisplayTimeSearch(HWND hWnd)
         400,        // Button width
         50,        // Button heighth
         hWndSearch,     // Parent window
-        (HMENU)ID_TIMESEARCH_DAY,       
+        (HMENU)ID_TIMESEARCH_DAY,
         (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
         NULL
     );      // Pointer not needed.
@@ -713,7 +713,7 @@ void DisplayTimeSearch(HWND hWnd)
         400,        // Button width
         50,        // Button heighth
         hWndSearch,     // Parent window
-        NULL,       
+        NULL,
         (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
         NULL
     );      // Pointer not needed.
@@ -727,7 +727,7 @@ void DisplayTimeSearch(HWND hWnd)
         400,        // Button width
         50,        // Button heighth
         hWndSearch,     // Parent window
-        (HMENU)ID_TIMESEARCH_SORT,       
+        (HMENU)ID_TIMESEARCH_SORT,
         (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
         NULL
     );      // Pointer not needed.
@@ -741,21 +741,21 @@ void DisplayTimeSearch(HWND hWnd)
         100,        // Button width
         100,        // Button heighth
         hWndSearch,     // Parent window
-        (HMENU)ID_TIMESEARCH_BUTTON,       
+        (HMENU)ID_TIMESEARCH_BUTTON,
         (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
         NULL
     );      // Pointer not needed.
 
     /*HWND hwndSearchData = CreateWindow(
         L"EDIT",  // Predefined class; Unicode assumed //STATIC, Edit
-        L"",      // Button text 
-        WS_VISIBLE | WS_CHILD | WS_BORDER,  // Styles 
-        50,         // x position 
-        200,         // y position 
+        L"",      // Button text
+        WS_VISIBLE | WS_CHILD | WS_BORDER,  // Styles
+        50,         // x position
+        200,         // y position
         1500,        // Button width
         800,        // Button heighth
         hWndSearch,     // Parent window
-        (HMENU)ID_SEARCH_DATA,       
+        (HMENU)ID_SEARCH_DATA,
         (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
         NULL
     );      // Pointer not needed.*/
@@ -1024,175 +1024,175 @@ LRESULT CALLBACK ModifyDataProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARAM 
     case WM_COMMAND: // when an action happens
         switch (LOWORD(wParam))
         {
-            case ID_ADD_BUTTON:
+        case ID_ADD_BUTTON:
+        {
+            wchar_t dateText[20];
+            wchar_t timeText[20];
+            wchar_t latText[20];
+            wchar_t longText[20];
+            wchar_t baseText[20];
+
+            GetWindowText(hwndAddDateField, dateText, 10);
+            GetWindowText(hwndAddTimeField, timeText, 10);
+            GetWindowText(hwndAddLatField, latText, 10);
+            GetWindowText(hwndAddLongField, longText, 10);
+            GetWindowText(hwndAddBaseField, baseText, 10);
+            ::MessageBox(hWnd, dateText, TEXT("CS180 Project - Date"), MB_OK);
+            ::MessageBox(hWnd, timeText, TEXT("CS180 Project - Time"), MB_OK);
+            ::MessageBox(hWnd, latText, TEXT("CS180 Project - Latitude"), MB_OK);
+            ::MessageBox(hWnd, longText, TEXT("CS180 Project - Longitude"), MB_OK);
+            ::MessageBox(hWnd, baseText, TEXT("CS180 Project - Base #"), MB_OK);
+
+            wstring wsHour(timeText);
+            string strHour(wsHour.begin(), wsHour.end());
+            wstring wsDay(dateText);
+            string strDay(wsDay.begin(), wsDay.end());
+            wstring wsLat(latText);
+            string strLat(wsLat.begin(), wsLat.end());
+            wstring wsLong(longText);
+            string strLong(wsLong.begin(), wsLong.end());
+            wstring wsBase(baseText);
+            string strBase(wsBase.begin(), wsBase.end());
+            string strMod = "Time: ";
+            strMod = strMod.append(strHour);
+            strMod = strMod.append(",Date: ");
+            strMod = strMod.append(strDay);
+            strMod = strMod.append(",Latitude: ");
+            strMod = strMod.append(strLat);
+            strMod = strMod.append(",Longitude: ");
+            strMod = strMod.append(strLong);
+            strMod = strMod.append(",Base: ");
+            strMod = strMod.append(strBase);
+            strMod = strMod.append(" ,Insert");
+            //"Time: 0:11,Date: 4/1/2014,Latitude: ,Longitude: ,Base: ,Sort: ,Search ";
+
+            string serverMessage = SendRequest(strMod);
+            if (serverMessage.compare("unable to connect to server") != 0)
             {
-                wchar_t dateText[20];
-                wchar_t timeText[20];
-                wchar_t latText[20];
-                wchar_t longText[20];
-                wchar_t baseText[20];
-
-                GetWindowText(hwndAddDateField, dateText, 10);
-                GetWindowText(hwndAddTimeField, timeText, 10);
-                GetWindowText(hwndAddLatField, latText, 10);
-                GetWindowText(hwndAddLongField, longText, 10);
-                GetWindowText(hwndAddBaseField, baseText, 10);
-                ::MessageBox(hWnd, dateText, TEXT("CS180 Project - Date"), MB_OK);
-                ::MessageBox(hWnd, timeText, TEXT("CS180 Project - Time"), MB_OK);
-                ::MessageBox(hWnd, latText, TEXT("CS180 Project - Latitude"), MB_OK);
-                ::MessageBox(hWnd, longText, TEXT("CS180 Project - Longitude"), MB_OK);
-                ::MessageBox(hWnd, baseText, TEXT("CS180 Project - Base #"), MB_OK);
-
-                wstring wsHour(timeText);
-                string strHour(wsHour.begin(), wsHour.end());
-                wstring wsDay(dateText);
-                string strDay(wsDay.begin(), wsDay.end());
-                wstring wsLat(latText);
-                string strLat(wsLat.begin(), wsLat.end());
-                wstring wsLong(longText);
-                string strLong(wsLong.begin(), wsLong.end());
-                wstring wsBase(baseText);
-                string strBase(wsBase.begin(), wsBase.end());
-                string strMod = "Time: ";
-                strMod = strMod.append(strHour);
-                strMod = strMod.append(",Date: ");
-                strMod = strMod.append(strDay);
-                strMod = strMod.append(",Latitude: ");
-                strMod = strMod.append(strLat);
-                strMod = strMod.append(",Longitude: ");
-                strMod = strMod.append(strLong);
-                strMod = strMod.append(",Base: ");
-                strMod = strMod.append(strBase);
-                strMod = strMod.append(" ,Insert");
-                //"Time: 0:11,Date: 4/1/2014,Latitude: ,Longitude: ,Base: ,Sort: ,Search ";
-
-                string serverMessage = SendRequest(strMod);
-                if (serverMessage.compare("unable to connect to server") != 0)
-                {
-                    serverMessage = "Success! Data Added";
-                }
-
-                wstring wideSM = wstring(serverMessage.begin(), serverMessage.end());
-                const wchar_t* wideCSM = wideSM.c_str();
-                ::MessageBox(hWnd, wideCSM, TEXT("CS180 Project - Server Response"), MB_OK);
-                break;
+                serverMessage = "Success! Data Added";
             }
-            case ID_DEL_BUTTON:
+
+            wstring wideSM = wstring(serverMessage.begin(), serverMessage.end());
+            const wchar_t* wideCSM = wideSM.c_str();
+            ::MessageBox(hWnd, wideCSM, TEXT("CS180 Project - Server Response"), MB_OK);
+            break;
+        }
+        case ID_DEL_BUTTON:
+        {
+            wchar_t dateText[20];
+            wchar_t timeText[20];
+            wchar_t latText[20];
+            wchar_t longText[20];
+            wchar_t baseText[20];
+            GetWindowText(hwndDelDateField, dateText, 10);
+            GetWindowText(hwndDelTimeField, timeText, 10);
+            GetWindowText(hwndDelLatField, latText, 10);
+            GetWindowText(hwndDelLongField, longText, 10);
+            GetWindowText(hwndDelBaseField, baseText, 10);
+            ::MessageBox(hWnd, dateText, TEXT("CS180 Project - Date"), MB_OK);
+            ::MessageBox(hWnd, timeText, TEXT("CS180 Project - Time"), MB_OK);
+            ::MessageBox(hWnd, latText, TEXT("CS180 Project - Latitude"), MB_OK);
+            ::MessageBox(hWnd, longText, TEXT("CS180 Project - Longitude"), MB_OK);
+            ::MessageBox(hWnd, baseText, TEXT("CS180 Project - Base #"), MB_OK);
+            wstring wsHour(timeText);
+            string strHour(wsHour.begin(), wsHour.end());
+            wstring wsDay(dateText);
+            string strDay(wsDay.begin(), wsDay.end());
+            wstring wsLat(latText);
+            string strLat(wsLat.begin(), wsLat.end());
+            wstring wsLong(longText);
+            string strLong(wsLong.begin(), wsLong.end());
+            wstring wsBase(baseText);
+            string strBase(wsBase.begin(), wsBase.end());
+            string strMod = "Time: ";
+            strMod = strMod.append(strHour);
+            strMod = strMod.append(",Date: ");
+            strMod = strMod.append(strDay);
+            strMod = strMod.append(",Latitude: ");
+            strMod = strMod.append(strLat);
+            strMod = strMod.append(",Longitude: ");
+            strMod = strMod.append(strLong);
+            strMod = strMod.append(",Base: ");
+            strMod = strMod.append(strBase);
+            //"Time: 0:11,Date: 4/1/2014,Latitude: ,Longitude: ,Base: ,Sort: ,Search ";
+            strMod = strMod.append(" ,Delete");
+
+            string serverMessage = SendRequest(strMod);
+            if (serverMessage.compare("unable to connect to server") != 0)
             {
-                wchar_t dateText[20];
-                wchar_t timeText[20];
-                wchar_t latText[20];
-                wchar_t longText[20];
-                wchar_t baseText[20];
-                GetWindowText(hwndDelDateField, dateText, 10);
-                GetWindowText(hwndDelTimeField, timeText, 10);
-                GetWindowText(hwndDelLatField, latText, 10);
-                GetWindowText(hwndDelLongField, longText, 10);
-                GetWindowText(hwndDelBaseField, baseText, 10);
-                ::MessageBox(hWnd, dateText, TEXT("CS180 Project - Date"), MB_OK);
-                ::MessageBox(hWnd, timeText, TEXT("CS180 Project - Time"), MB_OK);
-                ::MessageBox(hWnd, latText, TEXT("CS180 Project - Latitude"), MB_OK);
-                ::MessageBox(hWnd, longText, TEXT("CS180 Project - Longitude"), MB_OK);
-                ::MessageBox(hWnd, baseText, TEXT("CS180 Project - Base #"), MB_OK);
-                wstring wsHour(timeText);
-                string strHour(wsHour.begin(), wsHour.end());
-                wstring wsDay(dateText);
-                string strDay(wsDay.begin(), wsDay.end());
-                wstring wsLat(latText);
-                string strLat(wsLat.begin(), wsLat.end());
-                wstring wsLong(longText);
-                string strLong(wsLong.begin(), wsLong.end());
-                wstring wsBase(baseText);
-                string strBase(wsBase.begin(), wsBase.end());
-                string strMod = "Time: ";
-                strMod = strMod.append(strHour);
-                strMod = strMod.append(",Date: ");
-                strMod = strMod.append(strDay);
-                strMod = strMod.append(",Latitude: ");
-                strMod = strMod.append(strLat);
-                strMod = strMod.append(",Longitude: ");
-                strMod = strMod.append(strLong);
-                strMod = strMod.append(",Base: ");
-                strMod = strMod.append(strBase);
-                //"Time: 0:11,Date: 4/1/2014,Latitude: ,Longitude: ,Base: ,Sort: ,Search ";
-                strMod = strMod.append(" ,Delete");
-
-                string serverMessage = SendRequest(strMod);
-                if (serverMessage.compare("unable to connect to server") != 0)
-                {
-                    serverMessage = "Success! Data Deleted";
-                }
-
-                wstring wideSM = wstring(serverMessage.begin(), serverMessage.end());
-                const wchar_t* wideCSM = wideSM.c_str();
-                ::MessageBox(hWnd, wideCSM, TEXT("CS180 Project - Server Response"), MB_OK);
-                break;
+                serverMessage = "Success! Data Deleted";
             }
-            case ID_DEL_TIME_BUTTON:
+
+            wstring wideSM = wstring(serverMessage.begin(), serverMessage.end());
+            const wchar_t* wideCSM = wideSM.c_str();
+            ::MessageBox(hWnd, wideCSM, TEXT("CS180 Project - Server Response"), MB_OK);
+            break;
+        }
+        case ID_DEL_TIME_BUTTON:
+        {
+            wchar_t dateText[20];
+            wchar_t timeText[20];
+            GetWindowText(hwndDelTimeDateField, dateText, 10);
+            GetWindowText(hwndDelTimeTimeField, timeText, 10);
+            ::MessageBox(hWnd, dateText, TEXT("CS180 Project - Date"), MB_OK);
+            ::MessageBox(hWnd, timeText, TEXT("CS180 Project - Time"), MB_OK);
+
+            wstring wsHour(timeText);
+            string strHour(wsHour.begin(), wsHour.end());
+            wstring wsDay(dateText);
+            string strDay(wsDay.begin(), wsDay.end());
+            string strMod = "Time: ";
+            strMod = strMod.append(strHour);
+            strMod = strMod.append(",Date: ");
+            strMod = strMod.append(strDay);
+            strMod = strMod.append(",Latitude: ,Longitude: ,Base: ,Sort: ,Delete");
+            //"Time: 0:11,Date: 4/1/2014,Latitude: ,Longitude: ,Base: ,Sort: ,Search ";
+
+            string serverMessage = SendRequest(strMod);
+            if (serverMessage.compare("unable to connect to server") != 0)
             {
-                wchar_t dateText[20];
-                wchar_t timeText[20];
-                GetWindowText(hwndDelTimeDateField, dateText, 10);
-                GetWindowText(hwndDelTimeTimeField, timeText, 10);
-                ::MessageBox(hWnd, dateText, TEXT("CS180 Project - Date"), MB_OK);
-                ::MessageBox(hWnd, timeText, TEXT("CS180 Project - Time"), MB_OK);
-
-                wstring wsHour(timeText);
-                string strHour(wsHour.begin(), wsHour.end());
-                wstring wsDay(dateText);
-                string strDay(wsDay.begin(), wsDay.end());
-                string strMod = "Time: ";
-                strMod = strMod.append(strHour);
-                strMod = strMod.append(",Date: ");
-                strMod = strMod.append(strDay);
-                strMod = strMod.append(",Latitude: ,Longitude: ,Base: ,Sort: ,Delete");
-                //"Time: 0:11,Date: 4/1/2014,Latitude: ,Longitude: ,Base: ,Sort: ,Search ";
-
-                string serverMessage = SendRequest(strMod);
-                if (serverMessage.compare("unable to connect to server") != 0)
-                {
-                    serverMessage = "Success! Data Deleted";
-                }
-
-                wstring wideSM = wstring(serverMessage.begin(), serverMessage.end());
-                const wchar_t* wideCSM = wideSM.c_str();
-                ::MessageBox(hWnd, wideCSM, TEXT("CS180 Project - Server Response"), MB_OK);
-                break;
+                serverMessage = "Success! Data Deleted";
             }
-            case ID_DEL_LOC_BUTTON:
+
+            wstring wideSM = wstring(serverMessage.begin(), serverMessage.end());
+            const wchar_t* wideCSM = wideSM.c_str();
+            ::MessageBox(hWnd, wideCSM, TEXT("CS180 Project - Server Response"), MB_OK);
+            break;
+        }
+        case ID_DEL_LOC_BUTTON:
+        {
+            wchar_t latText[20];
+            wchar_t longText[20];
+            GetWindowText(hwndDelLocLatField, latText, 10);
+            GetWindowText(hwndDelLocLongField, longText, 10);
+            ::MessageBox(hWnd, latText, TEXT("CS180 Project - Latitude"), MB_OK);
+            ::MessageBox(hWnd, longText, TEXT("CS180 Project - Longitude"), MB_OK);
+
+            wstring wsLat(latText);
+            string strLat(wsLat.begin(), wsLat.end());
+            wstring wsLong(longText);
+            string strLong(wsLong.begin(), wsLong.end());
+
+            string strMod = "Time: ,Date: ";
+            strMod = strMod.append(",Latitude: ");
+            strMod = strMod.append(strLat);
+            strMod = strMod.append(",Longitude: ");
+            strMod = strMod.append(strLong);
+            strMod = strMod.append(",Base: ,Sort: ,Delete");
+            //"Time: 0:11,Date: 4/1/2014,Latitude: ,Longitude: ,Base: ,Sort: ,Search ";
+
+            string serverMessage = SendRequest(strMod);
+            if (serverMessage.compare("unable to connect to server") != 0)
             {
-                wchar_t latText[20];
-                wchar_t longText[20];
-                GetWindowText(hwndDelLocLatField, latText, 10);
-                GetWindowText(hwndDelLocLongField, longText, 10);
-                ::MessageBox(hWnd, latText, TEXT("CS180 Project - Latitude"), MB_OK);
-                ::MessageBox(hWnd, longText, TEXT("CS180 Project - Longitude"), MB_OK);
-
-                wstring wsLat(latText);
-                string strLat(wsLat.begin(), wsLat.end());
-                wstring wsLong(longText);
-                string strLong(wsLong.begin(), wsLong.end());
-
-                string strMod = "Time: ,Date: ";
-                strMod = strMod.append(",Latitude: ");
-                strMod = strMod.append(strLat);
-                strMod = strMod.append(",Longitude: ");
-                strMod = strMod.append(strLong);
-                strMod = strMod.append(",Base: ,Sort: ,Delete");
-                //"Time: 0:11,Date: 4/1/2014,Latitude: ,Longitude: ,Base: ,Sort: ,Search ";
-
-                string serverMessage = SendRequest(strMod);
-                if (serverMessage.compare("unable to connect to server") != 0)
-                {
-                    serverMessage = "Success! Data Deleted";
-                }
-
-                wstring wideSM = wstring(serverMessage.begin(), serverMessage.end());
-                const wchar_t* wideCSM = wideSM.c_str();
-                
-                ::MessageBox(hWnd, wideCSM, TEXT("CS180 Project - Server Response"), MB_OK);
-                break;
+                serverMessage = "Success! Data Deleted";
             }
+
+            wstring wideSM = wstring(serverMessage.begin(), serverMessage.end());
+            const wchar_t* wideCSM = wideSM.c_str();
+
+            ::MessageBox(hWnd, wideCSM, TEXT("CS180 Project - Server Response"), MB_OK);
+            break;
+        }
         }
         break;
     default:
@@ -1780,15 +1780,15 @@ string SendRequest(string message) // send request to server
     {
         int serverLength = sizeof(server);
         ZeroMemory(&server, serverLength); // Clear the client structure
-		ZeroMemory(buf, 2048); // Clear the receive buffer
+        ZeroMemory(buf, 2048); // Clear the receive buffer
 
-		// Wait for message from server
-		int bytesIn = recvfrom(out, buf, 2048, 0, (sockaddr*)&server, &serverLength);
-		if (bytesIn == SOCKET_ERROR)
-		{
-			cout << "Error receiving from client " << WSAGetLastError() << endl;
+        // Wait for message from server
+        int bytesIn = recvfrom(out, buf, 2048, 0, (sockaddr*)&server, &serverLength);
+        if (bytesIn == SOCKET_ERROR)
+        {
+            cout << "Error receiving from client " << WSAGetLastError() << endl;
             return "unable to connect to server";
-		}
+        }
     }
 
     // Close the socket
