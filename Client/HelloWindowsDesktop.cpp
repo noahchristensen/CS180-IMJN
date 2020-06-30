@@ -102,9 +102,13 @@ HMENU hMenu;
 #define ID_AVERAGE_DATA 51
 
 //Uber Vs Lyft
-#define ID_UVL_SWITCH_POP 80
-#define ID_UVL_SWITCH_FUNC 81
-#define ID_UVL_CALCULATE 82
+//#define ID_UVL_SWITCH_POP 80
+//#define ID_UVL_SWITCH_FUNC 81
+//#define ID_UVL_CALCULATE 82
+
+//Most popular Nieghbor
+#define ID_NMP_DATE 80
+#define ID_NMP_SEARCH 81
 
 
 // Active Vehicles
@@ -155,9 +159,9 @@ void RegisterActiveRatio(HINSTANCE);
 LRESULT CALLBACK ActiveRatioProcedure(HWND, UINT, WPARAM, LPARAM);
 void DisplayActiveRatio(HWND);
 
-void RegisterUberVsLyft(HINSTANCE);
-LRESULT CALLBACK UberVsLyftProcedure(HWND, UINT, WPARAM, LPARAM);
-void DisplayUberVsLyft(HWND);
+void RegisterNMP(HINSTANCE);
+LRESULT CALLBACK NMPProcedure(HWND, UINT, WPARAM, LPARAM);
+void DisplayNMP(HWND);
 
 // Server Communication
 string SendRequest(string);
@@ -209,7 +213,7 @@ int CALLBACK WinMain(
     RegisterActiveVehicles(hInstance);
     RegisterTimeInterval(hInstance);
     RegisterActiveRatio(hInstance);
-    RegisterUberVsLyft(hInstance);
+    RegisterNMP(hInstance);
 
     // Store instance handle in our global variable
     hInst = hInstance;
@@ -378,7 +382,7 @@ int CALLBACK WinMain(
 
     HWND hwndButton10 = CreateWindow(
         L"BUTTON",  // Predefined class; Unicode assumed //STATIC, Edit
-        L"Uber vs Lyft",      // Button text 
+        L"Neighborhood",      // Button text 
         WS_VISIBLE | WS_CHILD,  // Styles 
         1600,         // x position 
         600,         // y position 
@@ -542,7 +546,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             //::MessageBeep(MB_ICONERROR);
             //::MessageBox(hWnd, TEXT("Busiest Location not yet implemented"), TEXT("CS180 Project"), MB_OK);
 
-            DisplayUberVsLyft(hWnd);
+            DisplayNMP(hWnd);
 
             //SendRequest();
 
@@ -3166,28 +3170,24 @@ void DisplayTimeInterval(HWND hWnd)
     );      // Pointer not needed.
 }
 
-void RegisterUberVsLyft(HINSTANCE hInstance)
+void RegisterNMP(HINSTANCE hInstance)
 {
-    WNDCLASSW uvl = { 0 };
+    WNDCLASSW nmp = { 0 };
 
-    uvl.hbrBackground = (HBRUSH)(COLOR_WINDOW);
-    uvl.hCursor = LoadCursor(NULL, IDC_ARROW);
-    uvl.style = CS_HREDRAW | CS_VREDRAW;
-    uvl.hInstance = hInstance;
-    uvl.lpszClassName = L"uberVsLyftClass";
-    uvl.lpfnWndProc = UberVsLyftProcedure;
+    nmp.hbrBackground = (HBRUSH)(COLOR_WINDOW);
+    nmp.hCursor = LoadCursor(NULL, IDC_ARROW);
+    nmp.style = CS_HREDRAW | CS_VREDRAW;
+    nmp.hInstance = hInstance;
+    nmp.lpszClassName = L"NeighborhoodClass";
+    nmp.lpfnWndProc = NMPProcedure;
 
-    RegisterClassW(&uvl);
+    RegisterClassW(&nmp);
 }
 
 HWND hwndCompDateField;
-HWND hwndCompLatField;
-HWND hwndCompLongField;
 HWND hwndCDataField;
-bool compareMost = true;
-bool compareTime = true;
 
-LRESULT CALLBACK UberVsLyftProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lp)
+LRESULT CALLBACK NMPProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lp)
 {
     switch (msg)
     {
@@ -3200,102 +3200,24 @@ LRESULT CALLBACK UberVsLyftProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARAM 
     case WM_COMMAND: // when an action happens
         switch (LOWORD(wParam))
         {
-        case ID_UVL_SWITCH_POP:
-        {
-            ::MessageBeep(MB_ICONERROR);
-            compareMost = !compareMost;
-            string switchStr;
-            if (compareMost)
-            {
-                switchStr = "calculating most";
-            }
-            else
-            {
-                switchStr = "calculating least";
-            }
-
-            wstring wideSSM = wstring(switchStr.begin(), switchStr.end());
-            const wchar_t* wideCSSM = wideSSM.c_str();
-            SetWindowText(hwndCDataField, wideCSSM);
-
-            break;
-        }
-        case ID_UVL_SWITCH_FUNC:
-        {
-            ::MessageBeep(MB_ICONERROR);
-            compareTime = !compareTime;
-            string switchStr;
-            if (compareTime)
-            {
-                switchStr = "calculating time";
-            }
-            else
-            {
-                switchStr = "calculating location";
-            }
-
-            wstring wideSSM = wstring(switchStr.begin(), switchStr.end());
-            const wchar_t* wideCSSM = wideSSM.c_str();
-            SetWindowText(hwndCDataField, wideCSSM);
-
-            break;
-        }
-        case ID_UVL_CALCULATE:
+        case ID_NMP_SEARCH:
             wchar_t dateText[20];
             GetWindowText(hwndCompDateField, dateText, 10);
             wstring wsDate(dateText);
             string strDate(wsDate.begin(), wsDate.end());
 
-            wchar_t latText[20];
-            GetWindowText(hwndCompLatField, latText, 10);
-            wstring wsLat(latText);
-            string strLat(wsLat.begin(), wsLat.end());
-
-            wchar_t longText[20];
-            GetWindowText(hwndCompLongField, longText, 10);
-            wstring wsLong(longText);
-            string strLong(wsLong.begin(), wsLong.end());
-
             string message;
             string strButton;
-            if (!strDate.empty() && strLat.empty() && strLong.empty())
+            if (!strDate.empty())
             {
 
-                strButton = "Press OK to load Date results";
-                message = "Date: " + strDate + ",Comparison: "; //, MostTCompare:";
+                strButton = "Press OK to search most popular Neighborhood";
+                message = "Date: " + strDate + ",Neighbor";
 
-            }
-            else if (!strLat.empty() && !strLong.empty())
-            {
-
-                strButton = "Press OK to load Location results";
-                message = "Latitude: " + strLat + ", Longitude: " + strLong + ", Comparison: ";//, LeastLCompare:";
-
-            }
-            else if (compareMost)
-            {
-                if (compareTime)
-                {
-                    strButton = "Press OK to load most time comparison";
-                    message = "Comparison: , MostTCompare: ";
-                }
-                else
-                {
-                    strButton = "Press OK to load most location comparison";
-                    message = "Comparison: , MostLCompare: ";
-                }
             }
             else {
-                if (compareTime)
-                {
-                    strButton = "Press OK to load least time comparison";
-                    message = "Comparison: , LeastTCompare: ";
-                }
-                else
-                {
-                    strButton = "Press OK to load least location comparison";
-                    message = "Comparison: , LeastLCompare: ";
-                }
+                strButton = "Press OK to Enter Date";
+                message = " ";
             }
 
             wstring wideSBM = wstring(strButton.begin(), strButton.end());
@@ -3332,11 +3254,11 @@ LRESULT CALLBACK UberVsLyftProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARAM 
     }
 }
 
-void DisplayUberVsLyft(HWND hWnd)
+void DisplayNMP(HWND hWnd)
 {
     HWND hWndCompare = CreateWindowW(
-        L"uberVsLyftClass",
-        L"CS180 Project - Active Vehicles vs Pickups",
+        L"NeighborhoodClass",
+        L"CS180 Project - Most Popular Neighborhood",
         WS_VISIBLE | WS_OVERLAPPEDWINDOW,
         400, 400, 200, 200,
         hWnd,
@@ -3347,7 +3269,7 @@ void DisplayUberVsLyft(HWND hWnd)
 
     HWND hwndTitleLabel = CreateWindow(
         L"Static",  // Predefined class; Unicode assumed //STATIC, Edit
-        L"Active Vehicles vs Pick Ups for a Base ID",      // Button text 
+        L"Neighborhood Popularity",      // Button text 
         WS_VISIBLE | WS_CHILD | SS_CENTER | BS_CENTER | WS_BORDER,  // Styles 
         800,         // x position 
         50,         // y position 
@@ -3387,121 +3309,23 @@ void DisplayUberVsLyft(HWND hWnd)
         NULL
     );      // Pointer not needed.
 
-    HWND hwndORLabel = CreateWindow(
-        L"Static",  // Predefined class; Unicode assumed //STATIC, Edit
-        L"OR",      // Button text 
-        WS_VISIBLE | WS_CHILD | SS_CENTER | BS_CENTER,  // Styles 
-        425,         // x position 
-        180,         // y position 
-        70,        // Button width
-        60,        // Button heighth
-        hWndCompare,     // Parent window
-        NULL,       // No menu.
-        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
-        NULL
-    );      // Pointer not needed.
-
-    HWND hwndLatLabel = CreateWindow(
-        L"Static",  // Predefined class; Unicode assumed //STATIC, Edit
-        L"Latitude",      // Button text 
-        WS_VISIBLE | WS_CHILD | SS_CENTER | BS_CENTER,  // Styles 
-        500,         // x position 
-        150,         // y position 
-        200,        // Button width
-        60,        // Button heighth
-        hWndCompare,     // Parent window
-        NULL,       // No menu.
-        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
-        NULL
-    );      // Pointer not needed.
-
-    hwndCompLatField = CreateWindow(
-        L"Edit",  // Predefined class; Unicode assumed //STATIC, Edit
-        L"",      // Button text 
-        WS_VISIBLE | WS_CHILD | BS_CENTER | WS_BORDER,  // Styles 
-        500,         // x position 
-        190,         // y position 
-        200,        // Button width
-        50,        // Button heighth
-        hWndCompare,     // Parent window
-        NULL,       // No menu.
-        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
-        NULL
-    );      // Pointer not needed.
-
-    HWND hwndLongitudeLabel = CreateWindow(
-        L"Static",  // Predefined class; Unicode assumed //STATIC, Edit
-        L"Longitude",      // Button text 
-        WS_VISIBLE | WS_CHILD | SS_CENTER | BS_CENTER,  // Styles 
-        800,         // x position 
-        150,         // y position 
-        200,        // Button width
-        60,        // Button heighth
-        hWndCompare,     // Parent window
-        NULL,       // No menu.
-        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
-        NULL
-    );      // Pointer not needed.
-
-    hwndCompLongField = CreateWindow(
-        L"Edit",  // Predefined class; Unicode assumed //STATIC, Edit
-        L"",      // Button text 
-        WS_VISIBLE | WS_CHILD | BS_CENTER | WS_BORDER,  // Styles 
-        800,         // x position 
-        190,         // y position 
-        200,        // Button width
-        50,        // Button heighth
-        hWndCompare,     // Parent window
-        NULL,       // No menu.
-        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
-        NULL
-    );      // Pointer not needed.
-
-    HWND hwndSwitchLButton = CreateWindow(
-        L"BUTTON",  // Predefined class; Unicode assumed //STATIC, Edit
-        L"Switch Loc/Time",      // Button text 
-        WS_VISIBLE | WS_CHILD | SS_CENTER | BS_CENTER | ES_MULTILINE | ES_WANTRETURN,  // Styles 
-        1140,         // x position 
-        190,         // y position 
-        200,        // Button width
-        60,        // Button heighth
-        hWndCompare,     // Parent window
-        (HMENU)ID_UVL_SWITCH_FUNC,       // No menu.
-        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
-        NULL
-    );      // Pointer not needed.
-
-    HWND hwndSwitchButton = CreateWindow(
-        L"BUTTON",  // Predefined class; Unicode assumed //STATIC, Edit
-        L"Switch Most/Least",      // Button text 
-        WS_VISIBLE | WS_CHILD | SS_CENTER | BS_CENTER | ES_MULTILINE | ES_WANTRETURN,  // Styles 
-        1370,         // x position 
-        190,         // y position 
-        200,        // Button width
-        60,        // Button heighth
-        hWndCompare,     // Parent window
-        (HMENU)ID_UVL_SWITCH_POP,       // No menu.
-        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
-        NULL
-    );      // Pointer not needed.
-
     HWND hwndCalculateButton = CreateWindow(
         L"BUTTON",  // Predefined class; Unicode assumed //STATIC, Edit
-        L"Calculate",      // Button text 
+        L"Search",      // Button text 
         WS_VISIBLE | WS_CHILD | SS_CENTER | BS_CENTER,  // Styles 
         1600,         // x position 
         190,         // y position 
         200,        // Button width
         60,        // Button heighth
         hWndCompare,     // Parent window
-        (HMENU)ID_UVL_CALCULATE,       // No menu.
+        (HMENU)ID_NMP_SEARCH,       // No menu.
         (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
         NULL
     );      // Pointer not needed.
 
     HWND hwndUberLabel = CreateWindow(
         L"Static",  // Predefined class; Unicode assumed //STATIC, Edit
-        L"Uber Data",      // Button text 
+        L"Base + Popularity",      // Button text 
         WS_VISIBLE | WS_CHILD | BS_CENTER,  // Styles 
         300,         // x position 
         300,         // y position 
@@ -3513,27 +3337,13 @@ void DisplayUberVsLyft(HWND hWnd)
         NULL
     );      // Pointer not needed.
 
-    HWND hwndLyftLabel = CreateWindow(
-        L"Static",  // Predefined class; Unicode assumed //STATIC, Edit
-        L"Lyft Data",      // Button text 
-        WS_VISIBLE | WS_CHILD | BS_CENTER,  // Styles 
-        800,         // x position 
-        300,         // y position 
-        200,        // Button width
-        50,        // Button heighth
-        hWndCompare,     // Parent window
-        NULL,       // No menu.
-        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
-        NULL
-    );      // Pointer not needed.
-
     hwndCDataField = CreateWindow(
         L"EDIT",  // Predefined class; Unicode assumed //STATIC, Edit
-        L"Enter a Date or Latitude and Longitude and click Calculate to see top results",      // Button text 
+        L"Enter a Date and click Search to see top results",      // Button text 
         WS_VISIBLE | WS_CHILD | BS_CENTER | WS_BORDER | ES_MULTILINE | ES_WANTRETURN,  // Styles 
         200,         // x position 
         350,         // y position 
-        1100,        // Button width
+        250,        // Button width
         600,        // Button heighth
         hWndCompare,     // Parent window
         NULL,       // No menu.
