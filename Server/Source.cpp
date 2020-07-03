@@ -19,7 +19,7 @@ void parseLine(string line, vector<string>& results, int index) { // parses each
     return;
 }
 
-void read(vector<vector<string>>& result)
+void read(vector<vector<string>>& csvData) //FIXME
 {
     ifstream fin;
     string line1;
@@ -35,7 +35,8 @@ void read(vector<vector<string>>& result)
         fin >> line2;
         line1 = line1 + " " + line2; // combines the date column string with the rest of its corresponding row "4/1/2014 + 0:11:00",40.769,-73.9549,"B02512"
         parseLine(line1, results, index); // parses line1 to results vector with four elements:  "Date Time", Lat, Lon, "Base",
-        result.push_back(results); //pushes results vector to result vector
+        csvData.push_back(results);
+        //result.push_back(results); //pushes results vector to result vector
         if (index % 10000 == 0) {
             cout << "just pushed " << index << endl;
         }
@@ -195,7 +196,18 @@ void insertData(vector<vector<string>>& results, vector<vector<string>>& csvData
     miniVec.push_back(insertInputs.at(2));
     miniVec.push_back(insertInputs.at(3));
     miniVec.push_back(insertInputs.at(4));
+    miniVec.push_back(insertInputs.at(5));
     csvData.push_back(miniVec);
+    for (int i = 0; i < miniVec.size();i++) {
+        cout << miniVec.at(i) << "   ";
+
+    }
+    cout << endl;
+    for (int i = 0; i < csvData.at(0).size();i++) {
+        cout << csvData.at(0).at(i) << "   ";
+
+    }
+
 
 
 };
@@ -213,7 +225,7 @@ void neighborhoodDate(vector<vector<string>>& results, vector<vector<string>>& c
         if (miniVec.at(0).find(searchInputs.at(0)) != string::npos) {       //finds date in csv parse
             if (tempResults.size() == 0) {                                   //adds first tempResults entry
                 temp.first = miniVec.at(3);
-                temp.second=1;
+                temp.second = 1;
                 tempResults.push_back(temp);
             }
             else {
@@ -221,7 +233,7 @@ void neighborhoodDate(vector<vector<string>>& results, vector<vector<string>>& c
                     if (tempResults.at(j).first == miniVec.at(3)) {
                         tempResults.at(j).second += 1;
                         tempFlag = 1;                                       //sets flag for base# found
-                    }                    
+                    }
                 }
                 if (tempFlag == 0) {                                         //if not found add new base# entry
                     temp.first = miniVec.at(3);
@@ -230,7 +242,7 @@ void neighborhoodDate(vector<vector<string>>& results, vector<vector<string>>& c
                 }
                 tempFlag = 0;                                                   //resets flag
             }
-           
+
         }
     }
     miniVec.clear();
@@ -241,21 +253,76 @@ void neighborhoodDate(vector<vector<string>>& results, vector<vector<string>>& c
         miniVec.clear();
     }
 
-        for (int i = 0; i < results.size(); i++) {
-            if (tempResults.at(i).second > mostPop) {
-                mostPopIndex = i;
-                mostPop = tempResults.at(i).second;
-            }
+    for (int i = 0; i < results.size(); i++) {
+        if (tempResults.at(i).second > mostPop) {
+            mostPopIndex = i;
+            mostPop = tempResults.at(i).second;
         }
-        miniVec.push_back("                                              ");
-        results.push_back(miniVec);
-        miniVec.clear();
-        miniVec.push_back("Largest:" + tempResults.at(mostPopIndex).first + "                        " + to_string(tempResults.at(mostPopIndex).second));
-        results.push_back(miniVec);
-        miniVec.clear();
-    
-    
+    }
+    miniVec.push_back("                                              ");
+    results.push_back(miniVec);
+    miniVec.clear();
+    miniVec.push_back("Largest:" + tempResults.at(mostPopIndex).first + "                        " + to_string(tempResults.at(mostPopIndex).second));
+    results.push_back(miniVec);
+    miniVec.clear();
+
+
 };
+
+void dropBaseDate(vector<vector<string>>& results, vector<vector<string>>& csvData, vector<string>& searchInputs) {
+    vector<string> miniVec;                     //holds csv value
+    vector<pair<string, int>> tempResults;      //vector of locations and counts
+    pair<string, int> temp;                     //temp value to hold <base, count>
+    bool tempFlag = 0;                          //flag for if temp vector has neighborhood
+    int mostPopIndex = 0;
+    int mostPop = 0;
+    cout << "test" << endl;
+    for (int i = 0; i < csvData.size(); i++) {                              //creates tempResults with all base#'s with counts
+        miniVec = csvData.at(i);
+        if (miniVec.at(0).find(searchInputs.at(0)) != string::npos) {       //finds date in csv parse
+            if (tempResults.size() == 0) {                                   //adds first tempResults entry
+                temp.first = miniVec.at(4);
+                temp.second = 1;
+                tempResults.push_back(temp);
+            }
+            else {
+                for (int j = 0; j < tempResults.size(); j++) {              //goes through tempResults to see if base number exists yet
+                    if (tempResults.at(j).first == miniVec.at(4)) {
+                        tempResults.at(j).second += 1;
+                        tempFlag = 1;                                       //sets flag for base# found
+                    }
+                }
+                if (tempFlag == 0) {                                         //if not found add new base# entry
+                    temp.first = miniVec.at(4);
+                    temp.second = 1;
+                    tempResults.push_back(temp);
+                }
+                tempFlag = 0;                                                   //resets flag
+            }
+
+        }
+    }
+    miniVec.clear();
+    for (int k = 0; k < tempResults.size(); k++) {
+        miniVec.push_back(tempResults.at(k).first + "                                     " + to_string(tempResults.at(k).second) + "\n");
+        //cout << miniVec.at(k);
+        results.push_back(miniVec);
+        miniVec.clear();
+    }
+
+    for (int i = 0; i < results.size(); i++) {
+        if (tempResults.at(i).second > mostPop) {
+            mostPopIndex = i;
+            mostPop = tempResults.at(i).second;
+        }
+    }
+    miniVec.push_back("                                              ");
+    results.push_back(miniVec);
+    miniVec.clear();
+    miniVec.push_back("Largest:" + tempResults.at(mostPopIndex).first + "                        " + to_string(tempResults.at(mostPopIndex).second));
+    results.push_back(miniVec);
+    miniVec.clear();
+}
 
 void parseClient(char buf[1024], vector<vector<string>>& csvData, vector<vector<string>>& results) {
     int timeFlag = 0;
@@ -263,6 +330,8 @@ void parseClient(char buf[1024], vector<vector<string>>& csvData, vector<vector<
     int locationFlag1 = 0;
     int locationFlag2 = 0;
     int baseFlag = 0;
+    int dropFlag = 0;
+    int dropBaseFlag = 0;
     int mostFlag = 0;
     int leastFlag = 0;
     int searchFlag = 0;
@@ -289,6 +358,9 @@ void parseClient(char buf[1024], vector<vector<string>>& csvData, vector<vector<
         }
         if (columns.find("Neighbor") != string::npos) {
             neighborhoodFlag = 1;
+        }
+        if (columns.find("Drop") != string::npos) {
+            dropBaseFlag = 1;
         }
         clientDat.push_back(columns);
     }
@@ -322,6 +394,16 @@ void parseClient(char buf[1024], vector<vector<string>>& csvData, vector<vector<
                 clientDat.at(i).erase(f, compare.length());
                 searchInputs.push_back(clientDat.at(i));
                 baseFlag = 1;
+            }
+        }
+        compare = "Drop: ";
+        if (clientDat.at(i).find(compare) != string::npos) {
+            if (compare != clientDat.at(i)) {
+                cout << "Found Drop: " << clientDat.at(i) << endl;
+                string::size_type f = clientDat.at(i).find(compare);
+                clientDat.at(i).erase(f, compare.length());
+                searchInputs.push_back(clientDat.at(i));
+                dropFlag = 1;
             }
         }
         compare = "Latitude: ";
@@ -395,6 +477,11 @@ void parseClient(char buf[1024], vector<vector<string>>& csvData, vector<vector<
     else if (neighborhoodFlag) {    //if neighborhood flag set: create list of popular neighborhoods
         if (dateFlag) {
             neighborhoodDate(results, csvData, searchInputs);
+        }
+    }
+    else if (dropBaseFlag) {
+        if (dateFlag) {
+            dropBaseDate(results, csvData, searchInputs);
         }
     }
 
