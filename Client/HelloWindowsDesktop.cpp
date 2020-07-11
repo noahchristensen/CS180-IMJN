@@ -40,8 +40,9 @@ HMENU hMenu;
 #define ID_BUTTON_7 7 // location pop
 #define ID_BUTTON_8 8 // busiest location
 #define ID_BUTTON_9 100
-#define ID_BUTTON_10 101
-#define ID_BUTTON_11 110
+#define ID_BUTTON_10 101    //neighbor
+#define ID_BUTTON_11 110    //drop off
+#define ID_BUTTON_12 120    //Cab company
 
 // Search by Time
 #define ID_TIMESEARCH_TIME 9 // enter time
@@ -116,6 +117,9 @@ HMENU hMenu;
 #define ID_DROP_DATE 90
 #define ID_DRP_SEARCH 82
 
+//Company
+#define ID_ADD_COMPANY 83
+#define ID_COM_SEARCH 84
 
 // Active Vehicles
 #define ID_ACT_NUM_SWITCH 103
@@ -173,6 +177,10 @@ void RegisterDrop(HINSTANCE);
 LRESULT CALLBACK DropProcedure(HWND, UINT, WPARAM, LPARAM);
 void DisplayDrop(HWND);
 
+void RegisterCompany(HINSTANCE);
+LRESULT CALLBACK CompanyProcedure(HWND, UINT, WPARAM, LPARAM);
+void DisplayCompany(HWND);
+
 // Server Communication
 string SendRequest(string);
 string ImportToServer(char* path);
@@ -225,6 +233,7 @@ int CALLBACK WinMain(
     RegisterActiveRatio(hInstance);
     RegisterNMP(hInstance);
     RegisterDrop(hInstance);
+    RegisterCompany(hInstance);
 
     // Store instance handle in our global variable
     hInst = hInstance;
@@ -419,6 +428,20 @@ int CALLBACK WinMain(
         NULL
     );
 
+    HWND hwndButton12 = CreateWindow(
+        L"BUTTON",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"Company",      // Button text 
+        WS_VISIBLE | WS_CHILD, // styles
+        550,
+        700,
+        180,
+        150,
+        hWnd,
+        (HMENU)ID_BUTTON_12,
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );
+
     if (!hWnd)
     {
         MessageBox(NULL,
@@ -578,6 +601,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             break;
         case ID_BUTTON_11:
             DisplayDrop(hWnd);
+            break;
+        case ID_BUTTON_12:
+            DisplayCompany(hWnd);
             break;
 
         case ID_DATA_IMPORT:
@@ -1114,6 +1140,7 @@ HWND hwndAddLatField;
 HWND hwndAddLongField;
 HWND hwndAddBaseField;
 HWND hwndAddDropBaseField;
+HWND hwndAddCompanyField;
 HWND hwndAddButton;
 
 HWND hwndDelDateField;
@@ -1149,6 +1176,7 @@ LRESULT CALLBACK ModifyDataProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARAM 
             wchar_t longText[20];
             wchar_t baseText[20];
             wchar_t dropBaseText[20];
+            wchar_t companyText[20];
 
             GetWindowText(hwndAddDateField, dateText, 10);
             GetWindowText(hwndAddTimeField, timeText, 10);
@@ -1156,6 +1184,7 @@ LRESULT CALLBACK ModifyDataProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARAM 
             GetWindowText(hwndAddLongField, longText, 10);
             GetWindowText(hwndAddBaseField, baseText, 10);
             GetWindowText(hwndAddDropBaseField, dropBaseText, 10);
+            GetWindowText(hwndAddCompanyField, companyText, 10);
 
             wstring wsHour(timeText);
             string strHour(wsHour.begin(), wsHour.end());
@@ -1169,6 +1198,8 @@ LRESULT CALLBACK ModifyDataProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARAM 
             string strBase(wsBase.begin(), wsBase.end());
             wstring wsDropBase(dropBaseText);
             string strDropBase(wsDropBase.begin(), wsDropBase.end());
+            wstring wsCompany(companyText);
+            string strCompany(wsCompany.begin(), wsCompany.end());
 
             string strMod = "Time: ";
             strMod = strMod.append(strHour);
@@ -1182,7 +1213,11 @@ LRESULT CALLBACK ModifyDataProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARAM 
             strMod = strMod.append(strBase);
             strMod = strMod.append(",Drop: ");
             strMod = strMod.append(strDropBase);
+            strMod = strMod.append(",Company: ");
+            strMod = strMod.append(strCompany);
+
             strMod = strMod.append(" ,Insert");
+
             //"Time: 0:11,Date: 4/1/2014,Latitude: ,Longitude: ,Base: ,Sort: ,Search ";
 
             string serverMessage = SendRequest(strMod);
@@ -1369,7 +1404,7 @@ void DisplayModifyData(HWND hWnd)
         L"Static",  // Predefined class; Unicode assumed //STATIC, Edit
         L"Time ",      // Button text 
         WS_VISIBLE | WS_CHILD | BS_CENTER,  // Styles 
-        300,         // x position 
+        270,         // x position 
         100,         // y position 
         200,        // Button width
         50,        // Button heighth
@@ -1383,7 +1418,7 @@ void DisplayModifyData(HWND hWnd)
         L"EDIT",  // Predefined class; Unicode assumed //STATIC, Edit
         L"",      // Button text 
         WS_VISIBLE | WS_CHILD | WS_BORDER,  // Styles 
-        300,         // x position 
+        270,         // x position 
         150,         // y position 
         200,        // Button width
         50,        // Button heighth
@@ -1397,7 +1432,7 @@ void DisplayModifyData(HWND hWnd)
         L"Static",  // Predefined class; Unicode assumed //STATIC, Edit
         L"Latitude ",      // Button text 
         WS_VISIBLE | WS_CHILD | BS_CENTER,  // Styles 
-        550,         // x position 
+        490,         // x position 
         100,         // y position 
         200,        // Button width
         50,        // Button heighth
@@ -1411,7 +1446,7 @@ void DisplayModifyData(HWND hWnd)
         L"EDIT",  // Predefined class; Unicode assumed //STATIC, Edit
         L"",      // Button text 
         WS_VISIBLE | WS_CHILD | WS_BORDER,  // Styles 
-        550,         // x position 
+        490,         // x position 
         150,         // y position 
         200,        // Button width
         50,        // Button heighth
@@ -1425,7 +1460,7 @@ void DisplayModifyData(HWND hWnd)
         L"Static",  // Predefined class; Unicode assumed //STATIC, Edit
         L"Longitude ",      // Button text 
         WS_VISIBLE | WS_CHILD | BS_CENTER,  // Styles 
-        800,         // x position 
+        710,         // x position 
         100,         // y position 
         200,        // Button width
         50,        // Button heighth
@@ -1439,7 +1474,7 @@ void DisplayModifyData(HWND hWnd)
         L"EDIT",  // Predefined class; Unicode assumed //STATIC, Edit
         L"",      // Button text 
         WS_VISIBLE | WS_CHILD | WS_BORDER,  // Styles 
-        800,         // x position 
+        710,         // x position 
         150,         // y position 
         200,        // Button width
         50,        // Button heighth
@@ -1453,7 +1488,7 @@ void DisplayModifyData(HWND hWnd)
         L"Static",  // Predefined class; Unicode assumed //STATIC, Edit
         L"Base # ",      // Button text 
         WS_VISIBLE | WS_CHILD | BS_CENTER,  // Styles 
-        1050,         // x position 
+        930,         // x position 
         100,         // y position 
         200,        // Button width
         50,        // Button heighth
@@ -1467,7 +1502,7 @@ void DisplayModifyData(HWND hWnd)
         L"EDIT",  // Predefined class; Unicode assumed //STATIC, Edit
         L"",      // Button text 
         WS_VISIBLE | WS_CHILD | WS_BORDER,  // Styles 
-        1050,         // x position 
+        930,         // x position 
         150,         // y position 
         200,        // Button width
         50,        // Button heighth
@@ -1481,7 +1516,7 @@ void DisplayModifyData(HWND hWnd)
         L"Static",  // Predefined class; Unicode assumed //STATIC, Edit
         L"Drop Off Base # ",      // Button text 
         WS_VISIBLE | WS_CHILD | BS_CENTER,  // Styles 
-        1300,
+        1150,
         100,
         200,        // Button width
         50,        // Button heighth
@@ -1495,12 +1530,38 @@ void DisplayModifyData(HWND hWnd)
         L"EDIT",  // Predefined class; Unicode assumed //STATIC, Edit
         L"",      // Button text 
         WS_VISIBLE | WS_CHILD | WS_BORDER,  // Styles 
-        1300,         // x position 
+        1150,         // x position 
         150,         // y position 
         200,        // Button width
         50,        // Button heighth
         hWndModify,     // Parent window
         (HMENU)ID_ADD_DROPBASE,
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );
+    HWND hwndAddCompanyLabel = CreateWindow(
+        L"Static",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"Company",      // Button text 
+        WS_VISIBLE | WS_CHILD | BS_CENTER,  // Styles 
+        1370,
+        100,
+        200,        // Button width
+        50,        // Button heighth
+        hWndModify,     // Parent window
+        NULL,
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );
+    hwndAddCompanyField = CreateWindow(
+        L"EDIT",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"",      // Button text 
+        WS_VISIBLE | WS_CHILD | WS_BORDER,  // Styles 
+        1370,         // x position 
+        150,         // y position 
+        200,        // Button width
+        50,        // Button heighth
+        hWndModify,     // Parent window
+        (HMENU)ID_ADD_COMPANY,
         (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
         NULL
     );
@@ -3252,6 +3313,8 @@ HWND hwndCompDateField;
 HWND hwndCDataField;
 HWND hwndDropDateField;
 HWND hwndDropDataField;
+HWND hwndComDateField;
+HWND hwndComDataField;
 /*
 case ID_DRP_SEARCH:
     wchar_t dateText[20];
@@ -3372,6 +3435,50 @@ LRESULT CALLBACK NMPProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lp)
             break;
 
         case ID_NMP_SEARCH:
+
+            GetWindowText(hwndCompDateField, dateText, 10);
+            wsDate = dateText;
+            strDate = strDate.assign(wsDate.begin(), wsDate.end());
+            if (!strDate.empty())
+            {
+
+                strButton = "Press OK to search most popular Neighborhood";
+                message = "Date: " + strDate + ",Neighbor";
+
+            }
+            else {
+                strButton = "Press OK to Enter Date";
+                message = " ";
+            }
+
+            wideSBM = wstring(strButton.begin(), strButton.end());
+            wideCSBM = wideSBM.c_str();
+            ::MessageBox(hWnd, wideCSBM, TEXT("CS180 Project - Loading Data"), MB_OK);
+
+            //string serverMessage;
+            serverMessage = SendRequest(message);
+
+            //string searchComplete;
+            if (serverMessage.compare("unable to connect to server") != 0)
+            {
+                searchComplete = "Search Completed";
+            }
+            else
+            {
+                searchComplete = "unable to connect to server";
+            }
+
+            wideSSM = wstring(searchComplete.begin(), searchComplete.end());
+            wideCSSM = wideSSM.c_str();
+            ::MessageBox(hWnd, wideCSSM, TEXT("CS180 Project - Server Response"), MB_OK);
+
+
+            wideSM = wstring(serverMessage.begin(), serverMessage.end());
+            wideCSM = wideSM.c_str();
+            SetWindowText(hwndCDataField, wideCSM);
+
+            break;
+        case ID_COM_SEARCH:                                     //FIXME:Company Search
 
             GetWindowText(hwndCompDateField, dateText, 10);
             wsDate = dateText;
@@ -3674,9 +3781,9 @@ void DisplayDrop(HWND hWnd)
 
     HWND hwndDropLabel = CreateWindow(
         L"Static",  // Predefined class; Unicode assumed //STATIC, Edit
-        L"Drop Off Popularity",      // Button text 
+        L"Cab Popularity",      // Button text 
         WS_VISIBLE | WS_CHILD | BS_CENTER,  // Styles 
-        300,         // x position 
+        200,         // x position 
         300,         // y position 
         200,        // Button width
         50,        // Button heighth
@@ -3700,6 +3807,182 @@ void DisplayDrop(HWND hWnd)
         NULL
     );      // Pointer not needed.
 }
+//-----------------------------
+void RegisterCompany(HINSTANCE hInstance)
+{
+    WNDCLASSW com = { 0 };
+
+    com.hbrBackground = (HBRUSH)(COLOR_WINDOW);
+    com.hCursor = LoadCursor(NULL, IDC_ARROW);
+    com.style = CS_HREDRAW | CS_VREDRAW;
+    com.hInstance = hInstance;
+    com.lpszClassName = L"CompanyClass";
+    com.lpfnWndProc = CompanyProcedure;
+
+    RegisterClassW(&com);
+}
+LRESULT CALLBACK CompanyProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lp) {
+    switch (msg)
+    {
+    case WM_ACTIVATE:
+        //actVehLargest = true;
+        break;
+    case WM_CLOSE:
+        DestroyWindow(hWnd);
+        break;
+    case WM_COMMAND: // when an action happens
+        switch (LOWORD(wParam))
+        {
+        case ID_COM_SEARCH:
+            wchar_t dateText[20];
+            GetWindowText(hwndComDateField, dateText, 10);
+            wstring wsDate(dateText);
+            string strDate(wsDate.begin(), wsDate.end());
+
+            string message;
+            string strButton;
+            if (!strDate.empty())
+            {
+
+                strButton = "Press OK to search most popular Neighborhood";
+                message = "Date: " + strDate + ",Cab";
+
+            }
+            else {
+                strButton = "Press OK to Enter Date";
+                message = " ";
+            }
+
+            wstring wideSBM = wstring(strButton.begin(), strButton.end());
+            const wchar_t* wideCSBM = wideSBM.c_str();
+            ::MessageBox(hWnd, wideCSBM, TEXT("CS180 Project - Loading Data"), MB_OK);
+
+            string serverMessage;
+            serverMessage = SendRequest(message);
+
+            string searchComplete;
+            if (serverMessage.compare("unable to connect to server") != 0)
+            {
+                searchComplete = "Search Completed";
+            }
+            else
+            {
+                searchComplete = "unable to connect to server";
+            }
+
+            wstring wideSSM = wstring(searchComplete.begin(), searchComplete.end());
+            const wchar_t* wideCSSM = wideSSM.c_str();
+            ::MessageBox(hWnd, wideCSSM, TEXT("CS180 Project - Server Response"), MB_OK);
+
+
+            wstring wideSM = wstring(serverMessage.begin(), serverMessage.end());
+            const wchar_t* wideCSM = wideSM.c_str();
+            SetWindowText(hwndComDataField, wideCSM);
+
+            break;
+        }
+    default:
+        return  DefWindowProcW(hWnd, msg, wParam, lp);
+
+    }
+}
+void DisplayCompany(HWND hWnd)
+{
+    HWND hWndComCompare = CreateWindowW(
+        L"CompanyClass",
+        L"CS180 Project - Most Popular Cab by Date",
+        WS_VISIBLE | WS_OVERLAPPEDWINDOW,
+        400, 400, 200, 200,
+        hWnd,
+        NULL,
+        NULL,
+        NULL
+    );
+
+    HWND hwndComTitleLabel = CreateWindow(
+        L"Static",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"Cab Popularity",      // Button text 
+        WS_VISIBLE | WS_CHILD | SS_CENTER | BS_CENTER | WS_BORDER,  // Styles 
+        800,         // x position 
+        50,         // y position 
+        300,        // Button width
+        60,        // Button heighth
+        hWndComCompare,     // Parent window
+        NULL,       // No menu.
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );      // Pointer not needed.
+
+    HWND hwndComDateLabel = CreateWindow(
+        L"Static",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"Date",      // Button text 
+        WS_VISIBLE | WS_CHILD | SS_CENTER | BS_CENTER,  // Styles 
+        200,         // x position 
+        150,         // y position 
+        200,        // Button width
+        60,        // Button heighth
+        hWndComCompare,     // Parent window
+        NULL,       // No menu.
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );      // Pointer not needed.
+
+    hwndComDateField = CreateWindow(
+        L"Edit",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"",      // Button text 
+        WS_VISIBLE | WS_CHILD | BS_CENTER | WS_BORDER,  // Styles 
+        200,         // x position 
+        190,         // y position 
+        200,        // Button width
+        50,        // Button heighth
+        hWndComCompare,     // Parent window
+        NULL,       // No menu.
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );      // Pointer not needed.
+
+    HWND hwndCalculateButton = CreateWindow(
+        L"BUTTON",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"Search",      // Button text 
+        WS_VISIBLE | WS_CHILD | SS_CENTER | BS_CENTER,  // Styles 
+        1600,         // x position 
+        190,         // y position 
+        200,        // Button width
+        60,        // Button heighth
+        hWndComCompare,     // Parent window
+        (HMENU)ID_COM_SEARCH,       // No menu.
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );      // Pointer not needed.
+
+    HWND hwndComLabel = CreateWindow(
+        L"Static",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"Cab Popularity",      // Button text 
+        WS_VISIBLE | WS_CHILD | BS_CENTER,  // Styles 
+        200,         // x position 
+        300,         // y position 
+        200,        // Button width
+        50,        // Button heighth
+        hWndComCompare,     // Parent window
+        NULL,       // No menu.
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );      // Pointer not needed.
+
+    hwndComDataField = CreateWindow(
+        L"EDIT",  // Predefined class; Unicode assumed //STATIC, Edit
+        L"Enter a Date and click Search to see top results",      // Button text 
+        WS_VISIBLE | WS_CHILD | BS_CENTER | WS_BORDER | ES_MULTILINE | ES_WANTRETURN,  // Styles 
+        200,         // x position 
+        350,         // y position 
+        250,        // Button width
+        600,        // Button heighth
+        hWndComCompare,     // Parent window
+        NULL,       // No menu.
+        (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+        NULL
+    );      // Pointer not needed.
+}//------------------
 
 string SendRequest(string message) // send request to server
 {

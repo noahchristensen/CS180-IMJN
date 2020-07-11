@@ -197,16 +197,13 @@ void insertData(vector<vector<string>>& results, vector<vector<string>>& csvData
     miniVec.push_back(insertInputs.at(3));
     miniVec.push_back(insertInputs.at(4));
     miniVec.push_back(insertInputs.at(5));
+    miniVec.push_back(insertInputs.at(6));
     csvData.push_back(miniVec);
-    for (int i = 0; i < miniVec.size();i++) {
-        cout << miniVec.at(i) << "   ";
 
+    for (int i = 0; i < insertInputs.size();i++) {
+        cout << insertInputs.at(i) << "   ";
     }
     cout << endl;
-    for (int i = 0; i < csvData.at(0).size();i++) {
-        cout << csvData.at(0).at(i) << "   ";
-
-    }
 
 
 
@@ -324,6 +321,61 @@ void dropBaseDate(vector<vector<string>>& results, vector<vector<string>>& csvDa
     miniVec.clear();
 }
 
+void cabDate(vector<vector<string>>& results, vector<vector<string>>& csvData, vector<string>& searchInputs) {
+    vector<string> miniVec;                     //holds csv value
+    vector<pair<string, int>> tempResults;      //vector of locations and counts
+    pair<string, int> temp;                     //temp value to hold <base, count>
+    bool tempFlag = 0;                          //flag for if temp vector has neighborhood
+    int mostPopIndex = 0;
+    int mostPop = 0;
+    cout << "test" << endl;
+    for (int i = 0; i < csvData.size(); i++) {                              //creates tempResults with all base#'s with counts
+        miniVec = csvData.at(i);
+        if (miniVec.at(0).find(searchInputs.at(0)) != string::npos) {       //finds date in csv parse
+            if (tempResults.size() == 0) {                                   //adds first tempResults entry
+                temp.first = miniVec.at(5);
+                temp.second = 1;
+                tempResults.push_back(temp);
+            }
+            else {
+                for (int j = 0; j < tempResults.size(); j++) {              //goes through tempResults to see if base number exists yet
+                    if (tempResults.at(j).first == miniVec.at(5)) {
+                        tempResults.at(j).second += 1;
+                        tempFlag = 1;                                       //sets flag for base# found
+                    }
+                }
+                if (tempFlag == 0) {                                         //if not found add new base# entry
+                    temp.first = miniVec.at(5);
+                    temp.second = 1;
+                    tempResults.push_back(temp);
+                }
+                tempFlag = 0;                                                   //resets flag
+            }
+
+        }
+    }
+    miniVec.clear();
+    for (int k = 0; k < tempResults.size(); k++) {
+        miniVec.push_back(tempResults.at(k).first + "                                              " + to_string(tempResults.at(k).second) + '\n');
+        //cout << miniVec.at(k);
+        results.push_back(miniVec);
+        miniVec.clear();
+    }
+
+    for (int i = 0; i < results.size(); i++) {
+        if (tempResults.at(i).second > mostPop) {
+            mostPopIndex = i;
+            mostPop = tempResults.at(i).second;
+        }
+    }
+    miniVec.push_back("                                                          ");
+    results.push_back(miniVec);
+    miniVec.clear();
+    miniVec.push_back("Largest:" + tempResults.at(mostPopIndex).first + "                        " + to_string(tempResults.at(mostPopIndex).second) + '\n');
+    results.push_back(miniVec);
+    miniVec.clear();
+}
+
 void parseClient(char buf[1024], vector<vector<string>>& csvData, vector<vector<string>>& results) {
     int timeFlag = 0;
     int dateFlag = 0;
@@ -331,6 +383,7 @@ void parseClient(char buf[1024], vector<vector<string>>& csvData, vector<vector<
     int locationFlag2 = 0;
     int baseFlag = 0;
     int dropFlag = 0;
+    int companyFlag = 0;
     int dropBaseFlag = 0;
     int mostFlag = 0;
     int leastFlag = 0;
@@ -338,6 +391,7 @@ void parseClient(char buf[1024], vector<vector<string>>& csvData, vector<vector<
     int deleteFlag = 0;
     int insertFlag = 0;
     int neighborhoodFlag = 0;
+    int cabFlag = 0;
     vector<string> clientDat;
     stringstream X(buf);
     string columns;
@@ -361,6 +415,9 @@ void parseClient(char buf[1024], vector<vector<string>>& csvData, vector<vector<
         }
         if (columns.find("Drop") != string::npos) {
             dropBaseFlag = 1;
+        }
+        if (columns.find("Cab") != string::npos) {
+            cabFlag = 1;
         }
         clientDat.push_back(columns);
     }
@@ -426,6 +483,16 @@ void parseClient(char buf[1024], vector<vector<string>>& csvData, vector<vector<
                 locationFlag2 = 1;
             }
         }
+        compare = "Company: ";
+        if (clientDat.at(i).find(compare) != string::npos) {
+            if (compare != clientDat.at(i)) {
+                cout << "Found Company: " << clientDat.at(i) << endl;
+                string::size_type f = clientDat.at(i).find(compare);
+                clientDat.at(i).erase(f, compare.length());
+                searchInputs.push_back(clientDat.at(i));
+                locationFlag2 = 1;
+            }
+        }
     }
 
     if (searchFlag) { //if searchFlag was set: Different search methods
@@ -482,6 +549,11 @@ void parseClient(char buf[1024], vector<vector<string>>& csvData, vector<vector<
     else if (dropBaseFlag) {
         if (dateFlag) {
             dropBaseDate(results, csvData, searchInputs);
+        }
+    }
+    else if (cabFlag) {
+        if (dateFlag) {
+            cabDate(results, csvData, searchInputs);
         }
     }
 
